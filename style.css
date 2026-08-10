@@ -88,7 +88,7 @@ body {
   user-select: none;
 }
 
-/* Animaciones */
+/* Animaciones corregidas */
 .tile.pop {
   animation: pop 0.1s ease-in-out;
   border-color: #878a8c;
@@ -202,14 +202,14 @@ body {
   background-color: white;
   padding: 25px;
   border-radius: 8px;
-  max-width: 400px;
+  max-width: 420px;
   width: 90%;
   text-align: center;
   box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
 }
 
 .modal-content h3 {
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin-top: 15px;
   margin-bottom: 10px;
   text-transform: uppercase;
@@ -229,7 +229,31 @@ body {
   line-height: 1.4;
 }
 
-/* Estadísticas */
+/* Pestañas de Estadísticas */
+.stats-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin: 12px 0 15px 0;
+}
+
+.stat-tab {
+  padding: 6px 10px;
+  border: 1px solid #d3d6da;
+  background-color: #f6f7f8;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.stat-tab.active {
+  background-color: #6aaa64;
+  color: white;
+  border-color: #6aaa64;
+}
+
+/* Resumen Estadísticas */
 .stats-summary {
   display: flex;
   justify-content: space-around;
@@ -243,7 +267,7 @@ body {
 }
 
 .stat-num {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: bold;
 }
 
