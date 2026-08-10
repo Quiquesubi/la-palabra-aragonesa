@@ -3,27 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Palabra Aragonesa del Día</title>
+  <title>Palabra Aragonesa</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>
     <h1>PALABRA ARAGONESA</h1>
     <p class="hashtag">#lapalabraaragonesadeldía</p>
+    
+    <!-- Botones de selección de modo -->
+    <div class="mode-container">
+      <button id="btn-daily" class="btn-mode active">Palabra del Día</button>
+      <button id="btn-practice" class="btn-mode">Modo Práctica</button>
+    </div>
   </header>
 
   <main>
     <div id="game-board"></div>
-    <div id="message-container"></div>
     <div id="keyboard"></div>
   </main>
 
-  <!-- Modal con la definición al terminar -->
+  <!-- Modal con la definición -->
   <div id="modal" class="hidden">
     <div class="modal-content">
       <h2 id="modal-title"></h2>
-      <p id="modal-word"></p>
+      <p id="modal-word" class="highlight-word"></p>
       <p id="modal-definition"></p>
+      <button id="next-word-btn" class="hidden">Siguiente palabra</button>
       <button id="close-modal">Cerrar</button>
     </div>
   </div>
