@@ -242,16 +242,31 @@ function checkGuess() {
   }, totalAnimationTime);
 }
 
-// Almacenamiento de estadísticas
+// Almacenamiento seguro de estadísticas con migración de datos
 function getStats() {
-  const stats = localStorage.getItem('wordle_aragones_stats');
-  return stats ? JSON.parse(stats) : {
-    played: 0,
-    wins: 0,
-    currentStreak: 0,
-    maxStreak: 0,
-    guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
-  };
+  const rawStats = localStorage.getItem('wordle_aragones_stats');
+  let stats = rawStats ? JSON.parse(rawStats) : null;
+
+  if (!stats) {
+    stats = {
+      played: 0,
+      wins: 0,
+      currentStreak: 0,
+      maxStreak: 0,
+      guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+    };
+  } else {
+    // Asegurar estructura válida si provenía del formato anterior
+    stats.played = stats.played || 0;
+    stats.wins = stats.wins || 0;
+    stats.currentStreak = stats.currentStreak || 0;
+    stats.maxStreak = stats.maxStreak || 0;
+    if (!stats.guesses) {
+      stats.guesses = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+    }
+  }
+
+  return stats;
 }
 
 function updateStats(isWin, attemptIndex) {
@@ -280,29 +295,26 @@ function showStatsModal() {
   document.getElementById('stat-streak').textContent = stats.currentStreak;
   document.getElementById('stat-max-streak').textContent = stats.maxStreak;
 
-  // Actualizar barras de intentos
-  const maxGuessesCount = Math.max(...Object.values(stats.guesses), 1);
+  // Actualizar barras de distribución
+  const guessValues = Object.values(stats.guesses);
+  const maxGuessesCount = Math.max(...guessValues, 1);
   
   for (let i = 1; i <= 6; i++) {
     const count = stats.guesses[i] || 0;
     const barEl = document.getElementById(`dist-${i}`);
-    barEl.textContent = count;
-    
-    const percentage = Math.max((count / maxGuessesCount) * 100, 8);
-    const parentBar = barEl.parentElement;
-    parentBar.style.width = `${percentage}%`;
-    
-    if (count > 0) {
-      parentBar.style.backgroundColor = '#6aaa64';
-    } else {
-      parentBar.style.backgroundColor = '#787c7e';
+    if (barEl) {
+      barEl.textContent = count;
+      const percentage = Math.max((count / maxGuessesCount) * 100, 8);
+      const parentBar = barEl.parentElement;
+      parentBar.style.width = `${percentage}%`;
+      parentBar.style.backgroundColor = count > 0 ? '#6aaa64' : '#787c7e';
     }
   }
 
   document.getElementById('stats-modal').classList.remove('hidden');
 }
 
-// Compartir en redes sociales / portapapeles
+// Compartir resultado
 async function shareResult() {
   const attemptsText = gameOver && gameHistory[gameHistory.length - 1].every(s => s === 'correct') 
     ? `${gameHistory.length}/${maxAttempts}` 
@@ -320,7 +332,6 @@ async function shareResult() {
 
   const textToShare = `#LaPalabraAragonesa ${modeText} ${attemptsText}\n\n${gridText}`;
 
-  // Intentar compartir vía nativa (móviles/redes)
   if (navigator.share) {
     try {
       await navigator.share({
@@ -328,10 +339,9 @@ async function shareResult() {
         text: textToShare
       });
     } catch (err) {
-      console.log('Compartir cancelado o no soportado:', err);
+      console.log('Compartir cancelado o no disponible:', err);
     }
   } else if (navigator.clipboard) {
-    // Si no tiene menú nativo de compartir, copiar al portapapeles
     navigator.clipboard.writeText(textToShare).then(() => {
       const shareBtn = document.getElementById('share-btn');
       shareBtn.textContent = '¡Copiado al portapapeles! 📋';
