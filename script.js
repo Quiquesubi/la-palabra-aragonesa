@@ -1,22 +1,53 @@
+let allWords = [];
 let targetWordObj = {};
 let targetWord = "";
 let wordLength = 5;
 const maxAttempts = 6;
 let currentAttempt = 0;
 let currentTile = 0;
-let guesses = [];
+let isPracticeMode = false;
+let gameOver = false;
 
-async function initGame() {
+async function loadGame() {
   const response = await fetch('words.json');
-  const words = await response.json();
+  allWords = await response.json();
   
-  // Selecciona una palabra basada en el día actual
-  const startDate = new Date("2026-01-01");
-  const today = new Date();
-  const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-  const wordIndex = Math.abs(diffDays) % words.length;
-  
-  targetWordObj = words[wordIndex];
+  document.getElementById('btn-daily').addEventListener('click', () => switchMode(false));
+  document.getElementById('btn-practice').addEventListener('click', () => switchMode(true));
+  document.getElementById('close-modal').addEventListener('click', closeModal);
+  document.getElementById('next-word-btn').addEventListener('click', () => {
+    closeModal();
+    startNewGame();
+  });
+
+  startNewGame();
+}
+
+function switchMode(practice) {
+  isPracticeMode = practice;
+  document.getElementById('btn-daily').classList.toggle('active', !practice);
+  document.getElementById('btn-practice').classList.toggle('active', practice);
+  startNewGame();
+}
+
+function startNewGame() {
+  currentAttempt = 0;
+  currentTile = 0;
+  gameOver = false;
+
+  if (isPracticeMode) {
+    // Elige una palabra al azar
+    const randomIndex = Math.floor(Math.random() * allWords.length);
+    targetWordObj = allWords[randomIndex];
+  } else {
+    // Calcula la palabra del día según la fecha
+    const startDate = new Date("2026-01-01");
+    const today = new Date();
+    const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
+    const wordIndex = Math.abs(diffDays) % allWords.length;
+    targetWordObj = allWords[wordIndex];
+  }
+
   targetWord = targetWordObj.palabra.toUpperCase();
   wordLength = targetWord.length;
 
@@ -56,6 +87,7 @@ function buildKeyboard() {
       const btn = document.createElement('button');
       btn.textContent = key;
       btn.className = `key ${key.length > 1 ? 'large' : ''}`;
+      btn.id = `key-${key}`;
       btn.addEventListener('click', () => handleKeyPress(key));
       rowDiv.appendChild(btn);
     });
@@ -64,6 +96,8 @@ function buildKeyboard() {
 }
 
 function handleKeyPress(key) {
+  if (gameOver) return;
+
   if (key === 'DEL') {
     if (currentTile > 0) {
       currentTile--;
@@ -101,8 +135,10 @@ function checkGuess() {
   }
 
   if (guess === targetWord) {
+    gameOver = true;
     showModal('¡Omenache!', `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
   } else if (currentAttempt === maxAttempts - 1) {
+    gameOver = true;
     showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
   } else {
     currentAttempt++;
@@ -114,11 +150,19 @@ function showModal(title, word, def) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-word').textContent = word;
   document.getElementById('modal-definition').textContent = def;
+  
+  const nextBtn = document.getElementById('next-word-btn');
+  if (isPracticeMode) {
+    nextBtn.classList.remove('hidden');
+  } else {
+    nextBtn.classList.add('hidden');
+  }
+
   document.getElementById('modal').classList.remove('hidden');
 }
 
-document.getElementById('close-modal').addEventListener('click', () => {
+function closeModal() {
   document.getElementById('modal').classList.add('hidden');
-});
+}
 
-initGame();
+loadGame();
