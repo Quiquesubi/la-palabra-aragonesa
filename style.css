@@ -14,45 +14,39 @@ body {
   min-height: 100vh;
 }
 
-/* Cabecera e Iconos */
+/* Encabezado */
 .header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   width: 100%;
   max-width: 500px;
-  padding: 10px 15px;
+  padding: 15px 15px 10px 15px;
   border-bottom: 1px solid #d3d6da;
 }
 
 .header h1 {
-  font-size: 1.3rem;
-  text-align: center;
-  flex-grow: 1;
-}
-
-.icon-btn {
-  background: none;
-  border: none;
   font-size: 1.5rem;
-  cursor: pointer;
-  padding: 5px;
+  text-align: center;
 }
 
-/* Selector de modo y contador */
+/* Selector de modo e iconos */
 .mode-selector {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin: 15px 0 5px 0;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .mode-btn {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border: 1px solid #d3d6da;
   background-color: #f6f7f8;
   border-radius: 20px;
   cursor: pointer;
   font-weight: bold;
+  font-size: 0.9rem;
 }
 
 .mode-btn.active {
@@ -68,7 +62,7 @@ body {
   margin-bottom: 10px;
 }
 
-/* Tablero de juego */
+/* Tablero */
 .board {
   display: flex;
   flex-direction: column;
@@ -94,7 +88,7 @@ body {
   user-select: none;
 }
 
-/* Animaciones del tablero */
+/* Animaciones */
 .tile.pop {
   animation: pop 0.1s ease-in-out;
   border-color: #878a8c;
@@ -116,7 +110,7 @@ body {
   100% { transform: rotateX(0deg); }
 }
 
-/* Colores de las casillas en el tablero */
+/* Estados de Casillas */
 .tile.correct {
   background-color: #6aaa64;
   border-color: #6aaa64;
@@ -171,7 +165,6 @@ body {
   font-size: 0.85rem;
 }
 
-/* Colores para las teclas según intentos */
 .key.correct {
   background-color: #6aaa64 !important;
   color: white !important;
@@ -215,6 +208,14 @@ body {
   box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
 }
 
+.modal-content h3 {
+  font-size: 1rem;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  color: #555;
+}
+
 .modal-word-text {
   font-weight: bold;
   font-size: 1.2rem;
@@ -228,11 +229,11 @@ body {
   line-height: 1.4;
 }
 
-/* Cuadrícula de Estadísticas */
-.stats-container {
+/* Estadísticas */
+.stats-summary {
   display: flex;
   justify-content: space-around;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 
 .stat-box {
@@ -242,14 +243,40 @@ body {
 }
 
 .stat-num {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: bold;
 }
 
 .stat-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-align: center;
   color: #787c7e;
+}
+
+/* Barras de distribución de intentos */
+.guess-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 15px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.dist-bar {
+  background-color: #787c7e;
+  color: white;
+  border-radius: 3px;
+  padding: 2px 8px;
+  min-width: 20px;
+  text-align: right;
+  transition: width 0.3s ease;
 }
 
 /* Botones en modales */
@@ -284,7 +311,6 @@ body {
   background-color: #616466;
 }
 
-/* Ocultar elementos */
 .hidden {
   display: none !important;
 }
