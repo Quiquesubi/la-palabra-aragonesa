@@ -210,3 +210,18 @@ main {
   color: #555555;
   min-height: 1.2em;
 }
+
+.key.correct {
+  background-color: #6aaa64 !important;
+  color: white !important;
+}
+
+.key.present {
+  background-color: #c9b458 !important;
+  color: white !important;
+}
+
+.key.absent {
+  background-color: #787c7e !important;
+  color: white !important;
+}
