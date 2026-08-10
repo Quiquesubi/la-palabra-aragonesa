@@ -1,12 +1,14 @@
 let allWords = [];
 let targetWordObj = {};
 let targetWord = "";
+let targetWordNormalized = "";
 let wordLength = 5;
 const maxAttempts = 6;
 let currentAttempt = 0;
 let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
+let isAnimating = false; // Bloqueo para evitar interrupciones durante la animación
 let practiceIndex = 0;
 let gameHistory = [];
 let currentDailyDayIndex = -1;
@@ -25,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadGame();
   document.addEventListener('keydown', handlePhysicalKeyPress);
   
-  // Detectar cambio de medianoche si la pestaña vuelve a ser visible
+  // Detectar cambio de día al volver a la pestaña
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && !isPracticeMode && allWords.length > 0) {
       const todayIndex = getDailyIndex();
@@ -67,7 +69,13 @@ async function loadGame() {
   }
 }
 
+// Quita tildes y diéresis para facilitar la comparación
+function normalizeText(text) {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
+}
+
 function switchMode(practice) {
+  if (isAnimating) return;
   isPracticeMode = practice;
   document.getElementById('btn-daily').classList.toggle('active', !practice);
   document.getElementById('btn-practice').classList.toggle('active', practice);
@@ -75,7 +83,7 @@ function switchMode(practice) {
 }
 
 function getDailyIndex() {
-  const startDate = new Date(2026, 0, 1); // 1 de enero de 2026 en hora local
+  const startDate = new Date(2026, 0, 1); // 1 de enero de 2026
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffTime = today - startDate;
@@ -87,6 +95,7 @@ function startNewGame() {
   currentAttempt = 0;
   currentTile = 0;
   gameOver = false;
+  isAnimating = false;
   gameHistory = [];
 
   const counterEl = document.getElementById('word-counter');
@@ -101,8 +110,9 @@ function startNewGame() {
     counterEl.textContent = '';
   }
 
-  targetWord = targetWordObj.palabra.toUpperCase();
-  wordLength = targetWord.length;
+  targetWord = targetWordObj.palabra.trim().toUpperCase();
+  targetWordNormalized = normalizeText(targetWord);
+  wordLength = targetWordNormalized.length;
 
   buildBoard();
   buildKeyboard();
@@ -150,14 +160,14 @@ function buildKeyboard() {
 }
 
 function handlePhysicalKeyPress(e) {
-  if (gameOver) return;
+  if (gameOver || isAnimating) return;
 
   if (e.key === 'Enter') {
     handleKeyPress('ENTER');
   } else if (e.key === 'Backspace') {
     handleKeyPress('DEL');
   } else {
-    const key = e.key.toUpperCase();
+    const key = normalizeText(e.key);
     if (key.length === 1 && ((key >= 'A' && key <= 'Z') || key === 'Ñ')) {
       handleKeyPress(key);
     }
@@ -165,7 +175,7 @@ function handlePhysicalKeyPress(e) {
 }
 
 function handleKeyPress(key) {
-  if (gameOver) return;
+  if (gameOver || isAnimating) return;
 
   if (key === 'DEL') {
     if (currentTile > 0) {
@@ -182,9 +192,8 @@ function handleKeyPress(key) {
     const tile = document.getElementById(`tile-${currentAttempt}-${currentTile}`);
     tile.textContent = key;
     
-    // Forzar el reinicio de la animación pop
     tile.classList.remove('pop');
-    void tile.offsetWidth;
+    void tile.offsetWidth; // Forzar reflow para reiniciar animación
     tile.classList.add('pop');
     
     currentTile++;
@@ -192,16 +201,18 @@ function handleKeyPress(key) {
 }
 
 function checkGuess() {
+  isAnimating = true; // Bloquea entrada de teclado mientras dura la animación
+
   let guess = '';
   for (let i = 0; i < wordLength; i++) {
     guess += document.getElementById(`tile-${currentAttempt}-${i}`).textContent;
   }
 
-  const targetArr = targetWord.split('');
+  const targetArr = targetWordNormalized.split('');
   const guessArr = guess.split('');
   const statuses = new Array(wordLength).fill('absent');
 
-  // Pase 1: Verdes
+  // Pase 1: Verdes (coincidencia exacta)
   for (let i = 0; i < wordLength; i++) {
     if (guessArr[i] === targetArr[i]) {
       statuses[i] = 'correct';
@@ -209,7 +220,7 @@ function checkGuess() {
     }
   }
 
-  // Pase 2: Amarillos
+  // Pase 2: Amarillos (letra presente en otra posición)
   for (let i = 0; i < wordLength; i++) {
     if (statuses[i] !== 'correct') {
       const targetIndex = targetArr.indexOf(guessArr[i]);
@@ -222,7 +233,7 @@ function checkGuess() {
 
   gameHistory.push([...statuses]);
 
-  // Animación en cascada garantizada
+  // Animación en cascada paso a paso
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     
@@ -255,7 +266,9 @@ function checkGuess() {
   const totalAnimationTime = wordLength * 200 + 300;
 
   setTimeout(() => {
-    if (guess === targetWord) {
+    isAnimating = false; // Desbloquea la entrada al finalizar todas las animaciones
+
+    if (guess === targetWordNormalized) {
       gameOver = true;
       updateStats(true, currentAttempt);
       const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
@@ -271,7 +284,7 @@ function checkGuess() {
   }, totalAnimationTime);
 }
 
-// Estructura de almacenamiento de estadísticas con soporte para modos
+// Almacenamiento de estadísticas por modo
 function getEmptyStatGroup() {
   return {
     played: 0,
@@ -323,7 +336,6 @@ function getDisplayStats(category) {
   if (category === 'daily') return stats.daily;
   if (category === 'practice') return stats.practice;
 
-  // Combinado: TOTAL
   const combined = getEmptyStatGroup();
   ['daily', 'practice'].forEach(key => {
     const g = stats[key];
@@ -379,7 +391,6 @@ function renderStats() {
   }
 }
 
-// Compartir resultado
 async function shareResult() {
   const attemptsText = gameOver && gameHistory[gameHistory.length - 1].every(s => s === 'correct') 
     ? `${gameHistory.length}/${maxAttempts}` 
