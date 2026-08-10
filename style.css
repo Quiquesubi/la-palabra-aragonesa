@@ -60,6 +60,7 @@ body {
   color: #787c7e;
   height: 20px;
   margin-bottom: 10px;
+  font-weight: bold;
 }
 
 /* Tablero */
@@ -73,6 +74,7 @@ body {
 .row {
   display: flex;
   gap: 5px;
+  perspective: 600px; /* Habilita entorno 3D para la rotación */
 }
 
 .tile {
@@ -86,9 +88,11 @@ body {
   font-weight: bold;
   text-transform: uppercase;
   user-select: none;
+  backface-visibility: hidden;
+  will-change: transform, background-color;
 }
 
-/* Animaciones corregidas */
+/* Animaciones */
 .tile.pop {
   animation: pop 0.1s ease-in-out;
   border-color: #878a8c;
@@ -293,6 +297,11 @@ body {
   font-weight: bold;
 }
 
+.label-x {
+  color: #d9534f;
+  font-weight: bold;
+}
+
 .dist-bar {
   background-color: #787c7e;
   color: white;
@@ -325,6 +334,14 @@ body {
 
 .modal-buttons .btn:hover {
   background-color: #538d4e;
+}
+
+#retry-word-btn {
+  background-color: #e67e22;
+}
+
+#retry-word-btn:hover {
+  background-color: #d35400;
 }
 
 #close-modal, #close-stats {
