@@ -7,6 +7,7 @@ let currentAttempt = 0;
 let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
+let practiceIndex = 0; // Índice secuencial para el modo libre
 
 const winMessages = [
   "¡Increíble! ¡A la primera!",
@@ -31,6 +32,7 @@ async function loadGame() {
     document.getElementById('close-modal').addEventListener('click', closeModal);
     document.getElementById('next-word-btn').addEventListener('click', () => {
       closeModal();
+      practiceIndex = (practiceIndex + 1) % allWords.length; // Avanza a la siguiente palabra en orden
       startNewGame();
     });
 
@@ -55,9 +57,8 @@ function startNewGame() {
   const counterEl = document.getElementById('word-counter');
 
   if (isPracticeMode) {
-    const randomIndex = Math.floor(Math.random() * allWords.length);
-    targetWordObj = allWords[randomIndex];
-    const wordNum = targetWordObj.id || (randomIndex + 1);
+    targetWordObj = allWords[practiceIndex];
+    const wordNum = targetWordObj.id || (practiceIndex + 1);
     counterEl.textContent = `Palabra #${wordNum} de ${allWords.length}`;
   } else {
     const startDate = new Date("2026-01-01");
