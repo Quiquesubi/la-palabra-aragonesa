@@ -225,3 +225,34 @@ main {
   background-color: #787c7e !important;
   color: white !important;
 }
+
+.modal-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-buttons .btn {
+  padding: 10px 16px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #6aaa64;
+  color: white;
+  font-weight: bold;
+  transition: background-color 0.2s;
+}
+
+.modal-buttons .btn:hover {
+  background-color: #538d4e;
+}
+
+#close-modal {
+  background-color: #787c7e;
+}
+
+#close-modal:hover {
+  background-color: #616466;
+}
