@@ -194,14 +194,13 @@ function checkGuess() {
 
   gameHistory.push([...statuses]);
 
-  // Animación en cascada para revelar colores
+  // Animación en cascada
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     
     setTimeout(() => {
       tile.classList.add('flip');
       
-      // Aplicar color a mitad de la animación de giro
       setTimeout(() => {
         tile.classList.add(statuses[i]);
         
@@ -221,7 +220,7 @@ function checkGuess() {
         }
       }, 250);
 
-    }, i * 200); // 200ms de diferencia entre cada casilla
+    }, i * 200);
   }
 
   const totalAnimationTime = wordLength * 200 + 300;
@@ -229,12 +228,12 @@ function checkGuess() {
   setTimeout(() => {
     if (guess === targetWord) {
       gameOver = true;
-      if (!isPracticeMode) updateStats(true);
+      if (!isPracticeMode) updateStats(true, currentAttempt);
       const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
       showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
     } else if (currentAttempt === maxAttempts - 1) {
       gameOver = true;
-      if (!isPracticeMode) updateStats(false);
+      if (!isPracticeMode) updateStats(false, null);
       showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
     } else {
       currentAttempt++;
@@ -243,13 +242,19 @@ function checkGuess() {
   }, totalAnimationTime);
 }
 
-// Lógica de almacenamiento de estadísticas (localStorage)
+// Almacenamiento de estadísticas
 function getStats() {
   const stats = localStorage.getItem('wordle_aragones_stats');
-  return stats ? JSON.parse(stats) : { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 };
+  return stats ? JSON.parse(stats) : {
+    played: 0,
+    wins: 0,
+    currentStreak: 0,
+    maxStreak: 0,
+    guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+  };
 }
 
-function updateStats(isWin) {
+function updateStats(isWin, attemptIndex) {
   const stats = getStats();
   stats.played++;
   if (isWin) {
@@ -258,6 +263,8 @@ function updateStats(isWin) {
     if (stats.currentStreak > stats.maxStreak) {
       stats.maxStreak = stats.currentStreak;
     }
+    const attemptNum = attemptIndex + 1;
+    stats.guesses[attemptNum] = (stats.guesses[attemptNum] || 0) + 1;
   } else {
     stats.currentStreak = 0;
   }
@@ -273,15 +280,35 @@ function showStatsModal() {
   document.getElementById('stat-streak').textContent = stats.currentStreak;
   document.getElementById('stat-max-streak').textContent = stats.maxStreak;
 
+  // Actualizar barras de intentos
+  const maxGuessesCount = Math.max(...Object.values(stats.guesses), 1);
+  
+  for (let i = 1; i <= 6; i++) {
+    const count = stats.guesses[i] || 0;
+    const barEl = document.getElementById(`dist-${i}`);
+    barEl.textContent = count;
+    
+    const percentage = Math.max((count / maxGuessesCount) * 100, 8);
+    const parentBar = barEl.parentElement;
+    parentBar.style.width = `${percentage}%`;
+    
+    if (count > 0) {
+      parentBar.style.backgroundColor = '#6aaa64';
+    } else {
+      parentBar.style.backgroundColor = '#787c7e';
+    }
+  }
+
   document.getElementById('stats-modal').classList.remove('hidden');
 }
 
-function shareResult() {
+// Compartir en redes sociales / portapapeles
+async function shareResult() {
   const attemptsText = gameOver && gameHistory[gameHistory.length - 1].every(s => s === 'correct') 
     ? `${gameHistory.length}/${maxAttempts}` 
     : `X/${maxAttempts}`;
 
-  const modeText = isPracticeMode ? `(Práctica #${targetWordObj.id || practiceIndex + 1})` : '(Diario)';
+  const modeText = isPracticeMode ? `(Modo libre #${targetWordObj.id || practiceIndex + 1})` : '(Palabra del día)';
   
   let gridText = gameHistory.map(row => {
     return row.map(status => {
@@ -291,14 +318,25 @@ function shareResult() {
     }).join('');
   }).join('\n');
 
-  const textToShare = `#LaPalabraAragonesaDelDía ${modeText} ${attemptsText}\n\n${gridText}`;
+  const textToShare = `#LaPalabraAragonesa ${modeText} ${attemptsText}\n\n${gridText}`;
 
-  if (navigator.clipboard) {
+  // Intentar compartir vía nativa (móviles/redes)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: 'La Palabra Aragonesa',
+        text: textToShare
+      });
+    } catch (err) {
+      console.log('Compartir cancelado o no soportado:', err);
+    }
+  } else if (navigator.clipboard) {
+    // Si no tiene menú nativo de compartir, copiar al portapapeles
     navigator.clipboard.writeText(textToShare).then(() => {
       const shareBtn = document.getElementById('share-btn');
       shareBtn.textContent = '¡Copiado al portapapeles! 📋';
       setTimeout(() => {
-        shareBtn.textContent = '📋 Compartir resultado';
+        shareBtn.textContent = '📲 Compartir resultado';
       }, 2500);
     });
   }
