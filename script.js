@@ -7,7 +7,7 @@ let currentAttempt = 0;
 let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
-let practiceIndex = 0; // Índice secuencial para el modo libre
+let practiceIndex = 0;
 
 const winMessages = [
   "¡Increíble! ¡A la primera!",
@@ -32,7 +32,7 @@ async function loadGame() {
     document.getElementById('close-modal').addEventListener('click', closeModal);
     document.getElementById('next-word-btn').addEventListener('click', () => {
       closeModal();
-      practiceIndex = (practiceIndex + 1) % allWords.length; // Avanza a la siguiente palabra en orden
+      practiceIndex = (practiceIndex + 1) % allWords.length;
       startNewGame();
     });
 
@@ -143,17 +143,33 @@ function checkGuess() {
     guess += document.getElementById(`tile-${currentAttempt}-${i}`).textContent;
   }
 
+  const targetArr = targetWord.split('');
+  const guessArr = guess.split('');
+  const statuses = new Array(wordLength).fill('absent');
+
+  // Pase 1: Identificar posiciones correctas (verde)
+  for (let i = 0; i < wordLength; i++) {
+    if (guessArr[i] === targetArr[i]) {
+      statuses[i] = 'correct';
+      targetArr[i] = null; // Marcar la letra como consumida
+    }
+  }
+
+  // Pase 2: Identificar posiciones presentes (amarillo) respetando la cantidad
+  for (let i = 0; i < wordLength; i++) {
+    if (statuses[i] !== 'correct') {
+      const targetIndex = targetArr.indexOf(guessArr[i]);
+      if (targetIndex !== -1) {
+        statuses[i] = 'present';
+        targetArr[targetIndex] = null; // Marcar la letra como consumida
+      }
+    }
+  }
+
+  // Aplicar las clases CSS a las casillas
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
-    const letter = guess[i];
-    
-    if (letter === targetWord[i]) {
-      tile.classList.add('correct');
-    } else if (targetWord.includes(letter)) {
-      tile.classList.add('present');
-    } else {
-      tile.classList.add('absent');
-    }
+    tile.classList.add(statuses[i]);
   }
 
   if (guess === targetWord) {
