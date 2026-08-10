@@ -8,7 +8,7 @@ let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
 let practiceIndex = 0;
-let gameHistory = []; // Almacena la cuadrícula de estados para compartir
+let gameHistory = [];
 
 const winMessages = [
   "¡Increíble! ¡A la primera!",
@@ -21,8 +21,6 @@ const winMessages = [
 
 document.addEventListener('DOMContentLoaded', () => {
   loadGame();
-  
-  // Soporte para teclado físico
   document.addEventListener('keydown', handlePhysicalKeyPress);
 });
 
@@ -39,6 +37,11 @@ async function loadGame() {
       closeModal();
       practiceIndex = (practiceIndex + 1) % allWords.length;
       startNewGame();
+    });
+
+    document.getElementById('btn-stats').addEventListener('click', showStatsModal);
+    document.getElementById('close-stats').addEventListener('click', () => {
+      document.getElementById('stats-modal').classList.add('hidden');
     });
 
     startNewGame();
@@ -123,7 +126,6 @@ function buildKeyboard() {
   });
 }
 
-// Manejador del teclado físico
 function handlePhysicalKeyPress(e) {
   if (gameOver) return;
 
@@ -147,6 +149,7 @@ function handleKeyPress(key) {
       currentTile--;
       const tile = document.getElementById(`tile-${currentAttempt}-${currentTile}`);
       tile.textContent = '';
+      tile.classList.remove('pop');
     }
   } else if (key === 'ENTER') {
     if (currentTile === wordLength) {
@@ -155,6 +158,7 @@ function handleKeyPress(key) {
   } else if (currentTile < wordLength && key.length === 1) {
     const tile = document.getElementById(`tile-${currentAttempt}-${currentTile}`);
     tile.textContent = key;
+    tile.classList.add('pop');
     currentTile++;
   }
 }
@@ -188,42 +192,88 @@ function checkGuess() {
     }
   }
 
-  // Guardar intento para la función de compartir
   gameHistory.push([...statuses]);
 
-  // Aplicar clases en la cuadrícula y en el teclado
+  // Animación en cascada para revelar colores
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
-    tile.classList.add(statuses[i]);
-
-    const letter = guessArr[i];
-    const keyBtn = document.getElementById(`key-${letter}`);
     
-    if (keyBtn) {
-      const status = statuses[i];
-      if (status === 'correct') {
-        keyBtn.classList.remove('present', 'absent');
-        keyBtn.classList.add('correct');
-      } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
-        keyBtn.classList.remove('absent');
-        keyBtn.classList.add('present');
-      } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
-        keyBtn.classList.add('absent');
-      }
-    }
+    setTimeout(() => {
+      tile.classList.add('flip');
+      
+      // Aplicar color a mitad de la animación de giro
+      setTimeout(() => {
+        tile.classList.add(statuses[i]);
+        
+        const letter = guessArr[i];
+        const keyBtn = document.getElementById(`key-${letter}`);
+        if (keyBtn) {
+          const status = statuses[i];
+          if (status === 'correct') {
+            keyBtn.classList.remove('present', 'absent');
+            keyBtn.classList.add('correct');
+          } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
+            keyBtn.classList.remove('absent');
+            keyBtn.classList.add('present');
+          } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+            keyBtn.classList.add('absent');
+          }
+        }
+      }, 250);
+
+    }, i * 200); // 200ms de diferencia entre cada casilla
   }
 
-  if (guess === targetWord) {
-    gameOver = true;
-    const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
-    showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
-  } else if (currentAttempt === maxAttempts - 1) {
-    gameOver = true;
-    showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+  const totalAnimationTime = wordLength * 200 + 300;
+
+  setTimeout(() => {
+    if (guess === targetWord) {
+      gameOver = true;
+      if (!isPracticeMode) updateStats(true);
+      const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
+      showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
+    } else if (currentAttempt === maxAttempts - 1) {
+      gameOver = true;
+      if (!isPracticeMode) updateStats(false);
+      showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+    } else {
+      currentAttempt++;
+      currentTile = 0;
+    }
+  }, totalAnimationTime);
+}
+
+// Lógica de almacenamiento de estadísticas (localStorage)
+function getStats() {
+  const stats = localStorage.getItem('wordle_aragones_stats');
+  return stats ? JSON.parse(stats) : { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 };
+}
+
+function updateStats(isWin) {
+  const stats = getStats();
+  stats.played++;
+  if (isWin) {
+    stats.wins++;
+    stats.currentStreak++;
+    if (stats.currentStreak > stats.maxStreak) {
+      stats.maxStreak = stats.currentStreak;
+    }
   } else {
-    currentAttempt++;
-    currentTile = 0;
+    stats.currentStreak = 0;
   }
+  localStorage.setItem('wordle_aragones_stats', JSON.stringify(stats));
+}
+
+function showStatsModal() {
+  const stats = getStats();
+  const winRate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+
+  document.getElementById('stat-played').textContent = stats.played;
+  document.getElementById('stat-winrate').textContent = `${winRate}%`;
+  document.getElementById('stat-streak').textContent = stats.currentStreak;
+  document.getElementById('stat-max-streak').textContent = stats.maxStreak;
+
+  document.getElementById('stats-modal').classList.remove('hidden');
 }
 
 function shareResult() {
