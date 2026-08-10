@@ -8,6 +8,7 @@ let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
 let practiceIndex = 0;
+let gameHistory = []; // Almacena la cuadrícula de estados para compartir
 
 const winMessages = [
   "¡Increíble! ¡A la primera!",
@@ -20,6 +21,9 @@ const winMessages = [
 
 document.addEventListener('DOMContentLoaded', () => {
   loadGame();
+  
+  // Soporte para teclado físico
+  document.addEventListener('keydown', handlePhysicalKeyPress);
 });
 
 async function loadGame() {
@@ -30,6 +34,7 @@ async function loadGame() {
     document.getElementById('btn-daily').addEventListener('click', () => switchMode(false));
     document.getElementById('btn-practice').addEventListener('click', () => switchMode(true));
     document.getElementById('close-modal').addEventListener('click', closeModal);
+    document.getElementById('share-btn').addEventListener('click', shareResult);
     document.getElementById('next-word-btn').addEventListener('click', () => {
       closeModal();
       practiceIndex = (practiceIndex + 1) % allWords.length;
@@ -53,6 +58,7 @@ function startNewGame() {
   currentAttempt = 0;
   currentTile = 0;
   gameOver = false;
+  gameHistory = [];
 
   const counterEl = document.getElementById('word-counter');
 
@@ -117,6 +123,22 @@ function buildKeyboard() {
   });
 }
 
+// Manejador del teclado físico
+function handlePhysicalKeyPress(e) {
+  if (gameOver) return;
+
+  if (e.key === 'Enter') {
+    handleKeyPress('ENTER');
+  } else if (e.key === 'Backspace') {
+    handleKeyPress('DEL');
+  } else {
+    const key = e.key.toUpperCase();
+    if (key.length === 1 && ((key >= 'A' && key <= 'Z') || key === 'Ñ')) {
+      handleKeyPress(key);
+    }
+  }
+}
+
 function handleKeyPress(key) {
   if (gameOver) return;
 
@@ -147,7 +169,7 @@ function checkGuess() {
   const guessArr = guess.split('');
   const statuses = new Array(wordLength).fill('absent');
 
-  // Pase 1: Verdes (coincidencia exacta)
+  // Pase 1: Verdes
   for (let i = 0; i < wordLength; i++) {
     if (guessArr[i] === targetArr[i]) {
       statuses[i] = 'correct';
@@ -155,7 +177,7 @@ function checkGuess() {
     }
   }
 
-  // Pase 2: Amarillos (letra presente en otra posición)
+  // Pase 2: Amarillos
   for (let i = 0; i < wordLength; i++) {
     if (statuses[i] !== 'correct') {
       const targetIndex = targetArr.indexOf(guessArr[i]);
@@ -166,7 +188,10 @@ function checkGuess() {
     }
   }
 
-  // Aplicar colores a las casillas y actualizar el teclado
+  // Guardar intento para la función de compartir
+  gameHistory.push([...statuses]);
+
+  // Aplicar clases en la cuadrícula y en el teclado
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     tile.classList.add(statuses[i]);
@@ -198,6 +223,34 @@ function checkGuess() {
   } else {
     currentAttempt++;
     currentTile = 0;
+  }
+}
+
+function shareResult() {
+  const attemptsText = gameOver && gameHistory[gameHistory.length - 1].every(s => s === 'correct') 
+    ? `${gameHistory.length}/${maxAttempts}` 
+    : `X/${maxAttempts}`;
+
+  const modeText = isPracticeMode ? `(Práctica #${targetWordObj.id || practiceIndex + 1})` : '(Diario)';
+  
+  let gridText = gameHistory.map(row => {
+    return row.map(status => {
+      if (status === 'correct') return '🟩';
+      if (status === 'present') return '🟨';
+      return '⬛';
+    }).join('');
+  }).join('\n');
+
+  const textToShare = `#LaPalabraAragonesaDelDía ${modeText} ${attemptsText}\n\n${gridText}`;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(textToShare).then(() => {
+      const shareBtn = document.getElementById('share-btn');
+      shareBtn.textContent = '¡Copiado al portapapeles! 📋';
+      setTimeout(() => {
+        shareBtn.textContent = '📋 Compartir resultado';
+      }, 2500);
+    });
   }
 }
 
