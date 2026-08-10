@@ -8,6 +8,16 @@ let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
 
+// Mensajes según el número de intentos (del 1 al 6)
+const winMessages = [
+  "¡Increíble! ¡A la primera!",              // Intento 1
+  "¡Genial! A la segunda",                  // Intento 2
+  "¡Muy bien! A la tercera",                 // Intento 3
+  "¡Bien jugado! A la cuarta",               // Intento 4
+  "¡Uf, por poco! A la quinta",              // Intento 5
+  "¡Por un pelo! Salvado en el último intento" // Intento 6
+];
+
 document.addEventListener('DOMContentLoaded', () => {
   loadGame();
 });
@@ -143,7 +153,8 @@ function checkGuess() {
 
   if (guess === targetWord) {
     gameOver = true;
-    showModal('¡Omenache!', `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
+    const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
+    showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
   } else if (currentAttempt === maxAttempts - 1) {
     gameOver = true;
     showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
