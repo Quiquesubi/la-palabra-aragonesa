@@ -8,14 +8,13 @@ let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
 
-// Mensajes según el número de intentos (del 1 al 6)
 const winMessages = [
-  "¡Increíble! ¡A la primera!",              // Intento 1
-  "¡Genial! A la segunda",                  // Intento 2
-  "¡Muy bien! A la tercera",                 // Intento 3
-  "¡Bien jugado! A la cuarta",               // Intento 4
-  "¡Uf, por poco! A la quinta",              // Intento 5
-  "¡Por un pelo! Salvado en el último intento" // Intento 6
+  "¡Increíble! ¡A la primera!",
+  "¡Genial! A la segunda",
+  "¡Muy bien! A la tercera",
+  "¡Bien jugado! A la cuarta",
+  "¡Uf, por poco! A la quinta",
+  "¡Por un pelo! Salvado en el último intento"
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -53,15 +52,20 @@ function startNewGame() {
   currentTile = 0;
   gameOver = false;
 
+  const counterEl = document.getElementById('word-counter');
+
   if (isPracticeMode) {
     const randomIndex = Math.floor(Math.random() * allWords.length);
     targetWordObj = allWords[randomIndex];
+    const wordNum = targetWordObj.id || (randomIndex + 1);
+    counterEl.textContent = `Palabra #${wordNum} de ${allWords.length}`;
   } else {
     const startDate = new Date("2026-01-01");
     const today = new Date();
     const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
     const wordIndex = Math.abs(diffDays) % allWords.length;
     targetWordObj = allWords[wordIndex];
+    counterEl.textContent = '';
   }
 
   targetWord = targetWordObj.palabra.toUpperCase();
