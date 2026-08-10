@@ -8,7 +8,7 @@ let currentAttempt = 0;
 let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
-let isAnimating = false; // Bloqueo para evitar interrupciones durante la animación
+let isAnimating = false;
 let practiceIndex = 0;
 let gameHistory = [];
 let currentDailyDayIndex = -1;
@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
   loadGame();
   document.addEventListener('keydown', handlePhysicalKeyPress);
   
-  // Detectar cambio de día al volver a la pestaña
   document.addEventListener('visibilitychange', () => {
     if (!document.hidden && !isPracticeMode && allWords.length > 0) {
       const todayIndex = getDailyIndex();
@@ -47,9 +46,15 @@ async function loadGame() {
     document.getElementById('btn-practice').addEventListener('click', () => switchMode(true));
     document.getElementById('close-modal').addEventListener('click', closeModal);
     document.getElementById('share-btn').addEventListener('click', shareResult);
+    
     document.getElementById('next-word-btn').addEventListener('click', () => {
       closeModal();
       practiceIndex = (practiceIndex + 1) % allWords.length;
+      startNewGame();
+    });
+
+    document.getElementById('retry-word-btn').addEventListener('click', () => {
+      closeModal();
       startNewGame();
     });
 
@@ -58,7 +63,6 @@ async function loadGame() {
       document.getElementById('stats-modal').classList.add('hidden');
     });
 
-    // Pestañas modal estadísticas
     document.getElementById('tab-daily').addEventListener('click', () => switchStatTab('daily'));
     document.getElementById('tab-practice').addEventListener('click', () => switchStatTab('practice'));
     document.getElementById('tab-total').addEventListener('click', () => switchStatTab('total'));
@@ -69,7 +73,6 @@ async function loadGame() {
   }
 }
 
-// Quita tildes y diéresis para facilitar la comparación
 function normalizeText(text) {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().trim();
 }
@@ -83,12 +86,16 @@ function switchMode(practice) {
 }
 
 function getDailyIndex() {
-  const startDate = new Date(2026, 0, 1); // 1 de enero de 2026
+  const startDate = new Date(2026, 0, 1);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffTime = today - startDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return Math.abs(diffDays) % allWords.length;
+}
+
+function getDailySaveKey(dayIdx) {
+  return `wordle_aragones_daily_saved_${dayIdx}`;
 }
 
 function startNewGame() {
@@ -116,6 +123,49 @@ function startNewGame() {
 
   buildBoard();
   buildKeyboard();
+
+  // Comprobar si la palabra del día ya se completó
+  if (!isPracticeMode) {
+    const savedStateRaw = localStorage.getItem(getDailySaveKey(currentDailyDayIndex));
+    if (savedStateRaw) {
+      const savedState = JSON.parse(savedStateRaw);
+      restoreCompletedDailyGame(savedState);
+    }
+  }
+}
+
+function restoreCompletedDailyGame(savedState) {
+  gameOver = true;
+  gameHistory = savedState.history || [];
+
+  for (let r = 0; r < gameHistory.length; r++) {
+    const rowStatuses = gameHistory[r];
+    for (let c = 0; c < wordLength; c++) {
+      const tile = document.getElementById(`tile-${r}-${c}`);
+      const letter = savedState.guessLetters ? savedState.guessLetters[r][c] : '';
+      if (tile) {
+        tile.textContent = letter;
+        tile.classList.add(rowStatuses[c]);
+      }
+      
+      const keyBtn = document.getElementById(`key-${letter}`);
+      if (keyBtn) {
+        const status = rowStatuses[c];
+        if (status === 'correct') {
+          keyBtn.classList.remove('present', 'absent');
+          keyBtn.classList.add('correct');
+        } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
+          keyBtn.classList.remove('absent');
+          keyBtn.classList.add('present');
+        } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+          keyBtn.classList.add('absent');
+        }
+      }
+    }
+  }
+
+  const title = savedState.win ? "¡Ya habías completado la palabra de hoy!" : "Ya jugaste la palabra de hoy";
+  showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
 }
 
 function buildBoard() {
@@ -193,7 +243,7 @@ function handleKeyPress(key) {
     tile.textContent = key;
     
     tile.classList.remove('pop');
-    void tile.offsetWidth; // Forzar reflow para reiniciar animación
+    void tile.offsetWidth;
     tile.classList.add('pop');
     
     currentTile++;
@@ -201,18 +251,21 @@ function handleKeyPress(key) {
 }
 
 function checkGuess() {
-  isAnimating = true; // Bloquea entrada de teclado mientras dura la animación
+  isAnimating = true;
 
   let guess = '';
+  const currentGuessLetters = [];
   for (let i = 0; i < wordLength; i++) {
-    guess += document.getElementById(`tile-${currentAttempt}-${i}`).textContent;
+    const letter = document.getElementById(`tile-${currentAttempt}-${i}`).textContent;
+    guess += letter;
+    currentGuessLetters.push(letter);
   }
 
   const targetArr = targetWordNormalized.split('');
   const guessArr = guess.split('');
   const statuses = new Array(wordLength).fill('absent');
 
-  // Pase 1: Verdes (coincidencia exacta)
+  // Pase 1: Verdes
   for (let i = 0; i < wordLength; i++) {
     if (guessArr[i] === targetArr[i]) {
       statuses[i] = 'correct';
@@ -220,7 +273,7 @@ function checkGuess() {
     }
   }
 
-  // Pase 2: Amarillos (letra presente en otra posición)
+  // Pase 2: Amarillos
   for (let i = 0; i < wordLength; i++) {
     if (statuses[i] !== 'correct') {
       const targetIndex = targetArr.indexOf(guessArr[i]);
@@ -238,7 +291,8 @@ function checkGuess() {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     
     setTimeout(() => {
-      tile.classList.remove('pop');
+      tile.classList.remove('pop', 'flip');
+      void tile.offsetWidth;
       tile.classList.add('flip');
       
       setTimeout(() => {
@@ -266,17 +320,40 @@ function checkGuess() {
   const totalAnimationTime = wordLength * 200 + 300;
 
   setTimeout(() => {
-    isAnimating = false; // Desbloquea la entrada al finalizar todas las animaciones
+    isAnimating = false;
 
-    if (guess === targetWordNormalized) {
+    const isWin = (guess === targetWordNormalized);
+    const isLoss = (!isWin && currentAttempt === maxAttempts - 1);
+
+    if (isWin || isLoss) {
       gameOver = true;
-      updateStats(true, currentAttempt);
-      const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
-      showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
-    } else if (currentAttempt === maxAttempts - 1) {
-      gameOver = true;
-      updateStats(false, null);
-      showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+      updateStats(isWin, currentAttempt);
+
+      if (!isPracticeMode) {
+        // Guardar estado final de la palabra del día
+        const allGuessLetters = [];
+        for (let r = 0; r <= currentAttempt; r++) {
+          const rowLetters = [];
+          for (let c = 0; c < wordLength; c++) {
+            rowLetters.push(document.getElementById(`tile-${r}-${c}`).textContent);
+          }
+          allGuessLetters.push(rowLetters);
+        }
+
+        const saveData = {
+          win: isWin,
+          history: gameHistory,
+          guessLetters: allGuessLetters
+        };
+        localStorage.setItem(getDailySaveKey(currentDailyDayIndex), JSON.stringify(saveData));
+      }
+
+      if (isWin) {
+        const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
+        showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
+      } else {
+        showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+      }
     } else {
       currentAttempt++;
       currentTile = 0;
@@ -284,19 +361,19 @@ function checkGuess() {
   }, totalAnimationTime);
 }
 
-// Almacenamiento de estadísticas por modo
+// Estructura de almacenamiento de estadísticas
 function getEmptyStatGroup() {
   return {
     played: 0,
     wins: 0,
     currentStreak: 0,
     maxStreak: 0,
-    guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+    guesses: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
   };
 }
 
 function getAllStats() {
-  const rawStats = localStorage.getItem('wordle_aragones_stats_v2');
+  const rawStats = localStorage.getItem('wordle_aragones_stats_v3');
   let stats = rawStats ? JSON.parse(rawStats) : null;
 
   if (!stats) {
@@ -304,6 +381,12 @@ function getAllStats() {
       daily: getEmptyStatGroup(),
       practice: getEmptyStatGroup()
     };
+  } else {
+    // Asegurar clave X si proviene de versiones previas
+    ['daily', 'practice'].forEach(k => {
+      if (!stats[k].guesses) stats[k].guesses = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 };
+      if (stats[k].guesses.X === undefined) stats[k].guesses.X = 0;
+    });
   }
 
   return stats;
@@ -325,9 +408,10 @@ function updateStats(isWin, attemptIndex) {
     group.guesses[attemptNum] = (group.guesses[attemptNum] || 0) + 1;
   } else {
     group.currentStreak = 0;
+    group.guesses['X'] = (group.guesses['X'] || 0) + 1;
   }
 
-  localStorage.setItem('wordle_aragones_stats_v2', JSON.stringify(stats));
+  localStorage.setItem('wordle_aragones_stats_v3', JSON.stringify(stats));
 }
 
 function getDisplayStats(category) {
@@ -343,9 +427,9 @@ function getDisplayStats(category) {
     combined.wins += g.wins;
     combined.currentStreak = Math.max(combined.currentStreak, g.currentStreak);
     combined.maxStreak = Math.max(combined.maxStreak, g.maxStreak);
-    for (let i = 1; i <= 6; i++) {
+    ['1', '2', '3', '4', '5', '6', 'X'].forEach(i => {
       combined.guesses[i] += g.guesses[i] || 0;
-    }
+    });
   });
 
   return combined;
@@ -375,20 +459,26 @@ function renderStats() {
   document.getElementById('stat-streak').textContent = statsGroup.currentStreak;
   document.getElementById('stat-max-streak').textContent = statsGroup.maxStreak;
 
-  const guessValues = Object.values(statsGroup.guesses);
+  const keys = ['1', '2', '3', '4', '5', '6', 'X'];
+  const guessValues = keys.map(k => statsGroup.guesses[k] || 0);
   const maxGuessesCount = Math.max(...guessValues, 1);
   
-  for (let i = 1; i <= 6; i++) {
-    const count = statsGroup.guesses[i] || 0;
-    const barEl = document.getElementById(`dist-${i}`);
+  keys.forEach(key => {
+    const count = statsGroup.guesses[key] || 0;
+    const barEl = document.getElementById(`dist-${key}`);
     if (barEl) {
       barEl.textContent = count;
       const percentage = Math.max((count / maxGuessesCount) * 100, 8);
       const parentBar = barEl.parentElement;
       parentBar.style.width = `${percentage}%`;
-      parentBar.style.backgroundColor = count > 0 ? '#6aaa64' : '#787c7e';
+      
+      if (key === 'X') {
+        parentBar.style.backgroundColor = count > 0 ? '#d9534f' : '#787c7e';
+      } else {
+        parentBar.style.backgroundColor = count > 0 ? '#6aaa64' : '#787c7e';
+      }
     }
-  }
+  });
 }
 
 async function shareResult() {
@@ -434,10 +524,21 @@ function showModal(title, word, def) {
   document.getElementById('modal-definition').textContent = def;
   
   const nextBtn = document.getElementById('next-word-btn');
+  const retryBtn = document.getElementById('retry-word-btn');
+
+  const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
+
   if (isPracticeMode) {
-    nextBtn.classList.remove('hidden');
+    if (isWin) {
+      nextBtn.classList.remove('hidden');
+      retryBtn.classList.add('hidden');
+    } else {
+      nextBtn.classList.add('hidden');
+      retryBtn.classList.remove('hidden');
+    }
   } else {
     nextBtn.classList.add('hidden');
+    retryBtn.classList.add('hidden');
   }
 
   document.getElementById('modal').classList.remove('hidden');
