@@ -1,36 +1,70 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="an">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Palabra Aragonesa</title>
+  <title>La Palabra Aragonesa del Día</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>PALABRA ARAGONESA</h1>
-    <p class="hashtag">#lapalabraaragonesadeldía</p>
-    <p id="word-counter" class="word-counter"></p>
-    
-    <div class="mode-container">
-      <button id="btn-daily" class="btn-mode active">Palabra del Día</button>
-      <button id="btn-practice" class="btn-mode">Modo Libre</button>
+  <div class="header">
+    <h1>A Palabra Aragonesa d'o Día</h1>
+    <div class="header-buttons">
+      <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
     </div>
-  </header>
+  </div>
 
-  <main>
-    <div id="game-board"></div>
-    <div id="keyboard"></div>
-  </main>
+  <div class="mode-selector">
+    <button id="btn-daily" class="mode-btn active">Diario</button>
+    <button id="btn-practice" class="mode-btn">Práctica</button>
+  </div>
 
-  <div id="modal" class="hidden">
+  <div id="word-counter" class="word-counter"></div>
+
+  <div id="game-board" class="board"></div>
+
+  <div id="keyboard" class="keyboard"></div>
+
+  <!-- Modal Resultado -->
+  <div id="modal" class="modal hidden">
     <div class="modal-content">
       <h2 id="modal-title"></h2>
-      <p id="modal-word" class="highlight-word"></p>
-      <p id="modal-definition"></p>
-      <button id="share-btn" class="btn">📋 Compartir resultado</button>
-      <button id="next-word-btn" class="hidden">Siguiente palabra</button>
-      <button id="close-modal">Cerrar</button>
+      <p id="modal-word" class="modal-word-text"></p>
+      <p id="modal-definition" class="modal-def-text"></p>
+
+      <div class="modal-buttons">
+        <button id="share-btn" class="btn">📋 Compartir resultado</button>
+        <button id="next-word-btn" class="btn hidden">Siguiente palabra</button>
+        <button id="close-modal" class="btn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Estadísticas -->
+  <div id="stats-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2>Estadísticas</h2>
+      <div class="stats-container">
+        <div class="stat-box">
+          <span id="stat-played" class="stat-num">0</span>
+          <span class="stat-label">Jugadas</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-winrate" class="stat-num">0%</span>
+          <span class="stat-label">% Victorias</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-streak" class="stat-num">0</span>
+          <span class="stat-label">Racha actual</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-max-streak" class="stat-num">0</span>
+          <span class="stat-label">Racha máxima</span>
+        </div>
+      </div>
+      <div class="modal-buttons">
+        <button id="close-stats" class="btn">Cerrar</button>
+      </div>
     </div>
   </div>
 
