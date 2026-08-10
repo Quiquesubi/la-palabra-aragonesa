@@ -147,29 +147,45 @@ function checkGuess() {
   const guessArr = guess.split('');
   const statuses = new Array(wordLength).fill('absent');
 
-  // Pase 1: Identificar posiciones correctas (verde)
+  // Pase 1: Verdes (coincidencia exacta)
   for (let i = 0; i < wordLength; i++) {
     if (guessArr[i] === targetArr[i]) {
       statuses[i] = 'correct';
-      targetArr[i] = null; // Marcar la letra como consumida
+      targetArr[i] = null;
     }
   }
 
-  // Pase 2: Identificar posiciones presentes (amarillo) respetando la cantidad
+  // Pase 2: Amarillos (letra presente en otra posición)
   for (let i = 0; i < wordLength; i++) {
     if (statuses[i] !== 'correct') {
       const targetIndex = targetArr.indexOf(guessArr[i]);
       if (targetIndex !== -1) {
         statuses[i] = 'present';
-        targetArr[targetIndex] = null; // Marcar la letra como consumida
+        targetArr[targetIndex] = null;
       }
     }
   }
 
-  // Aplicar las clases CSS a las casillas
+  // Aplicar colores a las casillas y actualizar el teclado
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     tile.classList.add(statuses[i]);
+
+    const letter = guessArr[i];
+    const keyBtn = document.getElementById(`key-${letter}`);
+    
+    if (keyBtn) {
+      const status = statuses[i];
+      if (status === 'correct') {
+        keyBtn.classList.remove('present', 'absent');
+        keyBtn.classList.add('correct');
+      } else if (status === 'present' && !keyBtn.classList.contains('correct')) {
+        keyBtn.classList.remove('absent');
+        keyBtn.classList.add('present');
+      } else if (status === 'absent' && !keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
+        keyBtn.classList.add('absent');
+      }
+    }
   }
 
   if (guess === targetWord) {
