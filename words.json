@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "palabra": "LAMIN",
+    "longitud": 5,
+    "significado": "Se llama a los dulces o golosinas."
+  },
+  {
+    "id": 2,
+    "palabra": "ZARRIO",
+    "longitud": 6,
+    "significado": "Es un objeto inservible o sin uso conocido."
+  },
+  {
+    "id": 3,
+    "palabra": "CARNUZ",
+    "longitud": 6,
+    "significado": "Se dice a una persona muy bruta. También, a la carroña o a carne descompuesta."
+  },
+  {
+    "id": 4,
+    "palabra": "CHARRIN",
+    "longitud": 7,
+    "significado": "Se dice de una persona que habla mucho."
+  },
+  {
+    "id": 5,
+    "palabra": "REBLAR",
+    "longitud": 6,
+    "significado": "Quiere decir rendirse, ceder, desistir…"
+  },
+  {
+    "id": 6,
+    "palabra": "CADIERA",
+    "longitud": 7,
+    "significado": "Banco de madera con reposabrazos y una tabla que se despliega a modo de mesa."
+  },
+  {
+    "id": 7,
+    "palabra": "CAPAZO",
+    "longitud": 6,
+    "significado": "Conversación larga que suele ocurrir en la calle."
+  },
+  {
+    "id": 8,
+    "palabra": "CUTIO",
+    "longitud": 5,
+    "significado": "Continuamente. La expresión 'PA CUTIO' quiere decir para siempre."
+  },
+  {
+    "id": 9,
+    "palabra": "ENCHEGAR",
+    "longitud": 8,
+    "significado": "Significa encender, enchufar o poner algo en marcha."
+  },
+  {
+    "id": 10,
+    "palabra": "ABABOL",
+    "longitud": 6,
+    "significado": "Se llama así a las amapolas o a alguien falto de entendimiento."
+  },
+  {
+    "id": 11,
+    "palabra": "HALDA",
+    "longitud": 5,
+    "significado": "Zona que, al sentarse, queda entre las rodillas y la cintura."
+  },
+  {
+    "id": 12,
+    "palabra": "ESBARIZAR",
+    "longitud": 9,
+    "significado": "Quiere decir resbalar."
+  },
+  {
+    "id": 13,
+    "palabra": "MOSEN",
+    "longitud": 5,
+    "significado": "Es como se llama a los curas."
+  },
+  {
+    "id": 14,
+    "palabra": "FARTERA",
+    "longitud": 7,
+    "significado": "Quiere decir hartazgo."
+  },
+  {
+    "id": 15,
+    "palabra": "RASMIA",
+    "longitud": 6,
+    "significado": "Es el ímpetu, energía o tesón con lo que se hace algo."
+  },
+  {
+    "id": 16,
+    "palabra": "CHIPIAR",
+    "longitud": 7,
+    "significado": "Quiere decir mojar."
+  },
+  {
+    "id": 17,
+    "palabra": "MODORRO",
+    "longitud": 7,
+    "significado": "Se dice de una persona atontada, adormilada o cansina."
+  },
+  {
+    "id": 18,
+    "palabra": "ESCOBAR",
+    "longitud": 7,
+    "significado": "Es la acción de barrer con la escoba."
+  },
+  {
+    "id": 19,
+    "palabra": "PANIZO",
+    "longitud": 6,
+    "significado": "Se llama así a la mazorca de maíz."
+  },
+  {
+    "id": 20,
+    "palabra": "ALPARCERO",
+    "longitud": 9,
+    "significado": "Se llama así a las personas alcahuetas o chismosas."
+  },
+  {
+    "id": 21,
+    "palabra": "CHULLA",
+    "longitud": 6,
+    "significado": "Se llama a las chuletas de la carne o a las tajadas de magra o jamón."
+  },
+  {
+    "id": 22,
+    "palabra": "MARIPIS",
+    "longitud": 7,
+    "significado": "Se dice a las zapatillas de deporte."
+  },
+  {
+    "id": 23,
+    "palabra": "JASCO",
+    "longitud": 5,
+    "significado": "Se dice de un alimento que es insípido y seco."
+  },
+  {
+    "id": 24,
+    "palabra": "ESPIAZAR",
+    "longitud": 8,
+    "significado": "Quiere decir romper, destrozar o deshacer en piezas más pequeñas."
+  },
+  {
+    "id": 25,
+    "palabra": "MELICO",
+    "longitud": 6,
+    "significado": "Es el ombligo."
+  },
+  {
+    "id": 26,
+    "palabra": "BOIRA",
+    "longitud": 5,
+    "significado": "Se dice a la niebla."
+  },
+  {
+    "id": 27,
+    "palabra": "TAJADOR",
+    "longitud": 7,
+    "significado": "Se llama al sacapuntas."
+  },
+  {
+    "id": 28,
+    "palabra": "FIEMO",
+    "longitud": 5,
+    "significado": "Es el estiércol."
+  },
+  {
+    "id": 29,
+    "palabra": "FALSA",
+    "longitud": 5,
+    "significado": "Es el desván de las casas de pueblo donde se guardan zarrios o enseres."
+  },
+  {
+    "id": 30,
+    "palabra": "FALSO",
+    "longitud": 5,
+    "significado": "Se dice de alguien cobarde, flojo o con poca resistencia."
+  },
+  {
+    "id": 31,
+    "palabra": "LAMPARON",
+    "longitud": 8,
+    "significado": "Es una mancha bastante visible en la ropa, producida por grasa o aceite."
+  },
+  {
+    "id": 32,
+    "palabra": "JAUTO",
+    "longitud": 5,
+    "significado": "Se dice de una persona que es sosa o no tiene gracia."
+  },
+  {
+    "id": 33,
+    "palabra": "TOZOLON",
+    "longitud": 7,
+    "significado": "Es un golpe violento o caída."
+  },
+  {
+    "id": 34,
+    "palabra": "BADIL",
+    "longitud": 5,
+    "significado": "Es un recogedor estrecho de metal para recoger cenizas, brasas o basura."
+  },
+  {
+    "id": 35,
+    "palabra": "CAPARRA",
+    "longitud": 7,
+    "significado": "Es una garrapata."
+  },
+  {
+    "id": 36,
+    "palabra": "POZAL",
+    "longitud": 5,
+    "significado": "Se llama al cubo."
+  },
+  {
+    "id": 37,
+    "palabra": "GARRAMPA",
+    "longitud": 8,
+    "significado": "Calambre muscular o por descarga eléctrica de baja intensidad."
+  },
+  {
+    "id": 38,
+    "palabra": "PRETAR",
+    "longitud": 6,
+    "significado": "Quiere decir apretar."
+  },
+  {
+    "id": 39,
+    "palabra": "ESCORCHON",
+    "longitud": 9,
+    "significado": "Herida donde se levanta la piel o desconchón de pintura en la pared."
+  },
+  {
+    "id": 40,
+    "palabra": "JADICO",
+    "longitud": 6,
+    "significado": "Es como se llama a una azada pequeña."
+  },
+  {
+    "id": 41,
+    "palabra": "IBONES",
+    "longitud": 6,
+    "significado": "Son los lagos de montaña."
+  },
+  {
+    "id": 42,
+    "palabra": "CAPUZAR",
+    "longitud": 7,
+    "significado": "Es caer o tirarse al agua."
+  },
+  {
+    "id": 43,
+    "palabra": "BRAZAL",
+    "longitud": 6,
+    "significado": "Canalización de riego que sale de un río o acequia grande."
+  },
+  {
+    "id": 44,
+    "palabra": "TAJADERA",
+    "longitud": 8,
+    "significado": "Compuerta de acequia para regular el paso del agua."
+  },
+  {
+    "id": 45,
+    "palabra": "PEDUGO",
+    "longitud": 6,
+    "significado": "Se llama así a los niños pequeños."
+  },
+  {
+    "id": 46,
+    "palabra": "TORMO",
+    "longitud": 5,
+    "significado": "Terrón o pequeña masa suelta de tierra compacta, azúcar u otra sustancia."
+  },
+  {
+    "id": 47,
+    "palabra": "MIAJA",
+    "longitud": 5,
+    "significado": "Cantidad pequeña."
+  },
+  {
+    "id": 48,
+    "palabra": "CATATICOS",
+    "longitud": 9,
+    "significado": "Sobras de la comida que se guardan para el día siguiente."
+  },
+  {
+    "id": 49,
+    "palabra": "MISINO",
+    "longitud": 6,
+    "significado": "Se llama así a los gatos."
+  },
+  {
+    "id": 50,
+    "palabra": "CHARRAR",
+    "longitud": 7,
+    "significado": "Quiere decir charlar."
+  }
+]
