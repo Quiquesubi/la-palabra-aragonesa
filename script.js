@@ -8,19 +8,27 @@ let currentTile = 0;
 let isPracticeMode = false;
 let gameOver = false;
 
-async function loadGame() {
-  const response = await fetch('words.json');
-  allWords = await response.json();
-  
-  document.getElementById('btn-daily').addEventListener('click', () => switchMode(false));
-  document.getElementById('btn-practice').addEventListener('click', () => switchMode(true));
-  document.getElementById('close-modal').addEventListener('click', closeModal);
-  document.getElementById('next-word-btn').addEventListener('click', () => {
-    closeModal();
-    startNewGame();
-  });
+document.addEventListener('DOMContentLoaded', () => {
+  loadGame();
+});
 
-  startNewGame();
+async function loadGame() {
+  try {
+    const response = await fetch('words.json');
+    allWords = await response.json();
+    
+    document.getElementById('btn-daily').addEventListener('click', () => switchMode(false));
+    document.getElementById('btn-practice').addEventListener('click', () => switchMode(true));
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+    document.getElementById('next-word-btn').addEventListener('click', () => {
+      closeModal();
+      startNewGame();
+    });
+
+    startNewGame();
+  } catch (error) {
+    console.error("Error al cargar las palabras:", error);
+  }
 }
 
 function switchMode(practice) {
@@ -36,11 +44,9 @@ function startNewGame() {
   gameOver = false;
 
   if (isPracticeMode) {
-    // Elige una palabra al azar
     const randomIndex = Math.floor(Math.random() * allWords.length);
     targetWordObj = allWords[randomIndex];
   } else {
-    // Calcula la palabra del día según la fecha
     const startDate = new Date("2026-01-01");
     const today = new Date();
     const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
@@ -58,6 +64,7 @@ function startNewGame() {
 function buildBoard() {
   const board = document.getElementById('game-board');
   board.innerHTML = '';
+  
   for (let i = 0; i < maxAttempts; i++) {
     const row = document.createElement('div');
     row.className = 'row';
@@ -164,5 +171,3 @@ function showModal(title, word, def) {
 function closeModal() {
   document.getElementById('modal').classList.add('hidden');
 }
-
-loadGame();
