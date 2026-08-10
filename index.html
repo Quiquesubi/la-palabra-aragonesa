@@ -1,22 +1,20 @@
 <!DOCTYPE html>
-<html lang="an">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>La Palabra Aragonesa del Día</title>
+  <title>La Palabra Aragonesa</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="header">
-    <h1>A Palabra Aragonesa d'o Día</h1>
-    <div class="header-buttons">
-      <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
-    </div>
+    <h1>La palabra aragonesa</h1>
   </div>
 
   <div class="mode-selector">
-    <button id="btn-daily" class="mode-btn active">Diario</button>
-    <button id="btn-practice" class="mode-btn">Práctica</button>
+    <button id="btn-daily" class="mode-btn active">Palabra del día</button>
+    <button id="btn-practice" class="mode-btn">Modo libre</button>
+    <button id="btn-stats" class="mode-btn icon-btn" title="Estadísticas">📊 Estadísticas</button>
   </div>
 
   <div id="word-counter" class="word-counter"></div>
@@ -33,7 +31,7 @@
       <p id="modal-definition" class="modal-def-text"></p>
 
       <div class="modal-buttons">
-        <button id="share-btn" class="btn">📋 Compartir resultado</button>
+        <button id="share-btn" class="btn">📲 Compartir resultado</button>
         <button id="next-word-btn" class="btn hidden">Siguiente palabra</button>
         <button id="close-modal" class="btn">Cerrar</button>
       </div>
@@ -44,7 +42,7 @@
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <h2>Estadísticas</h2>
-      <div class="stats-container">
+      <div class="stats-summary">
         <div class="stat-box">
           <span id="stat-played" class="stat-num">0</span>
           <span class="stat-label">Jugadas</span>
@@ -62,6 +60,17 @@
           <span class="stat-label">Racha máxima</span>
         </div>
       </div>
+
+      <h3>Distribución de intentos</h3>
+      <div class="guess-distribution">
+        <div class="dist-row"><span>1º</span><div class="dist-bar"><span id="dist-1">0</span></div></div>
+        <div class="dist-row"><span>2º</span><div class="dist-bar"><span id="dist-2">0</span></div></div>
+        <div class="dist-row"><span>3º</span><div class="dist-bar"><span id="dist-3">0</span></div></div>
+        <div class="dist-row"><span>4º</span><div class="dist-bar"><span id="dist-4">0</span></div></div>
+        <div class="dist-row"><span>5º</span><div class="dist-bar"><span id="dist-5">0</span></div></div>
+        <div class="dist-row"><span>6º</span><div class="dist-bar"><span id="dist-6">0</span></div></div>
+      </div>
+
       <div class="modal-buttons">
         <button id="close-stats" class="btn">Cerrar</button>
       </div>
