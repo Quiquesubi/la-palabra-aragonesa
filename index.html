@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Palabra Aragonesa del Día</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>PALABRA ARAGONESA</h1>
+    <p class="hashtag">#lapalabraaragonesadeldía</p>
+  </header>
+
+  <main>
+    <div id="game-board"></div>
+    <div id="message-container"></div>
+    <div id="keyboard"></div>
+  </main>
+
+  <!-- Modal con la definición al terminar -->
+  <div id="modal" class="hidden">
+    <div class="modal-content">
+      <h2 id="modal-title"></h2>
+      <p id="modal-word"></p>
+      <p id="modal-definition"></p>
+      <button id="close-modal">Cerrar</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
