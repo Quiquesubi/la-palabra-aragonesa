@@ -187,16 +187,19 @@ function restoreSavedGame(savedState) {
 
   if (gameOver) {
     updateMainPracticeControls();
+    const isWin = savedState.win;
+
     if (!isPracticeMode) {
       const title = "¡Ya has completado la palabra aragonesa del día de hoy!";
-      showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
-    } else {
-      const isWin = savedState.win;
-      const victoryTitle = isWin 
-        ? (winMessages[gameHistory.length - 1] || "¡Omenache!") 
-        : '¡Ánimo!';
       const wordText = isWin ? `Has acertado: ${targetWordObj.palabra}` : `La palabra era: ${targetWordObj.palabra}`;
-      showModal(victoryTitle, wordText, targetWordObj.significado);
+      showModal(title, wordText, targetWordObj.significado);
+    } else {
+      if (isWin) {
+        const victoryTitle = winMessages[gameHistory.length - 1] || "¡Omenache!";
+        showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
+      } else {
+        showModal('¡Ánimo!', '¡Ánimo! Seguro que si lo reintentas lo consigues.', '');
+      }
     }
   } else {
     currentAttempt = gameHistory.length;
@@ -395,8 +398,11 @@ function checkGuess() {
           : "¡Ya has completado la palabra de hoy!";
         showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
       } else {
-        const lossTitle = isPracticeMode ? '¡Ánimo!' : '¡Ya has completado la palabra de hoy!';
-        showModal(lossTitle, `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+        if (isPracticeMode) {
+          showModal('¡Ánimo!', '¡Ánimo! Seguro que si lo reintentas lo consigues.', '');
+        } else {
+          showModal('¡Ya has completado la palabra de hoy!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+        }
       }
     } else {
       currentAttempt++;
@@ -422,9 +428,15 @@ function updateMainPracticeControls() {
   if (isPracticeMode && gameOver) {
     const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
     
+    // Extraemos las clases CSS exactas de los botones del modal para calcar su apariencia
+    const modalNextBtn = document.getElementById('next-word-btn');
+    const modalRetryBtn = document.getElementById('retry-word-btn');
+    const nextClass = modalNextBtn ? modalNextBtn.className : 'action-btn';
+    const retryClass = modalRetryBtn ? modalRetryBtn.className : 'action-btn';
+
     actionContainer.innerHTML = isWin 
-      ? `<button id="main-next-btn" class="action-btn">➡️ Siguiente palabra</button>`
-      : `<button id="main-retry-btn" class="action-btn">🔄 Reintentar palabra</button>`;
+      ? `<button id="main-next-btn" class="${nextClass}">➡️ Siguiente palabra</button>`
+      : `<button id="main-retry-btn" class="${retryClass}">🔄 Reintentar palabra</button>`;
 
     actionContainer.classList.remove('hidden');
 
