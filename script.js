@@ -51,11 +51,14 @@ async function loadGame() {
     document.getElementById('next-word-btn').addEventListener('click', () => {
       closeModal();
       practiceIndex = (practiceIndex + 1) % allWords.length;
+      localStorage.setItem('wordle_aragones_practice_index', practiceIndex);
+      localStorage.removeItem('wordle_aragones_practice_saved');
       startNewGame();
     });
 
     document.getElementById('retry-word-btn').addEventListener('click', () => {
       closeModal();
+      localStorage.removeItem('wordle_aragones_practice_saved');
       startNewGame();
     });
 
@@ -110,6 +113,10 @@ function startNewGame() {
   const counterEl = document.getElementById('word-counter');
 
   if (isPracticeMode) {
+    const savedPracticeIdx = localStorage.getItem('wordle_aragones_practice_index');
+    if (savedPracticeIdx !== null) {
+      practiceIndex = parseInt(savedPracticeIdx, 10) % allWords.length;
+    }
     targetWordObj = allWords[practiceIndex];
     const wordNum = targetWordObj.id || (practiceIndex + 1);
     counterEl.textContent = `Palabra #${wordNum}`;
@@ -126,24 +133,36 @@ function startNewGame() {
   buildBoard();
   buildKeyboard();
 
-  if (!isPracticeMode) {
+  // Restaurar estado guardado
+  if (isPracticeMode) {
+    const savedStateRaw = localStorage.getItem('wordle_aragones_practice_saved');
+    if (savedStateRaw) {
+      const savedState = JSON.parse(savedStateRaw);
+      if (savedState.practiceIndex === practiceIndex) {
+        restoreSavedGame(savedState);
+      }
+    }
+  } else {
     const savedStateRaw = localStorage.getItem(getDailySaveKey(currentDailyDayIndex));
     if (savedStateRaw) {
       const savedState = JSON.parse(savedStateRaw);
-      restoreCompletedDailyGame(savedState);
+      restoreSavedGame(savedState);
     }
   }
 }
 
-function restoreCompletedDailyGame(savedState) {
-  gameOver = true;
+function restoreSavedGame(savedState) {
   gameHistory = savedState.history || [];
+  const guessLetters = savedState.guessLetters || [];
+  gameOver = savedState.gameOver || false;
 
   for (let r = 0; r < gameHistory.length; r++) {
     const rowStatuses = gameHistory[r];
+    const rowLetters = guessLetters[r] || [];
+
     for (let c = 0; c < wordLength; c++) {
       const tile = document.getElementById(`tile-${r}-${c}`);
-      const letter = savedState.guessLetters ? savedState.guessLetters[r][c] : '';
+      const letter = rowLetters[c] || '';
       if (tile) {
         tile.textContent = letter;
         tile.classList.add(rowStatuses[c]);
@@ -165,8 +184,22 @@ function restoreCompletedDailyGame(savedState) {
     }
   }
 
-  const title = "¡Ya has completado la palabra aragonesa del día de hoy!";
-  showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
+  if (gameOver) {
+    if (!isPracticeMode) {
+      const title = "¡Ya has completado la palabra aragonesa del día de hoy!";
+      showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
+    } else {
+      const isWin = savedState.win;
+      const victoryTitle = isWin 
+        ? (winMessages[gameHistory.length - 1] || "¡Omenache!") 
+        : '¡Ánimo!';
+      const wordText = isWin ? `Has acertado: ${targetWordObj.palabra}` : `La palabra era: ${targetWordObj.palabra}`;
+      showModal(victoryTitle, wordText, targetWordObj.significado);
+    }
+  } else {
+    currentAttempt = gameHistory.length;
+    currentTile = 0;
+  }
 }
 
 function buildBoard() {
@@ -325,27 +358,34 @@ function checkGuess() {
     const isWin = (guess === targetWordNormalized);
     const isLoss = (!isWin && currentAttempt === maxAttempts - 1);
 
+    // Recopilar todas las letras ingresadas hasta ahora
+    const allGuessLetters = [];
+    for (let r = 0; r <= currentAttempt; r++) {
+      const rowLetters = [];
+      for (let c = 0; c < wordLength; c++) {
+        rowLetters.push(document.getElementById(`tile-${r}-${c}`).textContent);
+      }
+      allGuessLetters.push(rowLetters);
+    }
+
+    const saveData = {
+      gameOver: isWin || isLoss,
+      win: isWin,
+      history: gameHistory,
+      guessLetters: allGuessLetters,
+      practiceIndex: practiceIndex
+    };
+
+    if (isPracticeMode) {
+      localStorage.setItem('wordle_aragones_practice_saved', JSON.stringify(saveData));
+      localStorage.setItem('wordle_aragones_practice_index', practiceIndex);
+    } else {
+      localStorage.setItem(getDailySaveKey(currentDailyDayIndex), JSON.stringify(saveData));
+    }
+
     if (isWin || isLoss) {
       gameOver = true;
       updateStats(isWin, currentAttempt);
-
-      if (!isPracticeMode) {
-        const allGuessLetters = [];
-        for (let r = 0; r <= currentAttempt; r++) {
-          const rowLetters = [];
-          for (let c = 0; c < wordLength; c++) {
-            rowLetters.push(document.getElementById(`tile-${r}-${c}`).textContent);
-          }
-          allGuessLetters.push(rowLetters);
-        }
-
-        const saveData = {
-          win: isWin,
-          history: gameHistory,
-          guessLetters: allGuessLetters
-        };
-        localStorage.setItem(getDailySaveKey(currentDailyDayIndex), JSON.stringify(saveData));
-      }
 
       if (isWin) {
         const victoryTitle = isPracticeMode 
