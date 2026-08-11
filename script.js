@@ -13,6 +13,7 @@ let practiceIndex = 0;
 let gameHistory = [];
 let currentDailyDayIndex = -1;
 let selectedStatTab = 'daily';
+let countdownInterval = null;
 
 const winMessages = [
   "¡Increíble! ¡A la primera!",
@@ -99,6 +100,7 @@ function getDailySaveKey(dayIdx) {
 }
 
 function startNewGame() {
+  stopCountdown();
   currentAttempt = 0;
   currentTile = 0;
   gameOver = false;
@@ -110,7 +112,7 @@ function startNewGame() {
   if (isPracticeMode) {
     targetWordObj = allWords[practiceIndex];
     const wordNum = targetWordObj.id || (practiceIndex + 1);
-    counterEl.textContent = `Palabra #${wordNum} de ${allWords.length}`;
+    counterEl.textContent = `Palabra #${wordNum}`;
   } else {
     currentDailyDayIndex = getDailyIndex();
     targetWordObj = allWords[currentDailyDayIndex];
@@ -124,7 +126,6 @@ function startNewGame() {
   buildBoard();
   buildKeyboard();
 
-  // Comprobar si la palabra del día ya se completó
   if (!isPracticeMode) {
     const savedStateRaw = localStorage.getItem(getDailySaveKey(currentDailyDayIndex));
     if (savedStateRaw) {
@@ -164,7 +165,7 @@ function restoreCompletedDailyGame(savedState) {
     }
   }
 
-  const title = savedState.win ? "¡Ya habías completado la palabra de hoy!" : "Ya jugaste la palabra de hoy";
+  const title = "¡Ya has completado la palabra de hoy!";
   showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
 }
 
@@ -286,7 +287,6 @@ function checkGuess() {
 
   gameHistory.push([...statuses]);
 
-  // Animación en cascada paso a paso
   for (let i = 0; i < wordLength; i++) {
     const tile = document.getElementById(`tile-${currentAttempt}-${i}`);
     
@@ -330,7 +330,6 @@ function checkGuess() {
       updateStats(isWin, currentAttempt);
 
       if (!isPracticeMode) {
-        // Guardar estado final de la palabra del día
         const allGuessLetters = [];
         for (let r = 0; r <= currentAttempt; r++) {
           const rowLetters = [];
@@ -349,10 +348,13 @@ function checkGuess() {
       }
 
       if (isWin) {
-        const victoryTitle = winMessages[currentAttempt] || "¡Omenache!";
+        const victoryTitle = isPracticeMode 
+          ? (winMessages[currentAttempt] || "¡Omenache!") 
+          : "¡Ya has completado la palabra de hoy!";
         showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
       } else {
-        showModal('¡Ánimo!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
+        const lossTitle = isPracticeMode ? '¡Ánimo!' : '¡Ya has completado la palabra de hoy!';
+        showModal(lossTitle, `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
       }
     } else {
       currentAttempt++;
@@ -361,7 +363,6 @@ function checkGuess() {
   }, totalAnimationTime);
 }
 
-// Estructura de almacenamiento de estadísticas
 function getEmptyStatGroup() {
   return {
     played: 0,
@@ -382,7 +383,6 @@ function getAllStats() {
       practice: getEmptyStatGroup()
     };
   } else {
-    // Asegurar clave X si proviene de versiones previas
     ['daily', 'practice'].forEach(k => {
       if (!stats[k].guesses) stats[k].guesses = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 };
       if (stats[k].guesses.X === undefined) stats[k].guesses.X = 0;
@@ -518,6 +518,49 @@ async function shareResult() {
   }
 }
 
+function startCountdown() {
+  stopCountdown();
+  const countdownEl = document.getElementById('modal-countdown');
+  countdownEl.classList.remove('hidden');
+
+  function updateTimer() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const diff = tomorrow - now;
+
+    if (diff <= 0) {
+      countdownEl.innerHTML = "<p>¡La nueva palabra ya está disponible! Recarga la página.</p>";
+      stopCountdown();
+      return;
+    }
+
+    const totalSeconds = Math.floor(diff / 1000);
+    const hours = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+    const minutes = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+
+    countdownEl.innerHTML = `
+      <p>La próxima palabra estará disponible en...</p>
+      <div class="countdown-timer">${hours}:${minutes}:${seconds}</div>
+    `;
+  }
+
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function stopCountdown() {
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+    countdownInterval = null;
+  }
+  const countdownEl = document.getElementById('modal-countdown');
+  if (countdownEl) {
+    countdownEl.classList.add('hidden');
+    countdownEl.innerHTML = '';
+  }
+}
+
 function showModal(title, word, def) {
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-word').textContent = word;
@@ -529,6 +572,7 @@ function showModal(title, word, def) {
   const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
 
   if (isPracticeMode) {
+    stopCountdown();
     if (isWin) {
       nextBtn.classList.remove('hidden');
       retryBtn.classList.add('hidden');
@@ -539,11 +583,15 @@ function showModal(title, word, def) {
   } else {
     nextBtn.classList.add('hidden');
     retryBtn.classList.add('hidden');
+    if (gameOver) {
+      startCountdown();
+    }
   }
 
   document.getElementById('modal').classList.remove('hidden');
 }
 
 function closeModal() {
+  stopCountdown();
   document.getElementById('modal').classList.add('hidden');
 }
