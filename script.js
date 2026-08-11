@@ -428,11 +428,12 @@ function updateMainPracticeControls() {
   if (isPracticeMode && gameOver) {
     const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
     
-    // Extraemos las clases CSS exactas de los botones del modal para calcar su apariencia
     const modalNextBtn = document.getElementById('next-word-btn');
     const modalRetryBtn = document.getElementById('retry-word-btn');
-    const nextClass = modalNextBtn ? modalNextBtn.className : 'action-btn';
-    const retryClass = modalRetryBtn ? modalRetryBtn.className : 'action-btn';
+    
+    // Eliminamos la clase 'hidden' para no arrastrarla si el botón del modal la tenía asignada
+    const nextClass = modalNextBtn ? modalNextBtn.className.replace(/\bhidden\b/g, '').trim() : 'action-btn';
+    const retryClass = modalRetryBtn ? modalRetryBtn.className.replace(/\bhidden\b/g, '').trim() : 'action-btn';
 
     actionContainer.innerHTML = isWin 
       ? `<button id="main-next-btn" class="${nextClass}">➡️ Siguiente palabra</button>`
@@ -700,4 +701,5 @@ function showModal(title, word, def) {
 function closeModal() {
   stopCountdown();
   document.getElementById('modal').classList.add('hidden');
+  updateMainPracticeControls();
 }
