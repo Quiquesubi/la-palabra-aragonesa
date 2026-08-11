@@ -12,7 +12,7 @@
   </div>
 
   <div class="mode-selector">
-    <button id="btn-daily" class="mode-btn active">Palabra del día</button>
+    <button id="btn-daily" class="mode-btn active">Palabra aragonesa del día</button>
     <button id="btn-practice" class="mode-btn">Modo libre</button>
     <button id="btn-stats" class="mode-btn icon-btn" title="Estadísticas">📊 Estadísticas</button>
   </div>
@@ -29,6 +29,9 @@
       <h2 id="modal-title"></h2>
       <p id="modal-word" class="modal-word-text"></p>
       <p id="modal-definition" class="modal-def-text"></p>
+
+      <!-- Contador regresivo para la palabra del día -->
+      <div id="modal-countdown" class="modal-countdown hidden"></div>
 
       <div class="modal-buttons">
         <button id="share-btn" class="btn">📲 Compartir resultado</button>
