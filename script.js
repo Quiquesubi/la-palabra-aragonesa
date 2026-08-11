@@ -110,6 +110,8 @@ function startNewGame() {
   isAnimating = false;
   gameHistory = [];
 
+  updateMainPracticeControls();
+
   const counterEl = document.getElementById('word-counter');
 
   if (isPracticeMode) {
@@ -184,6 +186,7 @@ function restoreSavedGame(savedState) {
   }
 
   if (gameOver) {
+    updateMainPracticeControls();
     if (!isPracticeMode) {
       const title = "¡Ya has completado la palabra aragonesa del día de hoy!";
       showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
@@ -384,6 +387,7 @@ function checkGuess() {
     if (isWin || isLoss) {
       gameOver = true;
       updateStats(isWin, currentAttempt);
+      updateMainPracticeControls();
 
       if (isWin) {
         const victoryTitle = isPracticeMode 
@@ -399,6 +403,52 @@ function checkGuess() {
       currentTile = 0;
     }
   }, totalAnimationTime);
+}
+
+function updateMainPracticeControls() {
+  let actionContainer = document.getElementById('main-practice-action');
+  
+  if (!actionContainer) {
+    actionContainer = document.createElement('div');
+    actionContainer.id = 'main-practice-action';
+    actionContainer.style.textAlign = 'center';
+    actionContainer.style.margin = '15px 0';
+    const board = document.getElementById('game-board');
+    if (board) {
+      board.insertAdjacentElement('afterend', actionContainer);
+    }
+  }
+
+  if (isPracticeMode && gameOver) {
+    const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
+    
+    actionContainer.innerHTML = isWin 
+      ? `<button id="main-next-btn" class="action-btn">➡️ Siguiente palabra</button>`
+      : `<button id="main-retry-btn" class="action-btn">🔄 Reintentar palabra</button>`;
+
+    actionContainer.classList.remove('hidden');
+
+    const nextBtn = document.getElementById('main-next-btn');
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        practiceIndex = (practiceIndex + 1) % allWords.length;
+        localStorage.setItem('wordle_aragones_practice_index', practiceIndex);
+        localStorage.removeItem('wordle_aragones_practice_saved');
+        startNewGame();
+      });
+    }
+
+    const retryBtn = document.getElementById('main-retry-btn');
+    if (retryBtn) {
+      retryBtn.addEventListener('click', () => {
+        localStorage.removeItem('wordle_aragones_practice_saved');
+        startNewGame();
+      });
+    }
+  } else if (actionContainer) {
+    actionContainer.classList.add('hidden');
+    actionContainer.innerHTML = '';
+  }
 }
 
 function getEmptyStatGroup() {
