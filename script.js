@@ -198,7 +198,7 @@ function restoreSavedGame(savedState) {
         const victoryTitle = winMessages[gameHistory.length - 1] || "¡Omenache!";
         showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
       } else {
-        showModal('¡Ánimo!', '¡Ánimo! Seguro que si lo reintentas lo consigues.', '');
+        showModal('¡Ánimo!', 'Seguro que si lo reintentas lo consigues.', '');
       }
     }
   } else {
