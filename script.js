@@ -165,7 +165,7 @@ function restoreCompletedDailyGame(savedState) {
     }
   }
 
-  const title = "¡Ya has completado la palabra de hoy!";
+  const title = "¡Ya has completado la palabra aragonesa del día de hoy!";
   showModal(title, `Palabra: ${targetWordObj.palabra}`, targetWordObj.significado);
 }
 
