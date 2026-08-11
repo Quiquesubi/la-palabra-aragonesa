@@ -505,8 +505,12 @@ function renderStats() {
     const count = statsGroup.guesses[key] || 0;
     const barEl = document.getElementById(`dist-${key}`);
     if (barEl) {
-      const guessPct = statsGroup.played > 0 ? Math.round((count / statsGroup.played) * 100) : 0;
-      barEl.textContent = `${count} (${guessPct}%)`;
+      if (count > 0) {
+        const guessPct = statsGroup.played > 0 ? Math.round((count / statsGroup.played) * 100) : 0;
+        barEl.textContent = `${count} (${guessPct}%)`;
+      } else {
+        barEl.textContent = '0';
+      }
 
       const percentage = Math.max((count / maxGuessesCount) * 100, 8);
       const parentBar = barEl.parentElement;
