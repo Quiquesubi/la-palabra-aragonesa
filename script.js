@@ -427,17 +427,10 @@ function updateMainPracticeControls() {
 
   if (isPracticeMode && gameOver) {
     const isWin = gameHistory.length > 0 && gameHistory[gameHistory.length - 1].every(s => s === 'correct');
-    
-    const modalNextBtn = document.getElementById('next-word-btn');
-    const modalRetryBtn = document.getElementById('retry-word-btn');
-    
-    // Eliminamos la clase 'hidden' para no arrastrarla si el botón del modal la tenía asignada
-    const nextClass = modalNextBtn ? modalNextBtn.className.replace(/\bhidden\b/g, '').trim() : 'action-btn';
-    const retryClass = modalRetryBtn ? modalRetryBtn.className.replace(/\bhidden\b/g, '').trim() : 'action-btn';
 
     actionContainer.innerHTML = isWin 
-      ? `<button id="main-next-btn" class="${nextClass}">➡️ Siguiente palabra</button>`
-      : `<button id="main-retry-btn" class="${retryClass}">🔄 Reintentar palabra</button>`;
+      ? `<button id="main-next-btn" class="mode-btn active" style="margin: 0 auto; cursor: pointer; display: inline-block;">➡️ Siguiente palabra</button>`
+      : `<button id="main-retry-btn" class="mode-btn active" style="margin: 0 auto; cursor: pointer; display: inline-block;">🔄 Reintentar palabra</button>`;
 
     actionContainer.classList.remove('hidden');
 
