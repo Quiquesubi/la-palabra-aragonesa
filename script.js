@@ -399,7 +399,7 @@ function checkGuess() {
         showModal(victoryTitle, `Has acertado: ${targetWordObj.palabra}`, targetWordObj.significado);
       } else {
         if (isPracticeMode) {
-          showModal('¡Ánimo!', '¡Ánimo! Seguro que si lo reintentas lo consigues.', '');
+          showModal('¡Ánimo!', 'Seguro que si lo reintentas lo consigues.', '');
         } else {
           showModal('¡Ya has completado la palabra de hoy!', `La palabra era: ${targetWordObj.palabra}`, targetWordObj.significado);
         }
