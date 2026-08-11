@@ -133,7 +133,6 @@ function startNewGame() {
   buildBoard();
   buildKeyboard();
 
-  // Restaurar estado guardado
   if (isPracticeMode) {
     const savedStateRaw = localStorage.getItem('wordle_aragones_practice_saved');
     if (savedStateRaw) {
@@ -358,7 +357,6 @@ function checkGuess() {
     const isWin = (guess === targetWordNormalized);
     const isLoss = (!isWin && currentAttempt === maxAttempts - 1);
 
-    // Recopilar todas las letras ingresadas hasta ahora
     const allGuessLetters = [];
     for (let r = 0; r <= currentAttempt; r++) {
       const rowLetters = [];
@@ -502,16 +500,18 @@ function renderStats() {
   const keys = ['1', '2', '3', '4', '5', '6', 'X'];
   const guessValues = keys.map(k => statsGroup.guesses[k] || 0);
   const maxGuessesCount = Math.max(...guessValues, 1);
-  
+
   keys.forEach(key => {
     const count = statsGroup.guesses[key] || 0;
     const barEl = document.getElementById(`dist-${key}`);
     if (barEl) {
-      barEl.textContent = count;
+      const guessPct = statsGroup.played > 0 ? Math.round((count / statsGroup.played) * 100) : 0;
+      barEl.textContent = `${count} (${guessPct}%)`;
+
       const percentage = Math.max((count / maxGuessesCount) * 100, 8);
       const parentBar = barEl.parentElement;
       parentBar.style.width = `${percentage}%`;
-      
+
       if (key === 'X') {
         parentBar.style.backgroundColor = count > 0 ? '#d9534f' : '#787c7e';
       } else {
