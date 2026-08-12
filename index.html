@@ -28,7 +28,7 @@
       <!-- Indicadores Modo Libre -->
       <div id="free-mode-controls" class="free-controls hidden">
         <span id="word-number-badge" class="word-badge">Palabra #1</span>
-        <button id="btn-new-word" class="action-btn-secondary">🔄 Nueva Palabra</button>
+        <button id="btn-new-word" class="action-btn-secondary">⏭️ Saltar palabra</button>
       </div>
 
       <!-- Tablero -->
@@ -133,12 +133,12 @@
     </div>
   </div>
 
-  <!-- Modal Estadísticas -->
+  <!-- Modal Estadísticas / Resultado -->
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
       
-      <!-- Mensaje dinámico de felicitación / ánimo -->
+      <!-- Mensaje dinámico -->
       <div id="feedback-banner" class="feedback-banner hidden"></div>
 
       <h2>Estadísticas</h2>
@@ -165,7 +165,7 @@
       <h3>Distribución de intentos</h3>
       <div id="guess-distribution" class="distribution-container"></div>
 
-      <!-- Definición de la palabra -->
+      <!-- Definición de la palabra (sólo visible al ganar) -->
       <div id="word-definition" class="definition-box hidden"></div>
 
       <!-- Cuenta atrás para la palabra diaria -->
@@ -175,7 +175,13 @@
         <p class="call-to-action">¡Vuelve mañana para adivinar la nueva palabra!</p>
       </div>
 
-      <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra</button>
+      <!-- Botones de Acción del Modal -->
+      <div class="modal-actions">
+        <button id="btn-share" class="action-btn-secondary hidden">📤 Compartir resultado</button>
+        <button id="btn-retry" class="action-btn hidden">🔄 Reintentar palabra</button>
+        <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra ➡️</button>
+        <button id="btn-modal-close" class="action-btn-secondary">Cerrar</button>
+      </div>
     </div>
   </div>
 
