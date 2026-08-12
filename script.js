@@ -7,7 +7,8 @@ let currentGame = {
   attempts: [],
   currentInput: '',
   status: 'IN_PROGRESS',
-  freeWordIndex: 0
+  freeWordIndex: 0,
+  animatedRows: [] // Rastreo de filas con animación ejecutada
 };
 
 // Estadísticas separadas por modo
@@ -17,6 +18,7 @@ let stats = {
 };
 
 let activeStatsTab = 'daily';
+let countdownInterval = null;
 
 // Mensajes según el número de intento al adivinar
 const winMessages = {
@@ -40,13 +42,18 @@ const startGameBtn = document.getElementById('start-game-btn');
 const dontShowHelp = document.getElementById('dont-show-help');
 
 const resultModal = document.getElementById('result-modal');
-const closeResult = document.getElementById('close-result');
 const btnCloseResultModal = document.getElementById('btn-close-result-modal');
 const resultBanner = document.getElementById('result-banner');
 const resultWordDefinition = document.getElementById('result-word-definition');
+const resultCountdownBox = document.getElementById('result-countdown-box');
+const dailyTimer = document.getElementById('daily-timer');
+
 const btnShare = document.getElementById('btn-share');
 const btnNextWord = document.getElementById('btn-next-word');
 const btnRetryWord = document.getElementById('btn-retry-word');
+
+const btnMainNext = document.getElementById('btn-main-next');
+const btnMainRetry = document.getElementById('btn-main-retry');
 
 const statsModal = document.getElementById('stats-modal');
 const closeStats = document.getElementById('close-stats');
@@ -117,8 +124,10 @@ function initEventListeners() {
   });
 
   // Modal Resultados
-  closeResult.addEventListener('click', () => resultModal.classList.add('hidden'));
-  btnCloseResultModal.addEventListener('click', () => resultModal.classList.add('hidden'));
+  btnCloseResultModal.addEventListener('click', () => {
+    resultModal.classList.add('hidden');
+    updateMainActionButtons();
+  });
 
   // Modal Estadísticas
   btnStats.addEventListener('click', () => openStatsModal());
@@ -138,17 +147,13 @@ function initEventListeners() {
   btnModeDaily.addEventListener('click', () => switchMode('daily'));
   btnModeFree.addEventListener('click', () => switchMode('free'));
 
-  btnNextWord.addEventListener('click', () => {
-    resultModal.classList.add('hidden');
-    currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
-    localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
-    initGame('free');
-  });
+  // Acciones Modal
+  btnNextWord.addEventListener('click', nextFreeWord);
+  btnRetryWord.addEventListener('click', retryFreeWord);
 
-  btnRetryWord.addEventListener('click', () => {
-    resultModal.classList.add('hidden');
-    resetCurrentWord();
-  });
+  // Acciones Botones Principales (debajo del tablero)
+  btnMainNext.addEventListener('click', nextFreeWord);
+  btnMainRetry.addEventListener('click', retryFreeWord);
 
   btnShare.addEventListener('click', shareResults);
 
@@ -200,7 +205,9 @@ function initGame(mode) {
   currentGame.attempts = [];
   currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
+  currentGame.animatedRows = [];
   dailyCompletedBanner.classList.add('hidden');
+  hideMainActionButtons();
 
   if (mode === 'daily') {
     const dailyIdx = getDailyIndex();
@@ -215,7 +222,12 @@ function initGame(mode) {
         if (dailyData.date === getTodayString()) {
           currentGame.attempts = dailyData.attempts;
           currentGame.status = dailyData.status;
+          // Marcar todas las filas guardadas como ya animadas para no repetirla
+          currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
           dailyCompletedBanner.classList.remove('hidden');
+
+          // Mostrar emergente informativa de palabra diaria ya jugada
+          openDailyAlreadyPlayedModal();
         }
       } catch (e) {}
     }
@@ -239,8 +251,23 @@ function resetCurrentWord() {
   currentGame.attempts = [];
   currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
+  currentGame.animatedRows = [];
+  hideMainActionButtons();
   resetKeyboardColors();
   renderBoard();
+}
+
+function nextFreeWord() {
+  resultModal.classList.add('hidden');
+  hideMainActionButtons();
+  currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
+  localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
+  initGame('free');
+}
+
+function retryFreeWord() {
+  resultModal.classList.add('hidden');
+  resetCurrentWord();
 }
 
 function handleKeyPress(key) {
@@ -280,7 +307,7 @@ function submitAttempt() {
     recordStats(false, 'X');
   }
 
-  // Guardar estado diario si estamos en modo diario
+  // Guardar estado diario
   if (currentGame.mode === 'daily') {
     localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
       date: getTodayString(),
@@ -293,6 +320,10 @@ function submitAttempt() {
   }
 
   renderBoard();
+
+  // Marcar la fila recién enviada como animada tras la comprobación inicial
+  const submittedRowIndex = currentGame.attempts.length - 1;
+  currentGame.animatedRows.push(submittedRowIndex);
 
   if (isWin || isLoss) {
     const delay = (wordLength * 150) + 400;
@@ -323,7 +354,7 @@ function renderBoard() {
 
     const attempt = currentGame.attempts[r];
     const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
-    const isLatestAttempt = (r === currentGame.attempts.length - 1);
+    const isLatestSubmitted = (r === currentGame.attempts.length - 1);
 
     for (let c = 0; c < wordLength; c++) {
       const tile = document.createElement('div');
@@ -333,7 +364,8 @@ function renderBoard() {
         tile.textContent = attempt[c];
         const status = evaluateTileStatus(attempt, c);
 
-        if (isLatestAttempt) {
+        // La animación de volteo se ejecuta SÓLO una vez al comprobar
+        if (isLatestSubmitted && !currentGame.animatedRows.includes(r)) {
           tile.classList.add('flip');
           tile.style.animationDelay = `${c * 150}ms`;
         }
@@ -432,34 +464,93 @@ function recordStats(isWin, attemptKey) {
   saveStats();
 }
 
-/* Modal de Resultados al finalizar la partida */
+/* Modal de Resultado al finalizar una partida */
 function openResultModal(isWin) {
   resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
   btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
 
-  if (isWin) {
-    const attemptCount = currentGame.attempts.length;
-    resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
-    resultBanner.className = 'feedback-banner win';
+  if (currentGame.mode === 'daily') {
+    if (isWin) {
+      const attemptCount = currentGame.attempts.length;
+      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
+      resultBanner.className = 'feedback-banner win';
+    } else {
+      resultBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
+      resultBanner.className = 'feedback-banner lose';
+    }
 
     resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
     resultWordDefinition.classList.remove('hidden');
 
     btnShare.classList.remove('hidden');
 
-    if (currentGame.mode === 'free') {
-      btnNextWord.classList.remove('hidden');
-    }
-  } else {
-    resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que adivinas.";
-    resultBanner.className = 'feedback-banner lose';
+    // Contador de tiempo restante en la palabra diaria
+    startCountdownTimer();
+    resultCountdownBox.classList.remove('hidden');
 
-    btnRetryWord.classList.remove('hidden');
+  } else { // Modo Libre
+    if (isWin) {
+      const attemptCount = currentGame.attempts.length;
+      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
+      resultBanner.className = 'feedback-banner win';
+
+      resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+      resultWordDefinition.classList.remove('hidden');
+
+      btnShare.classList.remove('hidden');
+      btnNextWord.classList.remove('hidden');
+    } else {
+      // Mensaje de fallo en Modo Libre con fondo verde
+      resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que la adivinas.";
+      resultBanner.className = 'feedback-banner win';
+
+      btnRetryWord.classList.remove('hidden');
+    }
   }
 
   resultModal.classList.remove('hidden');
+}
+
+/* Modal si la palabra diaria de hoy ya fue jugada previamente */
+function openDailyAlreadyPlayedModal() {
+  resultWordDefinition.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.add('hidden');
+
+  resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
+  resultBanner.className = 'feedback-banner win';
+
+  resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+  resultWordDefinition.classList.remove('hidden');
+
+  btnShare.classList.remove('hidden');
+
+  startCountdownTimer();
+  resultCountdownBox.classList.remove('hidden');
+
+  resultModal.classList.remove('hidden');
+}
+
+/* Actualiza la visibilidad de los botones en la pantalla principal al cerrar el emergente */
+function updateMainActionButtons() {
+  hideMainActionButtons();
+
+  if (currentGame.mode === 'free') {
+    if (currentGame.status === 'WON') {
+      btnMainNext.classList.remove('hidden');
+    } else if (currentGame.status === 'LOST') {
+      btnMainRetry.classList.remove('hidden');
+    }
+  }
+}
+
+function hideMainActionButtons() {
+  btnMainNext.classList.add('hidden');
+  btnMainRetry.classList.add('hidden');
 }
 
 /* Modal de Estadísticas */
@@ -482,7 +573,6 @@ function renderStatsData() {
   } else if (activeStatsTab === 'free') {
     combinedStats = stats.free;
   } else {
-    // Total (Diario + Libre)
     combinedStats.played = stats.daily.played + stats.free.played;
     combinedStats.wins = stats.daily.wins + stats.free.wins;
     combinedStats.streak = stats.daily.streak;
@@ -528,6 +618,25 @@ function renderDistribution(statsObj) {
     `;
     container.appendChild(row);
   });
+}
+
+function startCountdownTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function updateTimer() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const diff = tomorrow - now;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
+    const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+    dailyTimer.textContent = `${hours}:${mins}:${secs}`;
+  }
+
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
 }
 
 function shareResults() {
