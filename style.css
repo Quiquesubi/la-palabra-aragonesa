@@ -119,6 +119,18 @@ main {
   border: 1px solid #cbd5e1;
 }
 
+.completed-banner {
+  background-color: #3b82f6;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+  width: 100%;
+}
+
 #game-board {
   display: flex;
   flex-direction: column;
@@ -153,44 +165,21 @@ main {
   perspective: 1000px;
 }
 
-/* Animación de volteo al comprobar la palabra */
+/* Animación de volteo */
 @keyframes flipTile {
-  0% {
-    transform: rotateX(0deg);
-  }
-  50% {
-    transform: rotateX(90deg);
-  }
-  100% {
-    transform: rotateX(0deg);
-  }
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
 }
 
 .tile.flip {
   animation: flipTile 0.5s ease forwards;
 }
 
-.tile.filled {
-  border-color: #878a8c;
-}
-
-.tile.correct {
-  background-color: var(--color-correct);
-  border-color: var(--color-correct);
-  color: #fff;
-}
-
-.tile.present {
-  background-color: var(--color-present);
-  border-color: var(--color-present);
-  color: #fff;
-}
-
-.tile.absent {
-  background-color: var(--color-absent);
-  border-color: var(--color-absent);
-  color: #fff;
-}
+.tile.filled { border-color: #878a8c; }
+.tile.correct { background-color: var(--color-correct); border-color: var(--color-correct); color: #fff; }
+.tile.present { background-color: var(--color-present); border-color: var(--color-present); color: #fff; }
+.tile.absent { background-color: var(--color-absent); border-color: var(--color-absent); color: #fff; }
 
 .tile.ghost-green {
   border-color: var(--color-correct);
@@ -235,20 +224,9 @@ main {
   font-size: 0.75rem;
 }
 
-.key.correct {
-  background-color: var(--color-correct);
-  color: #fff;
-}
-
-.key.present {
-  background-color: var(--color-present);
-  color: #fff;
-}
-
-.key.absent {
-  background-color: var(--color-absent);
-  color: #fff;
-}
+.key.correct { background-color: var(--color-correct); color: #fff; }
+.key.present { background-color: var(--color-present); color: #fff; }
+.key.absent { background-color: var(--color-absent); color: #fff; }
 
 /* Modales */
 .modal {
@@ -270,7 +248,7 @@ main {
   padding: 24px;
   border-radius: 8px;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   text-align: center;
   position: relative;
   max-height: 90vh;
@@ -347,15 +325,42 @@ main {
 }
 
 .feedback-banner {
-  padding: 12px;
+  padding: 14px;
   border-radius: 6px;
   font-weight: bold;
   margin-bottom: 14px;
   color: #fff;
+  font-size: 1.05rem;
 }
 
 .feedback-banner.win { background-color: var(--color-correct); }
 .feedback-banner.lose { background-color: #dc2626; }
+
+/* Menú Filtro Estadísticas */
+.stats-tab-menu {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.stats-tab-btn {
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.stats-tab-btn.active {
+  background-color: var(--color-correct);
+  color: #fff;
+}
 
 .stats-summary {
   display: flex;
@@ -394,8 +399,9 @@ main {
 
 .dist-num {
   font-weight: bold;
-  width: 12px;
+  width: 18px;
   color: #334155;
+  text-align: right;
 }
 
 .dist-bar-bg {
@@ -411,9 +417,10 @@ main {
   font-size: 0.8rem;
   font-weight: bold;
   text-align: right;
-  padding: 2px 6px;
+  padding: 2px 8px;
   box-sizing: border-box;
-  min-width: 20px;
+  min-width: 28px;
+  white-space: nowrap;
 }
 
 .definition-box {
@@ -427,19 +434,6 @@ main {
   border-top: 1px solid #e2e8f0;
   border-right: 1px solid #e2e8f0;
   border-bottom: 1px solid #e2e8f0;
-}
-
-.countdown-box {
-  margin: 16px 0;
-  font-size: 0.9rem;
-  color: #475569;
-}
-
-.timer-digits {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--color-correct);
-  margin: 6px 0;
 }
 
 .modal-actions {
