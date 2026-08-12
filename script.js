@@ -1,349 +1,478 @@
-// App.jsx
-import React, { useState, useEffect } from 'react';
-import './App.css';
+let palabras = [];
+let validWords = [];
+let currentGame = {
+  mode: 'daily', // 'daily' | 'free'
+  wordObj: null,
+  targetWord: '',
+  attempts: [],
+  currentInput: '',
+  status: 'IN_PROGRESS', // 'IN_PROGRESS' | 'WON' | 'LOST'
+  freeWordIndex: 1
+};
 
-// Palabras de muestra para la demo
-const WORD_LIST = ['LIBRO', 'JUEGO', 'VERDE', 'LETRA', 'EXITO', 'PISTA'];
+let stats = {
+  played: 0,
+  wins: 0,
+  streak: 0,
+  maxStreak: 0,
+  distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+};
 
-export default function App() {
-  // Estado general
-  const [gameMode, setGameMode] = useState('libre'); // 'diario' | 'libre'
-  const [targetWord, setTargetWord] = useState('VERDE');
-  const [attempts, setAttempts] = useState([]); // Historial de palabras probadas
-  const [currentInput, setCurrentInput] = useState('');
-  const [gameStatus, setGameStatus] = useState('IN_PROGRESS'); // 'IN_PROGRESS' | 'WON' | 'LOST'
-  
-  // Modales
-  const [showStatsModal, setShowStatsModal] = useState(false);
-  const [showRetryModal, setShowRetryModal] = useState(false);
-  const [showDefinition, setShowDefinition] = useState(false);
-  const [message, setMessage] = useState({ title: '', subtitle: '' });
+let countdownInterval = null;
 
-  // Registro de estadísticas por modo
-  const [stats, setStats] = useState({
-    diario: { played: 0, wins: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 } },
-    libre: { played: 0, wins: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 } },
-  });
+// Elementos DOM
+const boardEl = document.getElementById('game-board');
+const keyboardEl = document.getElementById('keyboard');
+const btnHelp = document.getElementById('btn-help');
+const btnStats = document.getElementById('btn-stats');
+const helpModal = document.getElementById('help-modal');
+const closeHelp = document.getElementById('close-help');
+const startGameBtn = document.getElementById('start-game-btn');
+const dontShowHelp = document.getElementById('dont-show-help');
 
-  // Cargar una palabra al cambiar de modo o iniciar
-  useEffect(() => {
-    startNewGame();
-  }, [gameMode]);
+const statsModal = document.getElementById('stats-modal');
+const closeStats = document.getElementById('close-stats');
+const btnModalClose = document.getElementById('btn-modal-close');
 
-  const startNewGame = () => {
-    const randomWord = WORD_LIST[Math.floor(Math.random() * WORD_LIST.length)];
-    setTargetWord(randomWord);
-    setAttempts([]);
-    setCurrentInput('');
-    setGameStatus('IN_PROGRESS');
-    setShowRetryModal(false);
-    setShowDefinition(false);
-  };
+const btnModeDaily = document.getElementById('btn-mode-daily');
+const btnModeFree = document.getElementById('btn-mode-free');
+const freeControls = document.getElementById('free-mode-controls');
+const wordBadge = document.getElementById('word-number-badge');
+const btnNewWord = document.getElementById('btn-new-word');
 
-  // Enviar intento
-  const handleSubmitAttempt = () => {
-    if (currentInput.length !== 5 || gameStatus !== 'IN_PROGRESS') return;
+const feedbackBanner = document.getElementById('feedback-banner');
+const wordDefinition = document.getElementById('word-definition');
+const dailyCountdownBox = document.getElementById('daily-countdown-box');
+const dailyTimer = document.getElementById('daily-timer');
 
-    const newAttempts = [...attempts, currentInput.toUpperCase()];
-    setAttempts(newAttempts);
-    setCurrentInput('');
+const btnShare = document.getElementById('btn-share');
+const btnRetry = document.getElementById('btn-retry');
+const modalNextBtn = document.getElementById('modal-next-btn');
 
-    // Comprobar Victoria
-    if (currentInput.toUpperCase() === targetWord) {
-      setGameStatus('WON');
-      setShowDefinition(true); // Mostrar definición en victoria
-      recordStats(newAttempts.length, true);
-      // NO abre modal de estadísticas automáticamente
-      return;
-    }
+document.addEventListener('DOMContentLoaded', () => {
+  loadSavedStats();
+  initEventListeners();
+  loadWordsJSON();
+});
 
-    // Comprobar Derrota (6 intentos gastados)
-    if (newAttempts.length === 6) {
-      setGameStatus('LOST');
-      recordStats(6, false);
-
-      if (gameMode === 'libre') {
-        // En modo libre NO se muestra la definición al perder
-        setShowDefinition(false);
-        setMessage({
-          title: '¡Ánimo!',
-          subtitle: 'Seguro que si lo reintentas la adivinas.',
-        });
-        setShowRetryModal(true);
-      } else {
-        // En modo diario se puede revelar definición al agotar intentos
-        setShowDefinition(true);
-      }
-    }
-  };
-
-  // Reintentar la MISMA palabra en Modo Libre
-  const handleRetryWord = () => {
-    setAttempts([]);
-    setCurrentInput('');
-    setGameStatus('IN_PROGRESS');
-    setShowRetryModal(false);
-    setShowDefinition(false);
-    // targetWord no cambia
-  };
-
-  // Registrar estadísticas
-  const recordStats = (attemptCount, isWin) => {
-    setStats((prev) => {
-      const modeKey = gameMode;
-      const currentModeStats = prev[modeKey];
-      const newDistribution = { ...currentModeStats.distribution };
-      
-      if (isWin) {
-        newDistribution[attemptCount] = (newDistribution[attemptCount] || 0) + 1;
-      }
-
-      return {
-        ...prev,
-        [modeKey]: {
-          played: currentModeStats.played + 1,
-          wins: currentModeStats.wins + (isWin ? 1 : 0),
-          distribution: newDistribution,
-        },
-      };
-    });
-  };
-
-  // Calcular feedback de letras (Verde = Correcta, Amarillo = Presente, Gris = Ausente)
-  const getLetterStatus = (letter, index, attemptWord) => {
-    if (targetWord[index] === letter) return 'correct'; // Verde
-    if (targetWord.includes(letter)) return 'present';  // Amarillo
-    return 'absent';                                    // Gris
-  };
-
-  // Acumular todas las letras que ya hayan quedado VERDES en intentos anteriores
-  const getGreenLettersMap = () => {
-    const greenIndices = {};
-    attempts.forEach((word) => {
-      word.split('').forEach((char, idx) => {
-        if (targetWord[idx] === char) {
-          greenIndices[idx] = char;
-        }
-      });
-    });
-    return greenIndices;
-  };
-
-  const greenLettersMap = getGreenLettersMap();
-
-  return (
-    <div className="game-container">
-      {/* Encabezado */}
-      <header className="header">
-        <h1>Wordle Clone</h1>
-        <div className="header-buttons">
-          <div className="mode-selector">
-            <button
-              className={gameMode === 'diario' ? 'active' : ''}
-              onClick={() => setGameMode('diario')}
-            >
-              Palabra del Día
-            </button>
-            <button
-              className={gameMode === 'libre' ? 'active' : ''}
-              onClick={() => setGameMode('libre')}
-            >
-              Modo Libre
-            </button>
-          </div>
-          <button className="stats-btn" onClick={() => setShowStatsModal(true)}>
-            📊
-          </button>
-        </div>
-      </header>
-
-      {/* Tablero de 6 filas */}
-      <div className="board">
-        {Array.from({ length: 6 }).map((_, rowIndex) => {
-          const attempt = attempts[rowIndex];
-          const isCurrentRow = rowIndex === attempts.length && gameStatus === 'IN_PROGRESS';
-
-          return (
-            <div key={rowIndex} className="board-row">
-              {Array.from({ length: 5 }).map((_, colIndex) => {
-                let char = '';
-                let statusClass = '';
-
-                if (attempt) {
-                  char = attempt[colIndex];
-                  statusClass = getLetterStatus(char, colIndex, attempt);
-                } else if (isCurrentRow) {
-                  char = currentInput[colIndex] || '';
-                } else if (greenLettersMap[colIndex]) {
-                  // Mantiene en verde visual las posiciones ya acertadas previamente
-                  char = greenLettersMap[colIndex];
-                  statusClass = 'correct-hint';
-                }
-
-                return (
-                  <div key={colIndex} className={`cell ${statusClass}`}>
-                    {char}
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Entrada de usuario */}
-      {gameStatus === 'IN_PROGRESS' && (
-        <div className="input-controls">
-          <input
-            type="text"
-            maxLength={5}
-            value={currentInput}
-            onChange={(e) => setCurrentInput(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === 'Enter' && handleSubmitAttempt()}
-            placeholder="Escribe 5 letras"
-          />
-          <button onClick={handleSubmitAttempt}>Enviar</button>
-        </div>
-      )}
-
-      {/* Botón Siguiente Palabra (Solo cuando gana en modo libre) */}
-      {gameStatus === 'WON' && gameMode === 'libre' && (
-        <button className="next-word-btn" onClick={startNewGame}>
-          Siguiente Palabra ➔
-        </button>
-      )}
-
-      {/* Definición de la palabra (Únicamente si la adivina o en modo diario) */}
-      {showDefinition && (
-        <div className="definition-box">
-          <h3>Significado de {targetWord}:</h3>
-          <p>Objeto o conjunto de hojas de papel o material semejante que, encuadernadas, forman un libro.</p>
-        </div>
-      )}
-
-      {/* MODAL DE REINTENTO (Modo Libre al perder) */}
-      {showRetryModal && (
-        <div className="modal-overlay">
-          <div className="modal-content retry-modal">
-            <h2 className="title-encouragement">{message.title}</h2>
-            <p className="subtitle-encouragement">{message.subtitle}</p>
-            <p className="info-text">
-              Las letras acertadas se mantienen en verde para tu siguiente intento.
-            </p>
-            <button className="retry-btn" onClick={handleRetryWord}>
-              Reintentar palabra
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL DE ESTADÍSTICAS */}
-      {showStatsModal && (
-        <StatsModal
-          stats={stats}
-          onClose={() => setShowStatsModal(false)}
-        />
-      )}
-    </div>
-  );
+function loadSavedStats() {
+  const saved = localStorage.getItem('palabra_aragonesa_stats');
+  if (saved) {
+    try { stats = JSON.parse(saved); } catch (e) {}
+  }
 }
 
-// Componente para el Modal de Estadísticas
-function StatsModal({ stats, onClose }) {
-  const [selectedView, setSelectedView] = useState('libre'); // 'diario' | 'libre' | 'total'
+function saveStats() {
+  localStorage.setItem('palabra_aragonesa_stats', JSON.stringify(stats));
+}
 
-  // Formatear/Calcular estadísticas según la pestaña seleccionada
-  const getDisplayStats = () => {
-    if (selectedView === 'diario') return stats.diario;
-    if (selectedView === 'libre') return stats.libre;
+function loadWordsJSON() {
+  fetch('palabras.json')
+    .then(res => res.json())
+    .then(data => {
+      palabras = data;
+      // Filtrar palabras de 5 letras para el juego Wordle de 5 casillas
+      validWords = palabras.filter(p => p.palabra && p.palabra.trim().length === 5);
+      
+      if (validWords.length === 0) {
+        alert('No se encontraron palabras de 5 letras en el archivo JSON.');
+        return;
+      }
 
-    // Calculo del TOTAL
-    const totalPlayed = stats.diario.played + stats.libre.played;
-    const totalWins = stats.diario.wins + stats.libre.wins;
-    const combinedDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-
-    [1, 2, 3, 4, 5, 6].forEach((attempt) => {
-      combinedDistribution[attempt] =
-        (stats.diario.distribution[attempt] || 0) +
-        (stats.libre.distribution[attempt] || 0);
+      checkFirstVisitTutorial();
+      initGame('daily');
+    })
+    .catch(err => {
+      console.error('Error al cargar palabras.json:', err);
     });
+}
 
-    return { played: totalPlayed, wins: totalWins, distribution: combinedDistribution };
-  };
+function checkFirstVisitTutorial() {
+  const hideHelp = localStorage.getItem('palabra_aragonesa_hide_help');
+  if (!hideHelp) {
+    helpModal.classList.remove('hidden');
+  }
+}
 
-  const currentStats = getDisplayStats();
-  const maxDistributionCount = Math.max(...Object.values(currentStats.distribution), 1);
+function initEventListeners() {
+  // Modales
+  btnHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
+  closeHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
+  startGameBtn.addEventListener('click', () => {
+    if (dontShowHelp.checked) {
+      localStorage.setItem('palabra_aragonesa_hide_help', 'true');
+    }
+    helpModal.classList.add('hidden');
+  });
 
-  return (
-    <div className="modal-overlay">
-      <div className="modal-content stats-modal">
-        <div className="stats-header">
-          <h2>Estadísticas</h2>
-          <button className="close-btn" onClick={onClose}>✖</button>
-        </div>
+  btnStats.addEventListener('click', () => openStatsModal());
+  closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
+  btnModalClose.addEventListener('click', () => statsModal.classList.add('hidden'));
 
-        {/* Pestañas de Selección */}
-        <div className="stats-tabs">
-          <button
-            className={selectedView === 'diario' ? 'tab-btn active' : 'tab-btn'}
-            onClick={() => setSelectedView('diario')}
-          >
-            Palabra del día
-          </button>
-          <button
-            className={selectedView === 'libre' ? 'tab-btn active' : 'tab-btn'}
-            onClick={() => setSelectedView('libre')}
-          >
-            Modo libre
-          </button>
-          <button
-            className={selectedView === 'total' ? 'tab-btn active' : 'tab-btn'}
-            onClick={() => setSelectedView('total')}
-          >
-            Total
-          </button>
-        </div>
+  // Cambios de modo
+  btnModeDaily.addEventListener('click', () => switchMode('daily'));
+  btnModeFree.addEventListener('click', () => switchMode('free'));
 
-        {/* Métricas Generales */}
-        <div className="stats-summary">
-          <div className="summary-item">
-            <span className="number">{currentStats.played}</span>
-            <span className="label">Jugadas</span>
-          </div>
-          <div className="summary-item">
-            <span className="number">
-              {currentStats.played > 0
-                ? Math.round((currentStats.wins / currentStats.played) * 100)
-                : 0}
-              %
-            </span>
-            <span className="label">Victorias</span>
-          </div>
-        </div>
+  // Controles de Modo Libre
+  btnNewWord.addEventListener('click', () => {
+    currentGame.freeWordIndex++;
+    initGame('free');
+  });
 
-        {/* Distribución de Intentos (Barras Verdes) */}
-        <h3>Distribución de Intentos</h3>
-        <div className="guess-distribution">
-          {[1, 2, 3, 4, 5, 6].map((attempt) => {
-            const count = currentStats.distribution[attempt] || 0;
-            const widthPercentage = Math.max((count / maxDistributionCount) * 100, 7);
+  modalNextBtn.addEventListener('click', () => {
+    statsModal.classList.add('hidden');
+    currentGame.freeWordIndex++;
+    initGame('free');
+  });
 
-            return (
-              <div key={attempt} className="bar-row">
-                <span className="attempt-label">{attempt}</span>
-                <div className="bar-container">
-                  <div
-                    className="stat-bar"
-                    style={{ width: `${widthPercentage}%` }}
-                  >
-                    {count}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+  btnRetry.addEventListener('click', () => {
+    statsModal.classList.add('hidden');
+    resetCurrentWord();
+  });
+
+  btnShare.addEventListener('click', shareResults);
+
+  // Eventos de teclado
+  keyboardEl.addEventListener('click', (e) => {
+    const target = e.target.closest('.key');
+    if (!target) return;
+    const key = target.getAttribute('data-key');
+    handleKeyPress(key);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (!helpModal.classList.contains('hidden') || !statsModal.classList.contains('hidden')) return;
+    if (e.key === 'Enter') handleKeyPress('ENTER');
+    else if (e.key === 'Backspace') handleKeyPress('BACKSPACE');
+    else {
+      const key = e.key.toUpperCase();
+      if (/^[A-ZÑ]$/.test(key)) handleKeyPress(key);
+    }
+  });
+}
+
+function switchMode(mode) {
+  if (currentGame.mode === mode) return;
+  btnModeDaily.classList.toggle('active', mode === 'daily');
+  btnModeFree.classList.toggle('active', mode === 'free');
+  freeControls.classList.toggle('hidden', mode === 'daily');
+  initGame(mode);
+}
+
+function getDailyIndex() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const diff = now - start;
+  const oneDay = 1000 * 60 * 60 * 24;
+  const dayOfYear = Math.floor(diff / oneDay);
+  return dayOfYear % validWords.length;
+}
+
+function initGame(mode) {
+  currentGame.mode = mode;
+  currentGame.attempts = [];
+  currentGame.currentInput = '';
+  currentGame.status = 'IN_PROGRESS';
+
+  if (mode === 'daily') {
+    const dailyIdx = getDailyIndex();
+    currentGame.wordObj = validWords[dailyIdx];
+  } else {
+    const randomIdx = Math.floor(Math.random() * validWords.length);
+    currentGame.wordObj = validWords[randomIdx];
+    wordBadge.textContent = `Palabra #${currentGame.freeWordIndex}`;
+  }
+
+  currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
+  
+  resetKeyboardColors();
+  renderBoard();
+}
+
+function resetCurrentWord() {
+  currentGame.attempts = [];
+  currentGame.currentInput = '';
+  currentGame.status = 'IN_PROGRESS';
+  resetKeyboardColors();
+  renderBoard();
+}
+
+function handleKeyPress(key) {
+  if (currentGame.status !== 'IN_PROGRESS') return;
+
+  if (key === 'ENTER') {
+    submitAttempt();
+  } else if (key === 'BACKSPACE') {
+    currentGame.currentInput = currentGame.currentInput.slice(0, -1);
+    renderBoard();
+  } else if (currentGame.currentInput.length < 5 && /^[A-ZÑ]$/.test(key)) {
+    currentGame.currentInput += key;
+    renderBoard();
+  }
+}
+
+function submitAttempt() {
+  if (currentGame.currentInput.length !== 5) return;
+
+  const attempt = currentGame.currentInput.toUpperCase();
+  currentGame.attempts.push(attempt);
+  currentGame.currentInput = '';
+
+  updateKeyboardColors(attempt);
+
+  if (attempt === currentGame.targetWord) {
+    currentGame.status = 'WON';
+    recordStats(true, currentGame.attempts.length);
+    renderBoard();
+    setTimeout(() => openStatsModal(), 600);
+    return;
+  }
+
+  if (currentGame.attempts.length === 6) {
+    currentGame.status = 'LOST';
+    recordStats(false, 6);
+    renderBoard();
+    setTimeout(() => openStatsModal(), 600);
+    return;
+  }
+
+  renderBoard();
+}
+
+function getGreenLettersMap() {
+  const greenMap = {};
+  currentGame.attempts.forEach(att => {
+    att.split('').forEach((char, idx) => {
+      if (currentGame.targetWord[idx] === char) {
+        greenMap[idx] = char;
+      }
+    });
+  });
+  return greenMap;
+}
+
+function renderBoard() {
+  boardEl.innerHTML = '';
+  const greenMap = getGreenLettersMap();
+
+  for (let r = 0; r < 6; r++) {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'board-row';
+
+    const attempt = currentGame.attempts[r];
+    const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
+
+    for (let c = 0; c < 5; c++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+
+      if (attempt) {
+        tile.textContent = attempt[c];
+        const status = evaluateTileStatus(attempt, c);
+        tile.classList.add(status);
+      } else if (isCurrentRow) {
+        const char = currentGame.currentInput[c] || '';
+        if (char) {
+          tile.textContent = char;
+          tile.classList.add('filled');
+        } else if (greenMap[c]) {
+          tile.textContent = greenMap[c];
+          tile.classList.add('ghost-green');
+        }
+      }
+
+      rowEl.appendChild(tile);
+    }
+
+    boardEl.appendChild(rowEl);
+  }
+}
+
+function evaluateTileStatus(attempt, index) {
+  const char = attempt[index];
+  const target = currentGame.targetWord;
+
+  if (target[index] === char) return 'correct';
+
+  let targetChars = target.split('');
+  let attemptChars = attempt.split('');
+
+  // Marcar verdes en temporales
+  for (let i = 0; i < 5; i++) {
+    if (attemptChars[i] === targetChars[i]) {
+      targetChars[i] = null;
+    }
+  }
+
+  // Verificar amarillos
+  for (let i = 0; i < 5; i++) {
+    if (attemptChars[i] === targetChars[i]) continue;
+    if (i === index) {
+      const foundIdx = targetChars.indexOf(char);
+      if (foundIdx !== -1) {
+        return 'present';
+      }
+    } else {
+      const foundIdx = targetChars.indexOf(attemptChars[i]);
+      if (foundIdx !== -1) {
+        targetChars[foundIdx] = null;
+      }
+    }
+  }
+
+  return 'absent';
+}
+
+function updateKeyboardColors(attempt) {
+  attempt.split('').forEach((char, idx) => {
+    const keyEl = keyboardEl.querySelector(`[data-key="${char}"]`);
+    if (!keyEl) return;
+
+    if (currentGame.targetWord[idx] === char) {
+      keyEl.classList.remove('present', 'absent');
+      keyEl.classList.add('correct');
+    } else if (currentGame.targetWord.includes(char)) {
+      if (!keyEl.classList.contains('correct')) {
+        keyEl.classList.remove('absent');
+        keyEl.classList.add('present');
+      }
+    } else {
+      if (!keyEl.classList.contains('correct') && !keyEl.classList.contains('present')) {
+        keyEl.classList.add('absent');
+      }
+    }
+  });
+}
+
+function resetKeyboardColors() {
+  const keys = keyboardEl.querySelectorAll('.key');
+  keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
+}
+
+function recordStats(isWin, attemptCount) {
+  stats.played++;
+  if (isWin) {
+    stats.wins++;
+    stats.streak++;
+    if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
+    stats.distribution[attemptCount] = (stats.distribution[attemptCount] || 0) + 1;
+  } else {
+    stats.streak = 0;
+  }
+  saveStats();
+}
+
+function openStatsModal() {
+  document.getElementById('stat-played').textContent = stats.played;
+  const winrate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
+  document.getElementById('stat-winrate').textContent = `${winrate}%`;
+  document.getElementById('stat-streak').textContent = stats.streak;
+  document.getElementById('stat-maxstreak').textContent = stats.maxStreak;
+
+  renderDistribution();
+
+  // Banner y definiciones
+  feedbackBanner.classList.add('hidden');
+  wordDefinition.classList.add('hidden');
+  dailyCountdownBox.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnRetry.classList.add('hidden');
+  modalNextBtn.classList.add('hidden');
+
+  if (currentGame.status === 'WON') {
+    feedbackBanner.textContent = '¡Magnífico! Has adivinado la palabra.';
+    feedbackBanner.className = 'feedback-banner win';
+    feedbackBanner.classList.remove('hidden');
+
+    wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+    wordDefinition.classList.remove('hidden');
+
+    btnShare.classList.remove('hidden');
+
+    if (currentGame.mode === 'free') {
+      modalNextBtn.classList.remove('hidden');
+    } else {
+      startCountdownTimer();
+      dailyCountdownBox.classList.remove('hidden');
+    }
+  } else if (currentGame.status === 'LOST') {
+    feedbackBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
+    feedbackBanner.className = 'feedback-banner lose';
+    feedbackBanner.classList.remove('hidden');
+
+    wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+    wordDefinition.classList.remove('hidden');
+
+    if (currentGame.mode === 'free') {
+      btnRetry.classList.remove('hidden');
+      modalNextBtn.classList.remove('hidden');
+    } else {
+      startCountdownTimer();
+      dailyCountdownBox.classList.remove('hidden');
+    }
+  }
+
+  statsModal.classList.remove('hidden');
+}
+
+function renderDistribution() {
+  const container = document.getElementById('guess-distribution');
+  container.innerHTML = '';
+  const maxVal = Math.max(...Object.values(stats.distribution), 1);
+
+  for (let i = 1; i <= 6; i++) {
+    const val = stats.distribution[i] || 0;
+    const pct = Math.max((val / maxVal) * 100, 7);
+
+    const row = document.createElement('div');
+    row.className = 'dist-row';
+    row.innerHTML = `
+      <span class="dist-num">${i}</span>
+      <div class="dist-bar-bg">
+        <div class="dist-bar-fill" style="width: ${pct}%">${val}</div>
       </div>
-    </div>
-  );
+    `;
+    container.appendChild(row);
+  }
+}
+
+function startCountdownTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+
+  function updateTimer() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const diff = tomorrow - now;
+
+    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
+    const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+    dailyTimer.textContent = `${hours}:${mins}:${secs}`;
+  }
+
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function shareResults() {
+  let shareText = `Wordle Aragones - ${currentGame.mode === 'daily' ? 'Palabra do Día' : 'Modo Libre'}\n`;
+  shareText += `${currentGame.attempts.length}/6\n\n`;
+
+  currentGame.attempts.forEach(att => {
+    att.split('').forEach((char, idx) => {
+      if (currentGame.targetWord[idx] === char) shareText += '🟩';
+      else if (currentGame.targetWord.includes(char)) shareText += '🟧';
+      else shareText += '⬛';
+    });
+    shareText += '\n';
+  });
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareText).then(() => {
+      alert('¡Resultado copiado al portapapeles!');
+    });
+  } else {
+    alert(shareText);
+  }
 }
