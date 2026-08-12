@@ -13,7 +13,6 @@ async function loadGame() {
     const response = await fetch("words.json");
     allWords = await response.json();
 
-    // Obtener la palabra del día según el índice diario
     const dailyIndex = getDailyIndex();
     targetWordObj = allWords[dailyIndex];
 
@@ -34,19 +33,16 @@ function getDailyIndex() {
 }
 
 function setupEventListeners() {
-  // Eventos de teclado físico
   document.addEventListener("keydown", handleKeyPress);
 
-  // Eventos de teclado en pantalla
   const keys = document.querySelectorAll(".key");
   keys.forEach((key) => {
     key.addEventListener("click", (e) => {
-      const keyValue = e.target.getAttribute("data-key");
+      const keyValue = e.currentTarget.getAttribute("data-key");
       processInput(keyValue);
     });
   });
 
-  // Eventos de modales
   document.getElementById("btn-help").addEventListener("click", showHelpModal);
   document.getElementById("close-help").addEventListener("click", closeHelpModal);
   document.getElementById("start-game-btn").addEventListener("click", closeHelpModal);
@@ -109,7 +105,6 @@ function checkGuess() {
   const guessLetters = guess.split("");
   const tileStates = new Array(guess.length).fill("absent");
 
-  // Primera pasada: Letras en posición correcta (Verde)
   for (let i = 0; i < guess.length; i++) {
     if (guessLetters[i] === targetLetters[i]) {
       tileStates[i] = "correct";
@@ -117,10 +112,9 @@ function checkGuess() {
     }
   }
 
-  // Segunda pasada: Letras presentes en posición incorrecta (Amarillo)
   for (let i = 0; i < guess.length; i++) {
     if (tileStates[i] !== "correct") {
-      const indexInTarget = targetLetters ocean = targetLetters.indexOf(guessLetters[i]);
+      const indexInTarget = targetLetters.indexOf(guessLetters[i]);
       if (indexInTarget !== -1) {
         tileStates[i] = "present";
         targetLetters[indexInTarget] = null;
@@ -128,7 +122,6 @@ function checkGuess() {
     }
   }
 
-  // Aplicar estilos a la fila y actualizar teclado
   for (let i = 0; i < rowTiles.length; i++) {
     rowTiles[i].classList.add(tileStates[i]);
     updateKeyboard(guessLetters[i], tileStates[i]);
@@ -172,7 +165,6 @@ function normalizeText(text) {
     .toUpperCase();
 }
 
-/* Gestión del Modal Tutorial */
 function checkFirstVisitHelp() {
   const dontShow = localStorage.getItem("wordle_aragones_hide_help");
   if (!dontShow) {
@@ -199,7 +191,6 @@ function closeHelpModal() {
   document.getElementById("help-modal").classList.add("hidden");
 }
 
-/* Gestión del Modal de Estadísticas y Final */
 function showEndGameModal(isWin) {
   const modal = document.getElementById("stats-modal");
   const title = document.getElementById("modal-title");
