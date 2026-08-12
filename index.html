@@ -80,7 +80,7 @@
     <div class="modal-content tutorial-content">
       <button id="close-help" class="close-btn">&times;</button>
       <h2>Cómo jugar</h2>
-      <p>Adivina la palabra oculta en 6 intentos.</p>
+      <p>Adivina la palabra oculta de 5 letras en 6 intentos.</p>
       <p>Tras cada intento, las casillas cambiarán de color según la precisión de tu respuesta.</p>
 
       <hr class="tutorial-divider">
@@ -93,7 +93,6 @@
           <div class="tile-sample">S</div>
           <div class="tile-sample">M</div>
           <div class="tile-sample">I</div>
-          <div class="tile-sample">A</div>
         </div>
         <p>La letra <strong>R</strong> está en la palabra y en la posición correcta (Verde).</p>
       </div>
@@ -138,7 +137,6 @@
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
       
-      <!-- Mensaje dinámico -->
       <div id="feedback-banner" class="feedback-banner hidden"></div>
 
       <h2>Estadísticas</h2>
@@ -165,17 +163,14 @@
       <h3>Distribución de intentos</h3>
       <div id="guess-distribution" class="distribution-container"></div>
 
-      <!-- Definición de la palabra (sólo visible al ganar) -->
       <div id="word-definition" class="definition-box hidden"></div>
 
-      <!-- Cuenta atrás para la palabra diaria -->
       <div id="daily-countdown-box" class="countdown-box hidden">
         <span>Próxima palabra diaria en:</span>
         <div id="daily-timer" class="timer-digits">00:00:00</div>
         <p class="call-to-action">¡Vuelve mañana para adivinar la nueva palabra!</p>
       </div>
 
-      <!-- Botones de Acción del Modal -->
       <div class="modal-actions">
         <button id="btn-share" class="action-btn-secondary hidden">📤 Compartir resultado</button>
         <button id="btn-retry" class="action-btn hidden">🔄 Reintentar palabra</button>
