@@ -61,8 +61,8 @@ header {
 }
 
 h1 {
-  font-size: 1.2rem;
-  letter-spacing: 1px;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
   font-weight: 800;
   color: var(--color-text-main);
   text-transform: uppercase;
@@ -100,7 +100,7 @@ h1 {
   border: none;
   background: transparent;
   padding: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--color-text-muted);
   border-radius: var(--radius-sm);
@@ -121,20 +121,31 @@ main {
   justify-content: space-between;
   flex-grow: 1;
   padding: 12px;
-  gap: 10px;
+  gap: 8px;
+  overflow-y: auto;
 }
 
 .free-controls {
-  height: 32px;
+  height: 36px;
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.word-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 12px;
 }
 
 .action-btn-secondary {
   background-color: #f1f5f9;
   color: var(--color-text-main);
   border: 1px solid var(--color-border-dark);
-  padding: 6px 16px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 700;
@@ -146,27 +157,30 @@ main {
   background-color: var(--color-border);
 }
 
+/* TABLERO */
 #game-board {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   margin: auto 0;
+  width: 100%;
+  align-items: center;
 }
 
 .row {
   display: flex;
-  gap: 6px;
+  gap: 5px;
   justify-content: center;
 }
 
 .tile {
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border: 2px solid var(--color-border-dark);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   text-transform: uppercase;
   color: var(--color-text-main);
@@ -176,28 +190,30 @@ main {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.tile.correct {
-  background-color: var(--color-correct);
-  border-color: var(--color-correct);
-  color: #ffffff;
+/* ESTADOS CASILLAS */
+.tile.correct, .tile-sample.correct {
+  background-color: var(--color-correct) !important;
+  border-color: var(--color-correct) !important;
+  color: #ffffff !important;
 }
 
-.tile.present {
-  background-color: var(--color-present);
-  border-color: var(--color-present);
-  color: #ffffff;
+.tile.present, .tile-sample.present {
+  background-color: var(--color-present) !important;
+  border-color: var(--color-present) !important;
+  color: #ffffff !important;
 }
 
-.tile.absent {
-  background-color: var(--color-absent);
-  border-color: var(--color-absent);
-  color: #ffffff;
+.tile.absent, .tile-sample.absent {
+  background-color: var(--color-absent) !important;
+  border-color: var(--color-absent) !important;
+  color: #ffffff !important;
 }
 
+/* TECLADO */
 #keyboard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   width: 100%;
   max-width: 500px;
   padding-bottom: 6px;
@@ -214,10 +230,10 @@ main {
   color: var(--color-text-main);
   border: none;
   border-radius: var(--radius-sm);
-  height: 54px;
+  height: 50px;
   flex: 1;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -232,7 +248,7 @@ main {
 
 .wide-key {
   flex: 1.5;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
 }
 
 .key.correct {
@@ -250,6 +266,7 @@ main {
   color: #ffffff;
 }
 
+/* MODALES */
 .modal {
   position: fixed;
   top: 0;
@@ -272,23 +289,25 @@ main {
   background-color: var(--color-surface);
   color: var(--color-text-main);
   border-radius: var(--radius-lg);
-  padding: 24px 20px;
+  padding: 20px 18px;
   width: 90%;
-  max-width: 420px;
+  max-width: 430px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
   text-align: center;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 .close-btn {
   position: absolute;
-  top: 14px;
-  right: 16px;
+  top: 12px;
+  right: 14px;
   background: #f1f5f9;
   border: none;
   font-size: 1.2rem;
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   cursor: pointer;
   color: var(--color-text-muted);
@@ -297,10 +316,31 @@ main {
   justify-content: center;
 }
 
+.feedback-banner {
+  font-size: 1.05rem;
+  font-weight: 800;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  margin-top: 10px;
+  margin-bottom: 12px;
+}
+
+.feedback-banner.win {
+  background-color: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.feedback-banner.loss {
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
+
 .stats-summary {
   display: flex;
   justify-content: space-around;
-  margin: 20px 0;
+  margin: 14px 0;
 }
 
 .stat-box {
@@ -310,24 +350,23 @@ main {
 }
 
 .stat-num {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--color-text-main);
 }
 
 .stat-label {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--color-text-muted);
   text-transform: uppercase;
   font-weight: 700;
-  letter-spacing: 0.5px;
 }
 
 .distribution-container {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin: 16px 0;
+  margin: 14px 0;
   text-align: left;
 }
 
@@ -339,6 +378,19 @@ main {
   font-weight: 700;
 }
 
+.dist-label {
+  width: 16px;
+  text-align: center;
+}
+
+.dist-bar-wrapper {
+  flex-grow: 1;
+  background-color: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
 .dist-bar {
   background-color: var(--color-absent);
   color: white;
@@ -346,32 +398,39 @@ main {
   border-radius: 4px;
   min-width: 24px;
   text-align: right;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
+  transition: width 0.4s ease;
 }
 
 .dist-bar.highlight {
   background-color: var(--color-correct);
 }
 
+.dist-pct {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  width: 42px;
+  text-align: right;
+}
+
 .definition-box {
   background-color: #f0fdf4;
   border-left: 4px solid var(--color-correct);
-  padding: 12px;
-  margin: 16px 0;
+  padding: 10px 12px;
+  margin: 12px 0;
   text-align: left;
   border-radius: var(--radius-sm);
-  font-size: 0.92rem;
-  line-height: 1.45;
+  font-size: 0.9rem;
+  line-height: 1.4;
   color: #166534;
 }
 
-/* --- CUENTA ATRÁS DIARIA --- */
 .countdown-box {
   background-color: #f8fafc;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 12px;
-  margin-top: 14px;
+  padding: 10px;
+  margin-top: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -379,38 +438,46 @@ main {
 }
 
 .countdown-box span {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
 .timer-digits {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--color-text-main);
   letter-spacing: 2px;
   font-variant-numeric: tabular-nums;
 }
 
+.call-to-action {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-correct);
+  margin-top: 4px;
+}
+
+/* TUTORIAL MUESTRAS */
 .tutorial-content {
   text-align: left;
 }
 
 .tutorial-content h2, .tutorial-content h3 {
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .tutorial-divider {
   border: 0;
   height: 1px;
   background: var(--color-border);
-  margin: 16px 0;
+  margin: 12px 0;
 }
 
 .tutorial-example {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .tutorial-example .row {
@@ -418,17 +485,23 @@ main {
   margin-bottom: 4px;
 }
 
-.tutorial-example .tile {
-  width: 38px;
-  height: 38px;
-  font-size: 1.2rem;
+.tile-sample {
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 2px solid var(--color-border-dark);
 }
 
 .dont-show-container {
   display: flex;
   justify-content: center;
-  margin-top: 14px;
-  font-size: 0.88rem;
+  margin-top: 12px;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
@@ -444,11 +517,11 @@ main {
   background-color: var(--color-correct);
   color: white;
   border: none;
-  padding: 12px;
-  font-size: 1rem;
+  padding: 11px;
+  font-size: 0.95rem;
   font-weight: 700;
   border-radius: var(--radius-md);
-  margin-top: 14px;
+  margin-top: 12px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
