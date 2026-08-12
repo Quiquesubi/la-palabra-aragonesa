@@ -51,12 +51,33 @@ header {
   align-items: center;
 }
 
-header h1 {
-  font-size: 1.15rem;
+/* Estilo Hashtag para el Título */
+.hashtag-title {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background-color: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #cbd5e1;
+  max-width: fit-content;
+}
+
+.hashtag-symbol {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: var(--color-correct);
+  line-height: 1;
+}
+
+.hashtag-title h1 {
+  font-size: 0.95rem;
+  font-weight: 800;
   margin: 0;
-  letter-spacing: 0.5px;
-  color: #111;
-  text-align: left;
+  letter-spacing: 0.3px;
+  color: #0f172a;
+  text-transform: none;
+  white-space: nowrap;
 }
 
 .menu-buttons {
@@ -465,4 +486,17 @@ main {
   justify-content: center;
   flex-wrap: wrap;
   margin-top: 16px;
+}
+
+/* Ajuste responsive para pantallas móviles muy estrechas */
+@media (max-width: 380px) {
+  .hashtag-title {
+    padding: 5px 8px;
+  }
+  .hashtag-title h1 {
+    font-size: 0.82rem;
+  }
+  .hashtag-symbol {
+    font-size: 1rem;
+  }
 }
