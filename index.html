@@ -18,7 +18,6 @@
         </div>
       </div>
 
-      <!-- Selector de Modo de Juego -->
       <div class="mode-selector">
         <button id="btn-mode-daily" class="mode-btn active">Palabra aragonesa del día</button>
         <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
@@ -26,32 +25,14 @@
     </header>
 
     <main>
-      <!-- Controles Modo Libre -->
+      <!-- Indicadores Modo Libre -->
       <div id="free-mode-controls" class="free-controls hidden">
+        <span id="word-number-badge" class="word-badge">Palabra #1</span>
         <button id="btn-new-word" class="action-btn-secondary">🔄 Nueva Palabra</button>
       </div>
 
-      <!-- Tablero de Juego -->
-      <div id="game-board">
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-        <div class="row">
-          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-        </div>
-      </div>
+      <!-- Tablero -->
+      <div id="game-board"></div>
 
       <!-- Teclado Virtual -->
       <div id="keyboard">
@@ -100,43 +81,43 @@
       <button id="close-help" class="close-btn">&times;</button>
       <h2>Cómo jugar</h2>
       <p>Adivina la palabra oculta en 6 intentos.</p>
-      <p>Tras cada intento, las casillas cambiarán de color para mostrarte lo cerca que estás de la palabra.</p>
+      <p>Tras cada intento, las casillas cambiarán de color según la precisión de tu respuesta.</p>
 
       <hr class="tutorial-divider">
       <h3>Ejemplos</h3>
 
       <div class="tutorial-example">
         <div class="row">
-          <div class="tile correct">R</div>
-          <div class="tile">A</div>
-          <div class="tile">S</div>
-          <div class="tile">M</div>
-          <div class="tile">I</div>
-          <div class="tile">A</div>
+          <div class="tile-sample correct">R</div>
+          <div class="tile-sample">A</div>
+          <div class="tile-sample">S</div>
+          <div class="tile-sample">M</div>
+          <div class="tile-sample">I</div>
+          <div class="tile-sample">A</div>
         </div>
-        <p>La letra <strong>R</strong> está en la palabra y en la posición correcta.</p>
+        <p>La letra <strong>R</strong> está en la palabra y en la posición correcta (Verde).</p>
       </div>
 
       <div class="tutorial-example">
         <div class="row">
-          <div class="tile">B</div>
-          <div class="tile present">O</div>
-          <div class="tile">I</div>
-          <div class="tile">R</div>
-          <div class="tile">A</div>
+          <div class="tile-sample">B</div>
+          <div class="tile-sample present">O</div>
+          <div class="tile-sample">I</div>
+          <div class="tile-sample">R</div>
+          <div class="tile-sample">A</div>
         </div>
-        <p>La letra <strong>O</strong> está en la palabra pero en posición incorrecta.</p>
+        <p>La letra <strong>O</strong> está en la palabra pero en posición incorrecta (Amarillo).</p>
       </div>
 
       <div class="tutorial-example">
         <div class="row">
-          <div class="tile">F</div>
-          <div class="tile">I</div>
-          <div class="tile absent">E</div>
-          <div class="tile">M</div>
-          <div class="tile">O</div>
+          <div class="tile-sample">F</div>
+          <div class="tile-sample">I</div>
+          <div class="tile-sample absent">E</div>
+          <div class="tile-sample">M</div>
+          <div class="tile-sample">O</div>
         </div>
-        <p>La letra <strong>E</strong> no está en la palabra.</p>
+        <p>La letra <strong>E</strong> no se encuentra en la palabra (Gris).</p>
       </div>
 
       <hr class="tutorial-divider">
@@ -156,6 +137,10 @@
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
+      
+      <!-- Mensaje dinámico de felicitación / ánimo -->
+      <div id="feedback-banner" class="feedback-banner hidden"></div>
+
       <h2>Estadísticas</h2>
       
       <div class="stats-summary">
@@ -187,6 +172,7 @@
       <div id="daily-countdown-box" class="countdown-box hidden">
         <span>Próxima palabra diaria en:</span>
         <div id="daily-timer" class="timer-digits">00:00:00</div>
+        <p class="call-to-action">¡Vuelve mañana para adivinar la nueva palabra!</p>
       </div>
 
       <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra</button>
