@@ -145,12 +145,16 @@ main {
   background-color: #f1f5f9;
   color: var(--color-text-main);
   border: 1px solid var(--color-border-dark);
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .action-btn-secondary:hover {
@@ -317,12 +321,13 @@ main {
 }
 
 .feedback-banner {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-weight: 800;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   margin-top: 10px;
   margin-bottom: 12px;
+  line-height: 1.35;
 }
 
 .feedback-banner.win {
@@ -459,6 +464,35 @@ main {
   margin-top: 4px;
 }
 
+/* BOTONES ACCION MODAL */
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.action-btn {
+  width: 100%;
+  background-color: var(--color-correct);
+  color: white;
+  border: none;
+  padding: 11px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.action-btn:hover {
+  background-color: #5b9656;
+}
+
 /* TUTORIAL MUESTRAS */
 .tutorial-content {
   text-align: left;
@@ -510,22 +544,4 @@ main {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.action-btn {
-  width: 100%;
-  background-color: var(--color-correct);
-  color: white;
-  border: none;
-  padding: 11px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  border-radius: var(--radius-md);
-  margin-top: 12px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.action-btn:hover {
-  background-color: #5b9656;
 }
