@@ -8,89 +8,91 @@
 </head>
 <body>
 
-  <header>
-    <div class="header-top">
-      <h1>PALABRA ARAGONESA</h1>
-      <div class="menu-buttons">
-        <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
-        <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
+  <div class="app-container">
+    <header>
+      <div class="header-top">
+        <h1>PALABRA ARAGONESA</h1>
+        <div class="menu-buttons">
+          <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
+          <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
+        </div>
       </div>
-    </div>
 
-    <!-- Selección de Modo de Juego -->
-    <div class="mode-selector">
-      <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
-      <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
-    </div>
-  </header>
+      <!-- Selector de Modo de Juego -->
+      <div class="mode-selector">
+        <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
+        <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
+      </div>
+    </header>
 
-  <main>
-    <!-- Botón de Nueva Palabra solo para Modo Libre -->
-    <div id="free-mode-controls" class="free-controls hidden">
-      <button id="btn-new-word" class="action-btn-secondary">🔄 Nueva palabra</button>
-    </div>
+    <main>
+      <!-- Controles Modo Libre -->
+      <div id="free-mode-controls" class="free-controls hidden">
+        <button id="btn-new-word" class="action-btn-secondary">🔄 Nueva Palabra</button>
+      </div>
 
-    <!-- Tablero de Juego -->
-    <div id="game-board">
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+      <!-- Tablero de Juego -->
+      <div id="game-board">
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
+        <div class="row">
+          <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+        </div>
       </div>
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-      </div>
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-      </div>
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-      </div>
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-      </div>
-      <div class="row">
-        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
-      </div>
-    </div>
 
-    <!-- Teclado Virtual -->
-    <div id="keyboard">
-      <div class="keyboard-row">
-        <button class="key" data-key="Q">Q</button>
-        <button class="key" data-key="W">W</button>
-        <button class="key" data-key="E">E</button>
-        <button class="key" data-key="R">R</button>
-        <button class="key" data-key="T">T</button>
-        <button class="key" data-key="Y">Y</button>
-        <button class="key" data-key="U">U</button>
-        <button class="key" data-key="I">I</button>
-        <button class="key" data-key="O">O</button>
-        <button class="key" data-key="P">P</button>
+      <!-- Teclado Virtual -->
+      <div id="keyboard">
+        <div class="keyboard-row">
+          <button class="key" data-key="Q">Q</button>
+          <button class="key" data-key="W">W</button>
+          <button class="key" data-key="E">E</button>
+          <button class="key" data-key="R">R</button>
+          <button class="key" data-key="T">T</button>
+          <button class="key" data-key="Y">Y</button>
+          <button class="key" data-key="U">U</button>
+          <button class="key" data-key="I">I</button>
+          <button class="key" data-key="O">O</button>
+          <button class="key" data-key="P">P</button>
+        </div>
+        <div class="keyboard-row">
+          <button class="key" data-key="A">A</button>
+          <button class="key" data-key="S">S</button>
+          <button class="key" data-key="D">D</button>
+          <button class="key" data-key="F">F</button>
+          <button class="key" data-key="G">G</button>
+          <button class="key" data-key="H">H</button>
+          <button class="key" data-key="J">J</button>
+          <button class="key" data-key="K">K</button>
+          <button class="key" data-key="L">L</button>
+          <button class="key" data-key="Ñ">Ñ</button>
+        </div>
+        <div class="keyboard-row">
+          <button class="key wide-key" data-key="ENTER">ENVIAR</button>
+          <button class="key" data-key="Z">Z</button>
+          <button class="key" data-key="X">X</button>
+          <button class="key" data-key="C">C</button>
+          <button class="key" data-key="V">V</button>
+          <button class="key" data-key="B">B</button>
+          <button class="key" data-key="N">N</button>
+          <button class="key" data-key="M">M</button>
+          <button class="key wide-key" data-key="BACKSPACE">⌫</button>
+        </div>
       </div>
-      <div class="keyboard-row">
-        <button class="key" data-key="A">A</button>
-        <button class="key" data-key="S">S</button>
-        <button class="key" data-key="D">D</button>
-        <button class="key" data-key="F">F</button>
-        <button class="key" data-key="G">G</button>
-        <button class="key" data-key="H">H</button>
-        <button class="key" data-key="J">J</button>
-        <button class="key" data-key="K">K</button>
-        <button class="key" data-key="L">L</button>
-        <button class="key" data-key="Ñ">Ñ</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key wide-key" data-key="ENTER">ENVIAR</button>
-        <button class="key" data-key="Z">Z</button>
-        <button class="key" data-key="X">X</button>
-        <button class="key" data-key="C">C</button>
-        <button class="key" data-key="V">V</button>
-        <button class="key" data-key="B">B</button>
-        <button class="key" data-key="N">N</button>
-        <button class="key" data-key="M">M</button>
-        <button class="key wide-key" data-key="BACKSPACE">⌫</button>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 
   <!-- Modal Instrucciones / Tutorial -->
   <div id="help-modal" class="modal hidden">
@@ -154,7 +156,7 @@
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
-      <h2 id="stats-title">Estadísticas</h2>
+      <h2 id="modal-title">Estadísticas</h2>
       
       <div class="stats-summary">
         <div class="stat-box">
@@ -180,7 +182,6 @@
         <!-- Generado dinámicamente -->
       </div>
 
-      <!-- Definición de la palabra al terminar -->
       <div id="word-definition" class="definition-box hidden"></div>
 
       <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra</button>
