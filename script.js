@@ -6,6 +6,7 @@ let isGameOver = false;
 let gameMode = "daily"; // 'daily' o 'free'
 let dailyGuesses = [];
 let freeGuesses = [];
+let freeModeIndex = 0;
 let countdownInterval = null;
 
 const WIN_MESSAGES = [
@@ -28,6 +29,8 @@ async function loadGame() {
     const response = await fetch("words.json");
     allWords = await response.json();
 
+    freeModeIndex = parseInt(localStorage.getItem("wordle_free_mode_index")) || 0;
+
     setupEventListeners();
     setGameMode("daily");
     checkFirstVisitHelp();
@@ -49,7 +52,7 @@ function setupEventListeners() {
 
   document.getElementById("btn-mode-daily").addEventListener("click", () => setGameMode("daily"));
   document.getElementById("btn-mode-free").addEventListener("click", () => setGameMode("free"));
-  document.getElementById("btn-new-word").addEventListener("click", startNewFreeGame);
+  document.getElementById("btn-new-word").addEventListener("click", advanceToNextFreeWord);
 
   document.getElementById("btn-help").addEventListener("click", showHelpModal);
   document.getElementById("close-help").addEventListener("click", closeHelpModal);
@@ -57,10 +60,14 @@ function setupEventListeners() {
 
   document.getElementById("btn-stats").addEventListener("click", () => renderStatsModal());
   document.getElementById("close-stats").addEventListener("click", hideStatsModal);
+  document.getElementById("btn-modal-close").addEventListener("click", hideStatsModal);
+
+  document.getElementById("btn-retry").addEventListener("click", retryFreeGame);
   document.getElementById("modal-next-btn").addEventListener("click", () => {
     hideStatsModal();
-    if (gameMode === "free") startNewFreeGame();
+    advanceToNextFreeWord();
   });
+  document.getElementById("btn-share").addEventListener("click", shareResults);
 }
 
 function setGameMode(mode) {
@@ -139,15 +146,20 @@ function setupDailyGame() {
 }
 
 function setupFreeGame() {
-  const savedFreeState = localStorage.getItem("free_mode_current_game");
+  if (freeModeIndex >= allWords.length) {
+    freeModeIndex = 0;
+  }
+
+  targetWordObj = allWords[freeModeIndex];
+  document.getElementById("word-number-badge").textContent = `Palabra #${freeModeIndex + 1}`;
+
+  const savedFreeState = localStorage.getItem(`free_mode_game_${freeModeIndex}`);
 
   if (savedFreeState) {
     const state = JSON.parse(savedFreeState);
-    targetWordObj = allWords[state.wordIndex];
     freeGuesses = state.guesses || [];
     isGameOver = state.isGameOver || false;
 
-    document.getElementById("word-number-badge").textContent = `Palabra #${state.wordIndex + 1}`;
     resetBoardUI();
 
     freeGuesses.forEach((guessWord) => {
@@ -163,18 +175,23 @@ function setupFreeGame() {
       setTimeout(() => renderStatsModal(state.isWin), 400);
     }
   } else {
-    startNewFreeGame();
+    freeGuesses = [];
+    resetBoardUI();
+    saveFreeProgress(false, false);
   }
 }
 
-function startNewFreeGame() {
-  const randomIndex = Math.floor(Math.random() * allWords.length);
-  targetWordObj = allWords[randomIndex];
-  freeGuesses = [];
+function advanceToNextFreeWord() {
+  freeModeIndex = (freeModeIndex + 1) % allWords.length;
+  localStorage.setItem("wordle_free_mode_index", freeModeIndex);
+  setupFreeGame();
+}
 
-  document.getElementById("word-number-badge").textContent = `Palabra #${randomIndex + 1}`;
+function retryFreeGame() {
+  localStorage.removeItem(`free_mode_game_${freeModeIndex}`);
+  freeGuesses = [];
+  hideStatsModal();
   resetBoardUI();
-  saveFreeProgress(false, false);
 }
 
 function getDailyIndex() {
@@ -360,29 +377,65 @@ function updateStats(isWin, attempts) {
 
 function renderStatsModal(lastGameWon = null) {
   const feedbackBanner = document.getElementById("feedback-banner");
+  const defBox = document.getElementById("word-definition");
+  const btnRetry = document.getElementById("btn-retry");
+  const btnNext = document.getElementById("modal-next-btn");
+  const btnShare = document.getElementById("btn-share");
+  const countdownBox = document.getElementById("daily-countdown-box");
+
+  // Reset de botones opcionales
+  btnRetry.classList.add("hidden");
+  btnNext.classList.add("hidden");
+  btnShare.classList.add("hidden");
 
   if (isGameOver && lastGameWon !== null) {
     feedbackBanner.classList.remove("hidden", "win", "loss");
+
     if (lastGameWon) {
       feedbackBanner.classList.add("win");
       feedbackBanner.textContent = WIN_MESSAGES[currentRow] || "¡Felicidades! Has adivinado la palabra.";
+      
+      if (targetWordObj) {
+        defBox.innerHTML = `<strong>${targetWordObj.palabra.toUpperCase()}:</strong> ${targetWordObj.significado}`;
+        defBox.classList.remove("hidden");
+      }
+
+      btnShare.classList.remove("hidden");
+
+      if (gameMode === "free") {
+        btnNext.classList.remove("hidden");
+      }
     } else {
       feedbackBanner.classList.add("loss");
-      feedbackBanner.textContent = "¡Ánimo! No te preocupes, ¡la próxima vez lo conseguirás!";
+      defBox.classList.add("hidden"); // Ocultamos palabra y significado si no adivina
+
+      if (gameMode === "free") {
+        feedbackBanner.textContent = "Seguro que si lo reintentas consigues adivinarla.";
+        btnRetry.classList.remove("hidden");
+      } else {
+        feedbackBanner.textContent = "¡Ánimo! No te preocupes, ¡la próxima vez lo conseguirás!";
+        // En diario mostramos el significado al terminar el día
+        if (targetWordObj) {
+          defBox.innerHTML = `<strong>${targetWordObj.palabra.toUpperCase()}:</strong> ${targetWordObj.significado}`;
+          defBox.classList.remove("hidden");
+        }
+      }
     }
   } else {
     feedbackBanner.classList.add("hidden");
+    defBox.classList.add("hidden");
   }
 
+  // Renderizar contadores de estadísticas generales
   document.getElementById("stat-played").textContent = stats.played;
   const winRate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
   document.getElementById("stat-winrate").textContent = `${winRate}%`;
   document.getElementById("stat-streak").textContent = stats.currentStreak;
   document.getElementById("stat-maxstreak").textContent = stats.maxStreak;
 
+  // Renderizar histograma
   const distContainer = document.getElementById("guess-distribution");
   distContainer.innerHTML = "";
-
   const maxVal = Math.max(...Object.values(stats.guesses), 1);
   const rowsKeys = ["1", "2", "3", "4", "5", "6", "X"];
 
@@ -407,37 +460,60 @@ function renderStatsModal(lastGameWon = null) {
     distContainer.appendChild(row);
   });
 
-  const defBox = document.getElementById("word-definition");
-  const nextBtn = document.getElementById("modal-next-btn");
-  const countdownBox = document.getElementById("daily-countdown-box");
-
-  if (targetWordObj && isGameOver) {
-    defBox.innerHTML = `<strong>${targetWordObj.palabra.toUpperCase()}:</strong> ${targetWordObj.significado}`;
-    defBox.classList.remove("hidden");
+  // Cuenta atrás o controles específicos del modo diario
+  if (gameMode === "daily" && isGameOver) {
+    countdownBox.classList.remove("hidden");
+    startDailyCountdown();
   } else {
-    defBox.classList.add("hidden");
-  }
-
-  if (gameMode === "free") {
-    if (isGameOver) {
-      nextBtn.classList.remove("hidden");
-    } else {
-      nextBtn.classList.add("hidden");
-    }
     countdownBox.classList.add("hidden");
     stopCountdown();
-  } else {
-    nextBtn.classList.add("hidden");
-    if (isGameOver) {
-      countdownBox.classList.remove("hidden");
-      startDailyCountdown();
-    } else {
-      countdownBox.classList.add("hidden");
-      stopCountdown();
-    }
   }
 
   document.getElementById("stats-modal").classList.remove("hidden");
+}
+
+function shareResults() {
+  const modeLabel = gameMode === "daily" ? "Diaria" : `#${freeModeIndex + 1}`;
+  const attemptsText = isGameOver && currentRow < 6 ? `${currentRow + 1}/6` : "X/6";
+  const titleText = `Palabra Aragonesa (${modeLabel}) ${attemptsText}\n\n`;
+
+  const guessesList = gameMode === "daily" ? dailyGuesses : freeGuesses;
+  const targetWord = normalizeText(targetWordObj.palabra);
+
+  let gridText = "";
+  guessesList.forEach((guess) => {
+    const targetLetters = targetWord.split("");
+    const guessLetters = guess.split("");
+    const rowEmoji = new Array(guess.length).fill("⬛");
+
+    for (let i = 0; i < guess.length; i++) {
+      if (guessLetters[i] === targetLetters[i]) {
+        rowEmoji[i] = "🟩";
+        targetLetters[i] = null;
+      }
+    }
+
+    for (let i = 0; i < guess.length; i++) {
+      if (rowEmoji[i] !== "🟩") {
+        const indexInTarget = targetLetters.indexOf(guessLetters[i]);
+        if (indexInTarget !== -1) {
+          rowEmoji[i] = "🟨";
+          targetLetters[indexInTarget] = null;
+        }
+      }
+    }
+    gridText += rowEmoji.join("") + "\n";
+  });
+
+  const fullShareText = titleText + gridText;
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(fullShareText).then(() => {
+      alert("¡Resultado copiado al portapapeles!");
+    }).catch(() => {
+      alert("No se pudo copiar automáticamente.");
+    });
+  }
 }
 
 function hideStatsModal() {
@@ -489,14 +565,12 @@ function saveDailyProgress(isWin) {
 }
 
 function saveFreeProgress(isWin, gameOver) {
-  const wordIndex = allWords.indexOf(targetWordObj);
   const data = {
-    wordIndex: wordIndex,
     guesses: freeGuesses,
     isWin: isWin,
     isGameOver: gameOver
   };
-  localStorage.setItem("free_mode_current_game", JSON.stringify(data));
+  localStorage.setItem(`free_mode_game_${freeModeIndex}`, JSON.stringify(data));
 }
 
 function checkFirstVisitHelp() {
