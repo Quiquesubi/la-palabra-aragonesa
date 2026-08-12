@@ -1,4 +1,4 @@
-let palabras = [];
+let rawWordsList = [];
 let validWords = [];
 let currentGame = {
   mode: 'daily', // 'daily' | 'free'
@@ -67,15 +67,19 @@ function saveStats() {
 }
 
 function loadWordsJSON() {
-  fetch('palabras.json')
+  // Carga words.json
+  fetch('words.json')
     .then(res => res.json())
     .then(data => {
-      palabras = data;
-      // Filtrar palabras de 5 letras para el juego Wordle de 5 casillas
-      validWords = palabras.filter(p => p.palabra && p.palabra.trim().length === 5);
-      
+      rawWordsList = data;
+      // Filtra las palabras de exactamente 5 letras para mantener la cuadrícula de 5 casillas
+      validWords = rawWordsList.filter(item => {
+        const cleanWord = item.palabra ? item.palabra.trim() : '';
+        return cleanWord.length === 5;
+      });
+
       if (validWords.length === 0) {
-        alert('No se encontraron palabras de 5 letras en el archivo JSON.');
+        alert('No se encontraron palabras de 5 letras en words.json.');
         return;
       }
 
@@ -83,7 +87,7 @@ function loadWordsJSON() {
       initGame('daily');
     })
     .catch(err => {
-      console.error('Error al cargar palabras.json:', err);
+      console.error('Error al cargar words.json:', err);
     });
 }
 
@@ -113,7 +117,7 @@ function initEventListeners() {
   btnModeDaily.addEventListener('click', () => switchMode('daily'));
   btnModeFree.addEventListener('click', () => switchMode('free'));
 
-  // Controles de Modo Libre
+  // Controles Modo Libre
   btnNewWord.addEventListener('click', () => {
     currentGame.freeWordIndex++;
     initGame('free');
@@ -132,7 +136,7 @@ function initEventListeners() {
 
   btnShare.addEventListener('click', shareResults);
 
-  // Eventos de teclado
+  // Teclado en pantalla
   keyboardEl.addEventListener('click', (e) => {
     const target = e.target.closest('.key');
     if (!target) return;
@@ -140,6 +144,7 @@ function initEventListeners() {
     handleKeyPress(key);
   });
 
+  // Teclado físico
   document.addEventListener('keydown', (e) => {
     if (!helpModal.classList.contains('hidden') || !statsModal.classList.contains('hidden')) return;
     if (e.key === 'Enter') handleKeyPress('ENTER');
@@ -184,7 +189,7 @@ function initGame(mode) {
   }
 
   currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
-  
+
   resetKeyboardColors();
   renderBoard();
 }
@@ -224,7 +229,7 @@ function submitAttempt() {
     currentGame.status = 'WON';
     recordStats(true, currentGame.attempts.length);
     renderBoard();
-    setTimeout(() => openStatsModal(), 600);
+    setTimeout(() => openStatsModal(), 500);
     return;
   }
 
@@ -232,7 +237,7 @@ function submitAttempt() {
     currentGame.status = 'LOST';
     recordStats(false, 6);
     renderBoard();
-    setTimeout(() => openStatsModal(), 600);
+    setTimeout(() => openStatsModal(), 500);
     return;
   }
 
@@ -297,14 +302,12 @@ function evaluateTileStatus(attempt, index) {
   let targetChars = target.split('');
   let attemptChars = attempt.split('');
 
-  // Marcar verdes en temporales
   for (let i = 0; i < 5; i++) {
     if (attemptChars[i] === targetChars[i]) {
       targetChars[i] = null;
     }
   }
 
-  // Verificar amarillos
   for (let i = 0; i < 5; i++) {
     if (attemptChars[i] === targetChars[i]) continue;
     if (i === index) {
@@ -371,7 +374,6 @@ function openStatsModal() {
 
   renderDistribution();
 
-  // Banner y definiciones
   feedbackBanner.classList.add('hidden');
   wordDefinition.classList.add('hidden');
   dailyCountdownBox.classList.add('hidden');
@@ -456,7 +458,7 @@ function startCountdownTimer() {
 }
 
 function shareResults() {
-  let shareText = `Wordle Aragones - ${currentGame.mode === 'daily' ? 'Palabra do Día' : 'Modo Libre'}\n`;
+  let shareText = `Wordle Aragones - ${currentGame.mode === 'daily' ? 'Palabra del Día' : 'Modo Libre'}\n`;
   shareText += `${currentGame.attempts.length}/6\n\n`;
 
   currentGame.attempts.forEach(att => {
