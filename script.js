@@ -1,11 +1,11 @@
 let validWords = [];
 let currentGame = {
-  mode: 'daily', // 'daily' | 'free'
+  mode: 'daily',
   wordObj: null,
   targetWord: '',
   attempts: [],
   currentInput: '',
-  status: 'IN_PROGRESS', // 'IN_PROGRESS' | 'WON' | 'LOST'
+  status: 'IN_PROGRESS',
   freeWordIndex: 0
 };
 
@@ -73,7 +73,6 @@ function loadWordsJSON() {
   fetch('words.json')
     .then(res => res.json())
     .then(data => {
-      // Mantener todas las palabras respetando el orden del archivo JSON (longitudes de 5 a 9)
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
 
       if (validWords.length === 0) {
@@ -153,9 +152,8 @@ function switchMode(mode) {
   initGame(mode);
 }
 
-// Cálculo preciso de la Palabra del Día según la fecha actual
 function getDailyIndex() {
-  const epoch = new Date(2026, 0, 1); // Fecha de referencia
+  const epoch = new Date(2026, 0, 1);
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const diffTime = today - epoch;
@@ -173,12 +171,12 @@ function initGame(mode) {
     const dailyIdx = getDailyIndex();
     currentGame.wordObj = validWords[dailyIdx];
   } else {
-    // Modo Libre: sigue estrictamente el orden secuencial del JSON
     if (currentGame.freeWordIndex >= validWords.length) {
       currentGame.freeWordIndex = 0;
     }
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
-    wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1} / ${validWords.length}`;
+    // Muestra únicamente el número de palabra actual
+    wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1}`;
   }
 
   currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
@@ -221,23 +219,24 @@ function submitAttempt() {
 
   updateKeyboardColors(attempt);
 
-  if (attempt === currentGame.targetWord) {
+  const isWin = (attempt === currentGame.targetWord);
+  const isLoss = (currentGame.attempts.length === 6 && !isWin);
+
+  if (isWin) {
     currentGame.status = 'WON';
     recordStats(true, currentGame.attempts.length);
-    renderBoard();
-    setTimeout(() => openStatsModal(), 500);
-    return;
-  }
-
-  if (currentGame.attempts.length === 6) {
+  } else if (isLoss) {
     currentGame.status = 'LOST';
     recordStats(false, 6);
-    renderBoard();
-    setTimeout(() => openStatsModal(), 500);
-    return;
   }
 
   renderBoard();
+
+  // Espera a que termine la animación de volteo antes de abrir las estadísticas
+  if (isWin || isLoss) {
+    const delay = (wordLength * 150) + 400;
+    setTimeout(() => openStatsModal(), delay);
+  }
 }
 
 function getGreenLettersMap() {
@@ -263,6 +262,7 @@ function renderBoard() {
 
     const attempt = currentGame.attempts[r];
     const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
+    const isLatestAttempt = (r === currentGame.attempts.length - 1);
 
     for (let c = 0; c < wordLength; c++) {
       const tile = document.createElement('div');
@@ -271,6 +271,13 @@ function renderBoard() {
       if (attempt) {
         tile.textContent = attempt[c];
         const status = evaluateTileStatus(attempt, c);
+        
+        // Aplicar animación con retardo escalonado para la última palabra comprobada
+        if (isLatestAttempt) {
+          tile.classList.add('flip');
+          tile.style.animationDelay = `${c * 150}ms`;
+        }
+
         tile.classList.add(status);
       } else if (isCurrentRow) {
         const char = currentGame.currentInput[c] || '';
@@ -396,17 +403,23 @@ function openStatsModal() {
       dailyCountdownBox.classList.remove('hidden');
     }
   } else if (currentGame.status === 'LOST') {
-    feedbackBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
-    feedbackBanner.className = 'feedback-banner lose';
-    feedbackBanner.classList.remove('hidden');
-
-    wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
-    wordDefinition.classList.remove('hidden');
-
     if (currentGame.mode === 'free') {
+      // En modo libre al fallar, NO se muestra ni la palabra ni su significado
+      feedbackBanner.textContent = '¡Ánimo! Has agotado todos tus intentos.';
+      feedbackBanner.className = 'feedback-banner lose';
+      feedbackBanner.classList.remove('hidden');
+
       btnRetry.classList.remove('hidden');
       modalNextBtn.classList.remove('hidden');
     } else {
+      // En modo diario sí se muestra la solución al fallar
+      feedbackBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
+      feedbackBanner.className = 'feedback-banner lose';
+      feedbackBanner.classList.remove('hidden');
+
+      wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+      wordDefinition.classList.remove('hidden');
+
       startCountdownTimer();
       dailyCountdownBox.classList.remove('hidden');
     }
