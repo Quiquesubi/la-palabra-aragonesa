@@ -20,7 +20,7 @@
 
       <!-- Selector de Modo de Juego -->
       <div class="mode-selector">
-        <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
+        <button id="btn-mode-daily" class="mode-btn active">Palabra aragonesa del día</button>
         <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
       </div>
     </header>
@@ -178,11 +178,16 @@
       </div>
 
       <h3>Distribución de intentos</h3>
-      <div id="guess-distribution" class="distribution-container">
-        <!-- Generado dinámicamente -->
-      </div>
+      <div id="guess-distribution" class="distribution-container"></div>
 
+      <!-- Definición de la palabra -->
       <div id="word-definition" class="definition-box hidden"></div>
+
+      <!-- Cuenta atrás para la palabra diaria -->
+      <div id="daily-countdown-box" class="countdown-box hidden">
+        <span>Próxima palabra diaria en:</span>
+        <div id="daily-timer" class="timer-digits">00:00:00</div>
+      </div>
 
       <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra</button>
     </div>
