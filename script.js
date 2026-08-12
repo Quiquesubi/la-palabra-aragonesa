@@ -1,4 +1,5 @@
 let validWords = [];
+
 let currentGame = {
   mode: 'daily',
   wordObj: null,
@@ -9,43 +10,53 @@ let currentGame = {
   freeWordIndex: 0
 };
 
+// Estadísticas separadas por modo
 let stats = {
-  played: 0,
-  wins: 0,
-  streak: 0,
-  maxStreak: 0,
-  distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 }
+  daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
+  free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
 
-let countdownInterval = null;
+let activeStatsTab = 'daily';
+
+// Mensajes según el número de intento al adivinar
+const winMessages = {
+  1: "¡Increíble! ¡Adivinada a la primera! 🎯",
+  2: "¡Espectacular! ¡En solo dos intentos! ⭐",
+  3: "¡Excelente! ¡A la tercera va la vencida! 👏",
+  4: "¡Muy bien! ¡Palabra adivinada! 👍",
+  5: "¡Bien jugado! ¡Casi al límite! 😊",
+  6: "¡Uff! ¡Adivinada en el último intento! 😅"
+};
 
 // Elementos DOM
 const boardEl = document.getElementById('game-board');
 const keyboardEl = document.getElementById('keyboard');
 const btnHelp = document.getElementById('btn-help');
 const btnStats = document.getElementById('btn-stats');
+
 const helpModal = document.getElementById('help-modal');
 const closeHelp = document.getElementById('close-help');
 const startGameBtn = document.getElementById('start-game-btn');
 const dontShowHelp = document.getElementById('dont-show-help');
 
+const resultModal = document.getElementById('result-modal');
+const closeResult = document.getElementById('close-result');
+const btnCloseResultModal = document.getElementById('btn-close-result-modal');
+const resultBanner = document.getElementById('result-banner');
+const resultWordDefinition = document.getElementById('result-word-definition');
+const btnShare = document.getElementById('btn-share');
+const btnNextWord = document.getElementById('btn-next-word');
+const btnRetryWord = document.getElementById('btn-retry-word');
+
 const statsModal = document.getElementById('stats-modal');
 const closeStats = document.getElementById('close-stats');
-const btnModalClose = document.getElementById('btn-modal-close');
+const btnModalCloseStats = document.getElementById('btn-modal-close-stats');
 
 const btnModeDaily = document.getElementById('btn-mode-daily');
 const btnModeFree = document.getElementById('btn-mode-free');
 const freeControls = document.getElementById('free-mode-controls');
 const wordBadge = document.getElementById('word-number-badge');
-
-const feedbackBanner = document.getElementById('feedback-banner');
-const wordDefinition = document.getElementById('word-definition');
-const dailyCountdownBox = document.getElementById('daily-countdown-box');
-const dailyTimer = document.getElementById('daily-timer');
-
-const btnShare = document.getElementById('btn-share');
-const btnRetry = document.getElementById('btn-retry');
-const modalNextBtn = document.getElementById('modal-next-btn');
+const dailyCompletedBanner = document.getElementById('daily-completed-banner');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedStats();
@@ -54,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadSavedStats() {
-  const saved = localStorage.getItem('palabra_aragonesa_stats');
+  const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
   if (saved) {
     try { stats = JSON.parse(saved); } catch (e) {}
   }
@@ -66,7 +77,7 @@ function loadSavedStats() {
 }
 
 function saveStats() {
-  localStorage.setItem('palabra_aragonesa_stats', JSON.stringify(stats));
+  localStorage.setItem('palabra_aragonesa_stats_v2', JSON.stringify(stats));
 }
 
 function loadWordsJSON() {
@@ -105,22 +116,37 @@ function initEventListeners() {
     helpModal.classList.add('hidden');
   });
 
+  // Modal Resultados
+  closeResult.addEventListener('click', () => resultModal.classList.add('hidden'));
+  btnCloseResultModal.addEventListener('click', () => resultModal.classList.add('hidden'));
+
+  // Modal Estadísticas
   btnStats.addEventListener('click', () => openStatsModal());
   closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
-  btnModalClose.addEventListener('click', () => statsModal.classList.add('hidden'));
+  btnModalCloseStats.addEventListener('click', () => statsModal.classList.add('hidden'));
+
+  // Pestañas Filtro Estadísticas
+  document.querySelectorAll('.stats-tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.stats-tab-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      activeStatsTab = e.target.getAttribute('data-tab');
+      renderStatsData();
+    });
+  });
 
   btnModeDaily.addEventListener('click', () => switchMode('daily'));
   btnModeFree.addEventListener('click', () => switchMode('free'));
 
-  modalNextBtn.addEventListener('click', () => {
-    statsModal.classList.add('hidden');
+  btnNextWord.addEventListener('click', () => {
+    resultModal.classList.add('hidden');
     currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
     localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
     initGame('free');
   });
 
-  btnRetry.addEventListener('click', () => {
-    statsModal.classList.add('hidden');
+  btnRetryWord.addEventListener('click', () => {
+    resultModal.classList.add('hidden');
     resetCurrentWord();
   });
 
@@ -134,7 +160,10 @@ function initEventListeners() {
   });
 
   document.addEventListener('keydown', (e) => {
-    if (!helpModal.classList.contains('hidden') || !statsModal.classList.contains('hidden')) return;
+    if (!helpModal.classList.contains('hidden') || 
+        !statsModal.classList.contains('hidden') || 
+        !resultModal.classList.contains('hidden')) return;
+
     if (e.key === 'Enter') handleKeyPress('ENTER');
     else if (e.key === 'Backspace') handleKeyPress('BACKSPACE');
     else {
@@ -152,6 +181,11 @@ function switchMode(mode) {
   initGame(mode);
 }
 
+function getTodayString() {
+  const today = new Date();
+  return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+}
+
 function getDailyIndex() {
   const epoch = new Date(2026, 0, 1);
   const now = new Date();
@@ -166,22 +200,38 @@ function initGame(mode) {
   currentGame.attempts = [];
   currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
+  dailyCompletedBanner.classList.add('hidden');
 
   if (mode === 'daily') {
     const dailyIdx = getDailyIndex();
     currentGame.wordObj = validWords[dailyIdx];
+    currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
+
+    // Comprobar si ya se jugó la palabra diaria de hoy
+    const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
+    if (savedDaily) {
+      try {
+        const dailyData = JSON.parse(savedDaily);
+        if (dailyData.date === getTodayString()) {
+          currentGame.attempts = dailyData.attempts;
+          currentGame.status = dailyData.status;
+          dailyCompletedBanner.classList.remove('hidden');
+        }
+      } catch (e) {}
+    }
   } else {
     if (currentGame.freeWordIndex >= validWords.length) {
       currentGame.freeWordIndex = 0;
     }
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
-    // Muestra únicamente el número de palabra actual
+    currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
     wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1}`;
   }
 
-  currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
-
   resetKeyboardColors();
+  if (currentGame.attempts.length > 0) {
+    currentGame.attempts.forEach(att => updateKeyboardColors(att));
+  }
   renderBoard();
 }
 
@@ -227,15 +277,26 @@ function submitAttempt() {
     recordStats(true, currentGame.attempts.length);
   } else if (isLoss) {
     currentGame.status = 'LOST';
-    recordStats(false, 6);
+    recordStats(false, 'X');
+  }
+
+  // Guardar estado diario si estamos en modo diario
+  if (currentGame.mode === 'daily') {
+    localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
+      date: getTodayString(),
+      attempts: currentGame.attempts,
+      status: currentGame.status
+    }));
+    if (isWin || isLoss) {
+      dailyCompletedBanner.classList.remove('hidden');
+    }
   }
 
   renderBoard();
 
-  // Espera a que termine la animación de volteo antes de abrir las estadísticas
   if (isWin || isLoss) {
     const delay = (wordLength * 150) + 400;
-    setTimeout(() => openStatsModal(), delay);
+    setTimeout(() => openResultModal(isWin), delay);
   }
 }
 
@@ -271,8 +332,7 @@ function renderBoard() {
       if (attempt) {
         tile.textContent = attempt[c];
         const status = evaluateTileStatus(attempt, c);
-        
-        // Aplicar animación con retardo escalonado para la última palabra comprobada
+
         if (isLatestAttempt) {
           tile.classList.add('flip');
           tile.style.animationDelay = `${c * 150}ms`;
@@ -317,14 +377,10 @@ function evaluateTileStatus(attempt, index) {
     if (attemptChars[i] === targetChars[i]) continue;
     if (i === index) {
       const foundIdx = targetChars.indexOf(char);
-      if (foundIdx !== -1) {
-        return 'present';
-      }
+      if (foundIdx !== -1) return 'present';
     } else {
       const foundIdx = targetChars.indexOf(attemptChars[i]);
-      if (foundIdx !== -1) {
-        targetChars[foundIdx] = null;
-      }
+      if (foundIdx !== -1) targetChars[foundIdx] = null;
     }
   }
 
@@ -357,115 +413,121 @@ function resetKeyboardColors() {
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
-function recordStats(isWin, attemptCount) {
-  stats.played++;
+function recordStats(isWin, attemptKey) {
+  const currentStats = stats[currentGame.mode];
+  currentStats.played++;
+
   if (isWin) {
-    stats.wins++;
-    stats.streak++;
-    if (stats.streak > stats.maxStreak) stats.maxStreak = stats.streak;
-    stats.distribution[attemptCount] = (stats.distribution[attemptCount] || 0) + 1;
+    currentStats.wins++;
+    currentStats.streak++;
+    if (currentStats.streak > currentStats.maxStreak) {
+      currentStats.maxStreak = currentStats.streak;
+    }
+    currentStats.distribution[attemptKey] = (currentStats.distribution[attemptKey] || 0) + 1;
   } else {
-    stats.streak = 0;
+    currentStats.streak = 0;
+    currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
   }
+
   saveStats();
 }
 
-function openStatsModal() {
-  document.getElementById('stat-played').textContent = stats.played;
-  const winrate = stats.played > 0 ? Math.round((stats.wins / stats.played) * 100) : 0;
-  document.getElementById('stat-winrate').textContent = `${winrate}%`;
-  document.getElementById('stat-streak').textContent = stats.streak;
-  document.getElementById('stat-maxstreak').textContent = stats.maxStreak;
-
-  renderDistribution();
-
-  feedbackBanner.classList.add('hidden');
-  wordDefinition.classList.add('hidden');
-  dailyCountdownBox.classList.add('hidden');
+/* Modal de Resultados al finalizar la partida */
+function openResultModal(isWin) {
+  resultWordDefinition.classList.add('hidden');
   btnShare.classList.add('hidden');
-  btnRetry.classList.add('hidden');
-  modalNextBtn.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.add('hidden');
 
-  if (currentGame.status === 'WON') {
-    feedbackBanner.textContent = '¡Magnífico! Has adivinado la palabra.';
-    feedbackBanner.className = 'feedback-banner win';
-    feedbackBanner.classList.remove('hidden');
+  if (isWin) {
+    const attemptCount = currentGame.attempts.length;
+    resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
+    resultBanner.className = 'feedback-banner win';
 
-    wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
-    wordDefinition.classList.remove('hidden');
+    resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+    resultWordDefinition.classList.remove('hidden');
 
     btnShare.classList.remove('hidden');
 
     if (currentGame.mode === 'free') {
-      modalNextBtn.classList.remove('hidden');
-    } else {
-      startCountdownTimer();
-      dailyCountdownBox.classList.remove('hidden');
+      btnNextWord.classList.remove('hidden');
     }
-  } else if (currentGame.status === 'LOST') {
-    if (currentGame.mode === 'free') {
-      // En modo libre al fallar, NO se muestra ni la palabra ni su significado
-      feedbackBanner.textContent = '¡Ánimo! Has agotado todos tus intentos.';
-      feedbackBanner.className = 'feedback-banner lose';
-      feedbackBanner.classList.remove('hidden');
+  } else {
+    resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que adivinas.";
+    resultBanner.className = 'feedback-banner lose';
 
-      btnRetry.classList.remove('hidden');
-      modalNextBtn.classList.remove('hidden');
-    } else {
-      // En modo diario sí se muestra la solución al fallar
-      feedbackBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
-      feedbackBanner.className = 'feedback-banner lose';
-      feedbackBanner.classList.remove('hidden');
-
-      wordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
-      wordDefinition.classList.remove('hidden');
-
-      startCountdownTimer();
-      dailyCountdownBox.classList.remove('hidden');
-    }
+    btnRetryWord.classList.remove('hidden');
   }
 
+  resultModal.classList.remove('hidden');
+}
+
+/* Modal de Estadísticas */
+function openStatsModal() {
+  renderStatsData();
   statsModal.classList.remove('hidden');
 }
 
-function renderDistribution() {
+function renderStatsData() {
+  let combinedStats = {
+    played: 0,
+    wins: 0,
+    streak: 0,
+    maxStreak: 0,
+    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
+  };
+
+  if (activeStatsTab === 'daily') {
+    combinedStats = stats.daily;
+  } else if (activeStatsTab === 'free') {
+    combinedStats = stats.free;
+  } else {
+    // Total (Diario + Libre)
+    combinedStats.played = stats.daily.played + stats.free.played;
+    combinedStats.wins = stats.daily.wins + stats.free.wins;
+    combinedStats.streak = stats.daily.streak;
+    combinedStats.maxStreak = Math.max(stats.daily.maxStreak, stats.free.maxStreak);
+
+    const keys = ['1', '2', '3', '4', '5', '6', 'X'];
+    keys.forEach(k => {
+      combinedStats.distribution[k] = (stats.daily.distribution[k] || 0) + (stats.free.distribution[k] || 0);
+    });
+  }
+
+  document.getElementById('stat-played').textContent = combinedStats.played;
+  const winrate = combinedStats.played > 0 ? Math.round((combinedStats.wins / combinedStats.played) * 100) : 0;
+  document.getElementById('stat-winrate').textContent = `${winrate}%`;
+  document.getElementById('stat-streak').textContent = combinedStats.streak;
+  document.getElementById('stat-maxstreak').textContent = combinedStats.maxStreak;
+
+  renderDistribution(combinedStats);
+}
+
+function renderDistribution(statsObj) {
   const container = document.getElementById('guess-distribution');
   container.innerHTML = '';
-  const maxVal = Math.max(...Object.values(stats.distribution), 1);
 
-  for (let i = 1; i <= 6; i++) {
-    const val = stats.distribution[i] || 0;
-    const pct = Math.max((val / maxVal) * 100, 7);
+  const totalPlayed = statsObj.played || 0;
+  const keys = ['1', '2', '3', '4', '5', '6', 'X'];
+  const maxVal = Math.max(...keys.map(k => statsObj.distribution[k] || 0), 1);
+
+  keys.forEach(key => {
+    const val = statsObj.distribution[key] || 0;
+    const pctBar = Math.max((val / maxVal) * 100, 8);
+    const pctTotal = totalPlayed > 0 ? Math.round((val / totalPlayed) * 100) : 0;
 
     const row = document.createElement('div');
     row.className = 'dist-row';
     row.innerHTML = `
-      <span class="dist-num">${i}</span>
+      <span class="dist-num">${key}</span>
       <div class="dist-bar-bg">
-        <div class="dist-bar-fill" style="width: ${pct}%">${val}</div>
+        <div class="dist-bar-fill" style="width: ${pctBar}%">
+          ${val} (${pctTotal}%)
+        </div>
       </div>
     `;
     container.appendChild(row);
-  }
-}
-
-function startCountdownTimer() {
-  if (countdownInterval) clearInterval(countdownInterval);
-
-  function updateTimer() {
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const diff = tomorrow - now;
-
-    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-    const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
-    const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-
-    dailyTimer.textContent = `${hours}:${mins}:${secs}`;
-  }
-
-  updateTimer();
-  countdownInterval = setInterval(updateTimer, 1000);
+  });
 }
 
 function shareResults() {
