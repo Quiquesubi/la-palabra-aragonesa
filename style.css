@@ -1,4 +1,4 @@
-* * {
+* {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -6,8 +6,8 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #121213;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #212121;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -21,12 +21,13 @@ header {
   width: 100%;
   max-width: 500px;
   padding: 10px 20px;
-  border-bottom: 1px solid #3a3a3c;
+  border-bottom: 1px solid #d3d6da;
 }
 
 h1 {
   font-size: 1.5rem;
   letter-spacing: 1px;
+  color: #1a1a1b;
 }
 
 .menu-buttons {
@@ -67,30 +68,32 @@ main {
 .tile {
   width: 52px;
   height: 52px;
-  border: 2px solid #3a3a3c;
+  border: 2px solid #d3d6da;
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.8rem;
   font-weight: bold;
   text-transform: uppercase;
+  color: #1a1a1b;
+  background-color: #ffffff;
 }
 
 .tile.correct {
-  background-color: #538d4e;
-  border-color: #538d4e;
+  background-color: #6aaa64;
+  border-color: #6aaa64;
   color: #ffffff;
 }
 
 .tile.present {
-  background-color: #b59f3b;
-  border-color: #b59f3b;
+  background-color: #c9b458;
+  border-color: #c9b458;
   color: #ffffff;
 }
 
 .tile.absent {
-  background-color: #3a3a3c;
-  border-color: #3a3a3c;
+  background-color: #787c7e;
+  border-color: #787c7e;
   color: #ffffff;
 }
 
@@ -110,8 +113,8 @@ main {
 }
 
 .key {
-  background-color: #818384;
-  color: #ffffff;
+  background-color: #d3d6da;
+  color: #1a1a1b;
   border: none;
   border-radius: 4px;
   height: 58px;
@@ -129,15 +132,18 @@ main {
 }
 
 .key.correct {
-  background-color: #538d4e;
+  background-color: #6aaa64;
+  color: #ffffff;
 }
 
 .key.present {
-  background-color: #b59f3b;
+  background-color: #c9b458;
+  color: #ffffff;
 }
 
 .key.absent {
-  background-color: #3a3a3c;
+  background-color: #787c7e;
+  color: #ffffff;
 }
 
 /* Modales */
@@ -147,7 +153,7 @@ main {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -159,8 +165,9 @@ main {
 }
 
 .modal-content {
-  background-color: #121213;
-  border: 1px solid #3a3a3c;
+  background-color: #ffffff;
+  color: #212121;
+  border: 1px solid #d3d6da;
   border-radius: 8px;
   padding: 20px;
   width: 90%;
@@ -175,7 +182,7 @@ main {
   right: 15px;
   background: none;
   border: none;
-  color: #ffffff;
+  color: #212121;
   font-size: 1.5rem;
   cursor: pointer;
 }
@@ -193,7 +200,7 @@ main {
 .tutorial-divider {
   border: 0;
   height: 1px;
-  background: #3a3a3c;
+  background: #d3d6da;
   margin: 15px 0;
 }
 
@@ -231,7 +238,7 @@ main {
 
 .action-btn {
   width: 100%;
-  background-color: #538d4e;
+  background-color: #6aaa64;
   color: white;
   border: none;
   padding: 12px;
@@ -243,8 +250,8 @@ main {
 }
 
 .definition-box {
-  background-color: #272729;
-  border-left: 4px solid #538d4e;
+  background-color: #f4f4f4;
+  border-left: 4px solid #6aaa64;
   padding: 10px;
   margin: 15px 0;
   text-align: left;
