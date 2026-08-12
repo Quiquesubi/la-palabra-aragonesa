@@ -1,4 +1,3 @@
-// Estado global de la aplicación
 let allWords = [];
 let targetWordObj = null;
 let currentWord = "";
@@ -6,7 +5,7 @@ let currentRow = 0;
 let isGameOver = false;
 let gameMode = "daily"; // 'daily' o 'free'
 
-// Cargar estado guardado de estadísticas
+// Cargar estadísticas guardadas
 let stats = loadStats();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -19,18 +18,17 @@ async function loadGame() {
     allWords = await response.json();
 
     setupEventListeners();
-    setGameMode("daily"); // Iniciar por defecto en Modo Diario
+    setGameMode("daily");
     checkFirstVisitHelp();
   } catch (error) {
-    console.error("Error al cargar la lista de palabras:", error);
+    console.error("Error al cargar words.json:", error);
   }
 }
 
-// Configurar escuchadores de eventos
 function setupEventListeners() {
   document.addEventListener("keydown", handleKeyPress);
 
-  // Teclado en pantalla
+  // Teclado virtual
   const keys = document.querySelectorAll(".key");
   keys.forEach((key) => {
     key.addEventListener("click", (e) => {
@@ -57,7 +55,6 @@ function setupEventListeners() {
   });
 }
 
-// Cambiar modo de juego
 function setGameMode(mode) {
   gameMode = mode;
 
@@ -74,22 +71,22 @@ function setGameMode(mode) {
   }
 }
 
-// Configuración Modo Diario
 function setupDailyGame() {
   const dailyIndex = getDailyIndex();
   targetWordObj = allWords[dailyIndex];
 
-  // Comprobar si la palabra del día ya fue jugada hoy
   const todayKey = getTodayDateKey();
   const savedDailyProgress = localStorage.getItem(`daily_progress_${todayKey}`);
 
   if (savedDailyProgress) {
     const progress = JSON.parse(savedDailyProgress);
-    restoreGameProgress(progress);
+    isGameOver = progress.isGameOver;
+    if (isGameOver) {
+      setTimeout(() => renderStatsModal(progress.isWin), 300);
+    }
   }
 }
 
-// Configuración Modo Libre
 function startNewFreeGame() {
   resetBoardUI();
   const randomIndex = Math.floor(Math.random() * allWords.length);
@@ -110,7 +107,6 @@ function getTodayDateKey() {
   return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
-// Entrada de teclado
 function handleKeyPress(e) {
   if (isGameOver) return;
 
@@ -125,9 +121,9 @@ function handleKeyPress(e) {
 }
 
 function processInput(key) {
-  if (isGameOver) return;
+  if (isGameOver || !targetWordObj) return;
 
-  const wordLength = targetWordObj ? normalizeText(targetWordObj.palabra).length : 5;
+  const wordLength = normalizeText(targetWordObj.palabra).length;
 
   if (key === "BACKSPACE") {
     if (currentWord.length > 0) {
@@ -147,14 +143,13 @@ function processInput(key) {
 function updateRowUI() {
   const board = document.getElementById("game-board");
   const rowTiles = board.children[currentRow].children;
-  const wordLength = targetWordObj ? normalizeText(targetWordObj.palabra).length : 5;
+  const wordLength = normalizeText(targetWordObj.palabra).length;
 
   for (let i = 0; i < wordLength; i++) {
     rowTiles[i].textContent = currentWord[i] || "";
   }
 }
 
-// Comprobación de intento
 function checkGuess() {
   const targetWord = normalizeText(targetWordObj.palabra);
   const guess = normalizeText(currentWord);
@@ -166,7 +161,7 @@ function checkGuess() {
   const guessLetters = guess.split("");
   const tileStates = new Array(guess.length).fill("absent");
 
-  // Posiciones correctas (Verde)
+  // Aciertos verdes
   for (let i = 0; i < guess.length; i++) {
     if (guessLetters[i] === targetLetters[i]) {
       tileStates[i] = "correct";
@@ -174,7 +169,7 @@ function checkGuess() {
     }
   }
 
-  // Posiciones presentes (Amarillo)
+  // Aciertos amarillos
   for (let i = 0; i < guess.length; i++) {
     if (tileStates[i] !== "correct") {
       const indexInTarget = targetLetters.indexOf(guessLetters[i]);
@@ -203,7 +198,7 @@ function checkGuess() {
 
     setTimeout(() => {
       renderStatsModal(isWin);
-    }, 600);
+    }, 500);
   } else {
     currentRow++;
     currentWord = "";
@@ -230,14 +225,12 @@ function resetBoardUI() {
   currentRow = 0;
   isGameOver = false;
 
-  // Limpiar fichas
   const tiles = document.querySelectorAll(".tile");
   tiles.forEach((tile) => {
     tile.textContent = "";
     tile.className = "tile";
   });
 
-  // Limpiar teclado
   const keys = document.querySelectorAll(".key");
   keys.forEach((key) => {
     key.className = key.classList.contains("wide-key") ? "key wide-key" : "key";
@@ -251,7 +244,6 @@ function normalizeText(text) {
     .toUpperCase();
 }
 
-// Sistema de Estadísticas
 function loadStats() {
   const defaultStats = {
     played: 0,
@@ -283,7 +275,6 @@ function renderStatsModal(lastGameWon = null) {
   document.getElementById("stat-streak").textContent = stats.currentStreak;
   document.getElementById("stat-maxstreak").textContent = stats.maxStreak;
 
-  // Renderizar gráfico de intentos
   const distContainer = document.getElementById("guess-distribution");
   distContainer.innerHTML = "";
 
@@ -304,7 +295,6 @@ function renderStatsModal(lastGameWon = null) {
     distContainer.appendChild(row);
   }
 
-  // Definición de la palabra si se ha terminado el juego
   const defBox = document.getElementById("word-definition");
   const nextBtn = document.getElementById("modal-next-btn");
 
@@ -332,14 +322,10 @@ function saveDailyProgress(isWin) {
   const todayKey = getTodayDateKey();
   const data = {
     isWin: isWin,
+    isGameOver: true,
     targetWordObj: targetWordObj
   };
   localStorage.setItem(`daily_progress_${todayKey}`, JSON.stringify(data));
-}
-
-function restoreGameProgress(progress) {
-  isGameOver = true;
-  targetWordObj = progress.targetWordObj;
 }
 
 function checkFirstVisitHelp() {
