@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Palabra Aragonesa del Día</title>
+  <title>La Palabra Aragonesa del Día</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
   <div class="app-container">
     <header>
       <div class="header-top">
-        <h1>PALABRA ARAGONESA</h1>
+        <h1>LA PALABRA ARAGONESA DEL DÍA</h1>
         <div class="menu-buttons">
           <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
           <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
@@ -37,6 +37,12 @@
 
       <!-- Tablero -->
       <div id="game-board"></div>
+
+      <!-- Botones de Acción en Tablero Principal (visibles tras cerrar el emergente) -->
+      <div id="main-game-actions" class="main-actions-container">
+        <button id="btn-main-next" class="action-btn hidden">Siguiente palabra ➡️</button>
+        <button id="btn-main-retry" class="action-btn hidden">🔄 Reintentar palabra</button>
+      </div>
 
       <!-- Teclado Virtual -->
       <div id="keyboard">
@@ -137,14 +143,17 @@
     </div>
   </div>
 
-  <!-- Modal Resultado de Partida -->
+  <!-- Modal Resultado de Partida (Sin botón X para cerrar) -->
   <div id="result-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="close-result" class="close-btn">&times;</button>
-      
       <div id="result-banner" class="feedback-banner"></div>
 
       <div id="result-word-definition" class="definition-box hidden"></div>
+
+      <div id="result-countdown-box" class="countdown-box hidden">
+        <span>Próxima palabra diaria en:</span>
+        <div id="daily-timer" class="timer-digits">00:00:00</div>
+      </div>
 
       <div class="modal-actions">
         <button id="btn-share" class="action-btn-secondary hidden">📤 Compartir resultado</button>
