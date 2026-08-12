@@ -3,88 +3,185 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>La Palabra Aragonesa</title>
+  <title>Palabra Aragonesa del Día</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <h1>La palabra aragonesa</h1>
-  </div>
 
-  <div class="mode-selector">
-    <button id="btn-daily" class="mode-btn active">Palabra aragonesa del día</button>
-    <button id="btn-practice" class="mode-btn">Modo libre</button>
-    <button id="btn-stats" class="mode-btn icon-btn" title="Estadísticas">📊 Estadísticas</button>
-  </div>
+  <header>
+    <h1>PALABRA ARAGONESA</h1>
+    <div class="menu-buttons">
+      <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
+      <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
+    </div>
+  </header>
 
-  <div id="word-counter" class="word-counter"></div>
-
-  <div id="game-board" class="board"></div>
-
-  <div id="keyboard" class="keyboard"></div>
-
-  <!-- Modal Resultado -->
-  <div id="modal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="modal-title"></h2>
-      <p id="modal-word" class="modal-word-text"></p>
-      <p id="modal-definition" class="modal-def-text"></p>
-
-      <!-- Contador regresivo para la palabra del día -->
-      <div id="modal-countdown" class="modal-countdown hidden"></div>
-
-      <div class="modal-buttons">
-        <button id="share-btn" class="btn">📲 Compartir resultado</button>
-        <button id="next-word-btn" class="btn hidden">Siguiente palabra</button>
-        <button id="retry-word-btn" class="btn hidden">🔄 Reintentar esta palabra</button>
-        <button id="close-modal" class="btn">Cerrar</button>
+  <main>
+    <div id="game-board">
+      <!-- Fila 1 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
       </div>
+      <!-- Fila 2 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+      </div>
+      <!-- Fila 3 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+      </div>
+      <!-- Fila 4 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+      </div>
+      <!-- Fila 5 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+      </div>
+      <!-- Fila 6 -->
+      <div class="row">
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+        <div class="tile"></div>
+      </div>
+    </div>
+
+    <!-- Teclado virtual -->
+    <div id="keyboard">
+      <div class="keyboard-row">
+        <button class="key" data-key="Q">Q</button>
+        <button class="key" data-key="W">W</button>
+        <button class="key" data-key="E">E</button>
+        <button class="key" data-key="R">R</button>
+        <button class="key" data-key="T">T</button>
+        <button class="key" data-key="Y">Y</button>
+        <button class="key" data-key="U">U</button>
+        <button class="key" data-key="I">I</button>
+        <button class="key" data-key="O">O</button>
+        <button class="key" data-key="P">P</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key" data-key="A">A</button>
+        <button class="key" data-key="S">S</button>
+        <button class="key" data-key="D">D</button>
+        <button class="key" data-key="F">F</button>
+        <button class="key" data-key="G">G</button>
+        <button class="key" data-key="H">H</button>
+        <button class="key" data-key="J">J</button>
+        <button class="key" data-key="K">K</button>
+        <button class="key" data-key="L">L</button>
+        <button class="key" data-key="Ñ">Ñ</button>
+      </div>
+      <div class="keyboard-row">
+        <button class="key wide-key" data-key="ENTER">ENVIAR</button>
+        <button class="key" data-key="Z">Z</button>
+        <button class="key" data-key="X">X</button>
+        <button class="key" data-key="C">C</button>
+        <button class="key" data-key="V">V</button>
+        <button class="key" data-key="B">B</button>
+        <button class="key" data-key="N">N</button>
+        <button class="key" data-key="M">M</button>
+        <button class="key wide-key" data-key="BACKSPACE">⌫</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal Tutorial -->
+  <div id="help-modal" class="modal hidden">
+    <div class="modal-content tutorial-content">
+      <button id="close-help" class="close-btn">&times;</button>
+      <h2>Cómo jugar</h2>
+      <p>Adivina la palabra oculta en 6 intentos.</p>
+      <p>Cada intento debe ser una palabra válida. Tras cada intento, el color de las letras cambiará para mostrar qué tan cerca estás de acertar.</p>
+      
+      <hr class="tutorial-divider">
+
+      <h3>Ejemplos</h3>
+
+      <div class="tutorial-example">
+        <div class="row">
+          <div class="tile correct">R</div>
+          <div class="tile">A</div>
+          <div class="tile">S</div>
+          <div class="tile">M</div>
+          <div class="tile">I</div>
+          <div class="tile">A</div>
+        </div>
+        <p>La letra <strong>R</strong> está en la palabra y en la posición correcta.</p>
+      </div>
+
+      <div class="tutorial-example">
+        <div class="row">
+          <div class="tile">B</div>
+          <div class="tile present">O</div>
+          <div class="tile">I</div>
+          <div class="tile">R</div>
+          <div class="tile">A</div>
+        </div>
+        <p>La letra <strong>O</strong> está en la palabra pero en una posición incorrecta.</p>
+      </div>
+
+      <div class="tutorial-example">
+        <div class="row">
+          <div class="tile">F</div>
+          <div class="tile">I</div>
+          <div class="tile absent">E</div>
+          <div class="tile">M</div>
+          <div class="tile">O</div>
+        </div>
+        <p>La letra <strong>E</strong> no está en la palabra en ninguna posición.</p>
+      </div>
+
+      <hr class="tutorial-divider">
+
+      <div class="dont-show-container">
+        <label for="dont-show-help">
+          <input type="checkbox" id="dont-show-help">
+          No volver a mostrar al comenzar
+        </label>
+      </div>
+
+      <button id="start-game-btn" class="action-btn">¡Entendido, a jugar!</button>
     </div>
   </div>
 
-  <!-- Modal Estadísticas -->
+  <!-- Modal Estadísticas / Final de partida -->
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
-      <h2>Estadísticas</h2>
-
-      <div class="stats-tabs">
-        <button id="tab-daily" class="stat-tab active">Palabra del día</button>
-        <button id="tab-practice" class="stat-tab">Modo libre</button>
-        <button id="tab-total" class="stat-tab">Total</button>
-      </div>
-
-      <div class="stats-summary">
+      <button id="close-stats" class="close-btn">&times;</button>
+      <h2 id="modal-title">Estadísticas</h2>
+      <div id="word-definition" class="definition-box hidden"></div>
+      <div class="stats-container">
         <div class="stat-box">
-          <span id="stat-played" class="stat-num">0</span>
-          <span class="stat-label">Jugadas</span>
+          <span id="stat-played">0</span>
+          <p>Jugadas</p>
         </div>
         <div class="stat-box">
-          <span id="stat-winrate" class="stat-num">0%</span>
-          <span class="stat-label">% Victorias</span>
+          <span id="stat-wins">0</span>
+          <p>% Victorias</p>
         </div>
-        <div class="stat-box">
-          <span id="stat-streak" class="stat-num">0</span>
-          <span class="stat-label">Racha actual</span>
-        </div>
-        <div class="stat-box">
-          <span id="stat-max-streak" class="stat-num">0</span>
-          <span class="stat-label">Racha máxima</span>
-        </div>
-      </div>
-
-      <h3>Distribución de intentos</h3>
-      <div class="guess-distribution">
-        <div class="dist-row"><span>1º</span><div class="dist-bar"><span id="dist-1">0</span></div></div>
-        <div class="dist-row"><span>2º</span><div class="dist-bar"><span id="dist-2">0</span></div></div>
-        <div class="dist-row"><span>3º</span><div class="dist-bar"><span id="dist-3">0</span></div></div>
-        <div class="dist-row"><span>4º</span><div class="dist-bar"><span id="dist-4">0</span></div></div>
-        <div class="dist-row"><span>5º</span><div class="dist-bar"><span id="dist-5">0</span></div></div>
-        <div class="dist-row"><span>6º</span><div class="dist-bar"><span id="dist-6">0</span></div></div>
-        <div class="dist-row"><span class="label-x">X</span><div class="dist-bar"><span id="dist-X">0</span></div></div>
-      </div>
-
-      <div class="modal-buttons">
-        <button id="close-stats" class="btn">Cerrar</button>
       </div>
     </div>
   </div>
