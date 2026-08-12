@@ -1,4 +1,3 @@
-let rawWordsList = [];
 let validWords = [];
 let currentGame = {
   mode: 'daily', // 'daily' | 'free'
@@ -7,7 +6,7 @@ let currentGame = {
   attempts: [],
   currentInput: '',
   status: 'IN_PROGRESS', // 'IN_PROGRESS' | 'WON' | 'LOST'
-  freeWordIndex: 1
+  freeWordIndex: 0
 };
 
 let stats = {
@@ -38,7 +37,6 @@ const btnModeDaily = document.getElementById('btn-mode-daily');
 const btnModeFree = document.getElementById('btn-mode-free');
 const freeControls = document.getElementById('free-mode-controls');
 const wordBadge = document.getElementById('word-number-badge');
-const btnNewWord = document.getElementById('btn-new-word');
 
 const feedbackBanner = document.getElementById('feedback-banner');
 const wordDefinition = document.getElementById('word-definition');
@@ -60,6 +58,11 @@ function loadSavedStats() {
   if (saved) {
     try { stats = JSON.parse(saved); } catch (e) {}
   }
+
+  const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
+  if (savedFreeIndex !== null) {
+    currentGame.freeWordIndex = parseInt(savedFreeIndex, 10) || 0;
+  }
 }
 
 function saveStats() {
@@ -67,19 +70,14 @@ function saveStats() {
 }
 
 function loadWordsJSON() {
-  // Carga words.json
   fetch('words.json')
     .then(res => res.json())
     .then(data => {
-      rawWordsList = data;
-      // Filtra las palabras de exactamente 5 letras para mantener la cuadrícula de 5 casillas
-      validWords = rawWordsList.filter(item => {
-        const cleanWord = item.palabra ? item.palabra.trim() : '';
-        return cleanWord.length === 5;
-      });
+      // Mantener todas las palabras respetando el orden del archivo JSON (longitudes de 5 a 9)
+      validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
 
       if (validWords.length === 0) {
-        alert('No se encontraron palabras de 5 letras en words.json.');
+        alert('No se encontraron palabras válidas en words.json.');
         return;
       }
 
@@ -99,7 +97,6 @@ function checkFirstVisitTutorial() {
 }
 
 function initEventListeners() {
-  // Modales
   btnHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
   closeHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
   startGameBtn.addEventListener('click', () => {
@@ -113,19 +110,13 @@ function initEventListeners() {
   closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
   btnModalClose.addEventListener('click', () => statsModal.classList.add('hidden'));
 
-  // Cambios de modo
   btnModeDaily.addEventListener('click', () => switchMode('daily'));
   btnModeFree.addEventListener('click', () => switchMode('free'));
 
-  // Controles Modo Libre
-  btnNewWord.addEventListener('click', () => {
-    currentGame.freeWordIndex++;
-    initGame('free');
-  });
-
   modalNextBtn.addEventListener('click', () => {
     statsModal.classList.add('hidden');
-    currentGame.freeWordIndex++;
+    currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
+    localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
     initGame('free');
   });
 
@@ -136,7 +127,6 @@ function initEventListeners() {
 
   btnShare.addEventListener('click', shareResults);
 
-  // Teclado en pantalla
   keyboardEl.addEventListener('click', (e) => {
     const target = e.target.closest('.key');
     if (!target) return;
@@ -144,7 +134,6 @@ function initEventListeners() {
     handleKeyPress(key);
   });
 
-  // Teclado físico
   document.addEventListener('keydown', (e) => {
     if (!helpModal.classList.contains('hidden') || !statsModal.classList.contains('hidden')) return;
     if (e.key === 'Enter') handleKeyPress('ENTER');
@@ -164,13 +153,14 @@ function switchMode(mode) {
   initGame(mode);
 }
 
+// Cálculo preciso de la Palabra del Día según la fecha actual
 function getDailyIndex() {
+  const epoch = new Date(2026, 0, 1); // Fecha de referencia
   const now = new Date();
-  const start = new Date(now.getFullYear(), 0, 0);
-  const diff = now - start;
-  const oneDay = 1000 * 60 * 60 * 24;
-  const dayOfYear = Math.floor(diff / oneDay);
-  return dayOfYear % validWords.length;
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const diffTime = today - epoch;
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  return Math.abs(diffDays) % validWords.length;
 }
 
 function initGame(mode) {
@@ -183,9 +173,12 @@ function initGame(mode) {
     const dailyIdx = getDailyIndex();
     currentGame.wordObj = validWords[dailyIdx];
   } else {
-    const randomIdx = Math.floor(Math.random() * validWords.length);
-    currentGame.wordObj = validWords[randomIdx];
-    wordBadge.textContent = `Palabra #${currentGame.freeWordIndex}`;
+    // Modo Libre: sigue estrictamente el orden secuencial del JSON
+    if (currentGame.freeWordIndex >= validWords.length) {
+      currentGame.freeWordIndex = 0;
+    }
+    currentGame.wordObj = validWords[currentGame.freeWordIndex];
+    wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1} / ${validWords.length}`;
   }
 
   currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
@@ -205,19 +198,22 @@ function resetCurrentWord() {
 function handleKeyPress(key) {
   if (currentGame.status !== 'IN_PROGRESS') return;
 
+  const wordLength = currentGame.targetWord.length;
+
   if (key === 'ENTER') {
     submitAttempt();
   } else if (key === 'BACKSPACE') {
     currentGame.currentInput = currentGame.currentInput.slice(0, -1);
     renderBoard();
-  } else if (currentGame.currentInput.length < 5 && /^[A-ZÑ]$/.test(key)) {
+  } else if (currentGame.currentInput.length < wordLength && /^[A-ZÑ]$/.test(key)) {
     currentGame.currentInput += key;
     renderBoard();
   }
 }
 
 function submitAttempt() {
-  if (currentGame.currentInput.length !== 5) return;
+  const wordLength = currentGame.targetWord.length;
+  if (currentGame.currentInput.length !== wordLength) return;
 
   const attempt = currentGame.currentInput.toUpperCase();
   currentGame.attempts.push(attempt);
@@ -258,6 +254,7 @@ function getGreenLettersMap() {
 
 function renderBoard() {
   boardEl.innerHTML = '';
+  const wordLength = currentGame.targetWord.length;
   const greenMap = getGreenLettersMap();
 
   for (let r = 0; r < 6; r++) {
@@ -267,7 +264,7 @@ function renderBoard() {
     const attempt = currentGame.attempts[r];
     const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
 
-    for (let c = 0; c < 5; c++) {
+    for (let c = 0; c < wordLength; c++) {
       const tile = document.createElement('div');
       tile.className = 'tile';
 
@@ -296,19 +293,20 @@ function renderBoard() {
 function evaluateTileStatus(attempt, index) {
   const char = attempt[index];
   const target = currentGame.targetWord;
+  const wordLength = target.length;
 
   if (target[index] === char) return 'correct';
 
   let targetChars = target.split('');
   let attemptChars = attempt.split('');
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < wordLength; i++) {
     if (attemptChars[i] === targetChars[i]) {
       targetChars[i] = null;
     }
   }
 
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < wordLength; i++) {
     if (attemptChars[i] === targetChars[i]) continue;
     if (i === index) {
       const foundIdx = targetChars.indexOf(char);
@@ -458,14 +456,14 @@ function startCountdownTimer() {
 }
 
 function shareResults() {
-  let shareText = `Wordle Aragones - ${currentGame.mode === 'daily' ? 'Palabra del Día' : 'Modo Libre'}\n`;
+  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : 'Modo Libre'}\n`;
   shareText += `${currentGame.attempts.length}/6\n\n`;
 
   currentGame.attempts.forEach(att => {
     att.split('').forEach((char, idx) => {
       if (currentGame.targetWord[idx] === char) shareText += '🟩';
-      else if (currentGame.targetWord.includes(char)) shareText += '🟧';
-      else shareText += '⬛';
+      else if (currentGame.targetWord.includes(char)) shareText += '🟨';
+      else shareText += '⬜';
     });
     shareText += '\n';
   });
