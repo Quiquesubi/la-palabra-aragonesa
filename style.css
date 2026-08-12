@@ -5,9 +5,9 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #ffffff;
-  color: #212121;
+  color: #1a1a1b;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -15,24 +15,30 @@ body {
 }
 
 header {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #d3d6da;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  max-width: 500px;
-  padding: 10px 20px;
-  border-bottom: 1px solid #d3d6da;
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   letter-spacing: 1px;
-  color: #1a1a1b;
+  font-weight: 700;
 }
 
 .menu-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .icon-btn {
@@ -40,6 +46,35 @@ h1 {
   border: none;
   font-size: 1.4rem;
   cursor: pointer;
+  padding: 4px;
+}
+
+/* Selector de Modo */
+.mode-selector {
+  display: flex;
+  background-color: #f0f2f5;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 4px;
+}
+
+.mode-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #616161;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mode-btn.active {
+  background-color: #ffffff;
+  color: #1a1a1b;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
 }
 
 main {
@@ -48,12 +83,27 @@ main {
   align-items: center;
   justify-content: space-between;
   flex-grow: 1;
-  padding: 20px 0;
+  padding: 15px 0;
   width: 100%;
   max-width: 500px;
 }
 
-/* Tablero de juego */
+.free-controls {
+  margin-bottom: 10px;
+}
+
+.action-btn-secondary {
+  background-color: #e8ecef;
+  color: #1a1a1b;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Tablero */
 #game-board {
   display: flex;
   flex-direction: column;
@@ -77,6 +127,7 @@ main {
   text-transform: uppercase;
   color: #1a1a1b;
   background-color: #ffffff;
+  border-radius: 4px;
 }
 
 .tile.correct {
@@ -117,18 +168,20 @@ main {
   color: #1a1a1b;
   border: none;
   border-radius: 4px;
-  height: 58px;
+  height: 56px;
   flex: 1;
   font-weight: bold;
+  font-size: 1rem;
   cursor: pointer;
   display: flex;
   justify-content: center;
   align-items: center;
+  user-select: none;
 }
 
 .wide-key {
   flex: 1.5;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .key.correct {
@@ -160,34 +213,97 @@ main {
   z-index: 100;
 }
 
-.modal.hidden {
-  display: none;
+.modal.hidden, .hidden {
+  display: none !important;
 }
 
 .modal-content {
   background-color: #ffffff;
-  color: #212121;
-  border: 1px solid #d3d6da;
-  border-radius: 8px;
-  padding: 20px;
+  color: #1a1a1b;
+  border-radius: 12px;
+  padding: 24px 20px;
   width: 90%;
   max-width: 420px;
   position: relative;
   text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
 .close-btn {
   position: absolute;
-  top: 10px;
-  right: 15px;
+  top: 12px;
+  right: 16px;
   background: none;
   border: none;
-  color: #212121;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   cursor: pointer;
+  color: #616161;
 }
 
-/* Tutorial de Ayuda */
+/* Estadísticas UI */
+.stats-summary {
+  display: flex;
+  justify-content: space-around;
+  margin: 18px 0;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #616161;
+}
+
+.distribution-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 15px 0;
+  text-align: left;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.dist-bar {
+  background-color: #787c7e;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 3px;
+  min-width: 24px;
+  text-align: right;
+  font-size: 0.8rem;
+}
+
+.dist-bar.highlight {
+  background-color: #6aaa64;
+}
+
+.definition-box {
+  background-color: #f5f6f8;
+  border-left: 4px solid #6aaa64;
+  padding: 12px;
+  margin: 15px 0;
+  text-align: left;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
 .tutorial-content {
   text-align: left;
 }
@@ -200,40 +316,37 @@ main {
 .tutorial-divider {
   border: 0;
   height: 1px;
-  background: #d3d6da;
+  background: #e0e0e0;
   margin: 15px 0;
 }
 
 .tutorial-example {
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .tutorial-example .row {
-  display: flex;
   justify-content: center;
-  gap: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 4px;
 }
 
 .tutorial-example .tile {
-  width: 38px;
-  height: 38px;
-  font-size: 1.2rem;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
 }
 
 .dont-show-container {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin-top: 15px;
-  font-size: 0.95rem;
+  margin-top: 12px;
+  font-size: 0.9rem;
 }
 
 .dont-show-container label {
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .action-btn {
@@ -244,15 +357,7 @@ main {
   padding: 12px;
   font-size: 1rem;
   font-weight: bold;
-  border-radius: 4px;
+  border-radius: 6px;
   margin-top: 15px;
   cursor: pointer;
-}
-
-.definition-box {
-  background-color: #f4f4f4;
-  border-left: 4px solid #6aaa64;
-  padding: 10px;
-  margin: 15px 0;
-  text-align: left;
 }
