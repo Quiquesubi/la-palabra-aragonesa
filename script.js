@@ -8,7 +8,7 @@ let currentGame = {
   currentInput: '',
   status: 'IN_PROGRESS',
   freeWordIndex: 0,
-  animatedRows: [] // Rastreo de filas con animación ejecutada
+  animatedRows: []
 };
 
 // Estadísticas separadas por modo
@@ -85,6 +85,23 @@ function loadSavedStats() {
 
 function saveStats() {
   localStorage.setItem('palabra_aragonesa_stats_v2', JSON.stringify(stats));
+}
+
+// Guardar el estado parcial o final de la partida actual en localStorage
+function saveGameState() {
+  if (currentGame.mode === 'daily') {
+    localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
+      date: getTodayString(),
+      attempts: currentGame.attempts,
+      status: currentGame.status
+    }));
+  } else if (currentGame.mode === 'free') {
+    localStorage.setItem('palabra_aragonesa_free_game', JSON.stringify({
+      wordIndex: currentGame.freeWordIndex,
+      attempts: currentGame.attempts,
+      status: currentGame.status
+    }));
+  }
 }
 
 function loadWordsJSON() {
@@ -214,20 +231,20 @@ function initGame(mode) {
     currentGame.wordObj = validWords[dailyIdx];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 
-    // Comprobar si ya se jugó la palabra diaria de hoy
+    // Restaurar estado guardado (en progreso o finalizado) de la palabra diaria
     const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
     if (savedDaily) {
       try {
         const dailyData = JSON.parse(savedDaily);
         if (dailyData.date === getTodayString()) {
-          currentGame.attempts = dailyData.attempts;
-          currentGame.status = dailyData.status;
-          // Marcar todas las filas guardadas como ya animadas para no repetirla
+          currentGame.attempts = dailyData.attempts || [];
+          currentGame.status = dailyData.status || 'IN_PROGRESS';
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
-          dailyCompletedBanner.classList.remove('hidden');
 
-          // Mostrar emergente informativa de palabra diaria ya jugada
-          openDailyAlreadyPlayedModal();
+          if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
+            dailyCompletedBanner.classList.remove('hidden');
+            openDailyAlreadyPlayedModal();
+          }
         }
       } catch (e) {}
     }
@@ -238,6 +255,23 @@ function initGame(mode) {
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
     wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1}`;
+
+    // Restaurar estado guardado (en progreso o finalizado) del Modo Libre
+    const savedFree = localStorage.getItem('palabra_aragonesa_free_game');
+    if (savedFree) {
+      try {
+        const freeData = JSON.parse(savedFree);
+        if (freeData.wordIndex === currentGame.freeWordIndex) {
+          currentGame.attempts = freeData.attempts || [];
+          currentGame.status = freeData.status || 'IN_PROGRESS';
+          currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
+
+          if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
+            updateMainActionButtons();
+          }
+        }
+      } catch (e) {}
+    }
   }
 
   resetKeyboardColors();
@@ -253,6 +287,7 @@ function resetCurrentWord() {
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   hideMainActionButtons();
+  saveGameState();
   resetKeyboardColors();
   renderBoard();
 }
@@ -262,11 +297,13 @@ function nextFreeWord() {
   hideMainActionButtons();
   currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
   localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
+  localStorage.removeItem('palabra_aragonesa_free_game'); // Limpiar progreso de la palabra anterior
   initGame('free');
 }
 
 function retryFreeWord() {
   resultModal.classList.add('hidden');
+  localStorage.removeItem('palabra_aragonesa_free_game'); // Resetear intentos guardados al reintentar
   resetCurrentWord();
 }
 
@@ -307,16 +344,11 @@ function submitAttempt() {
     recordStats(false, 'X');
   }
 
-  // Guardar estado diario
-  if (currentGame.mode === 'daily') {
-    localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
-      date: getTodayString(),
-      attempts: currentGame.attempts,
-      status: currentGame.status
-    }));
-    if (isWin || isLoss) {
-      dailyCompletedBanner.classList.remove('hidden');
-    }
+  // Guardar estado actual inmediatamente tras el intento
+  saveGameState();
+
+  if (currentGame.mode === 'daily' && (isWin || isLoss)) {
+    dailyCompletedBanner.classList.remove('hidden');
   }
 
   renderBoard();
