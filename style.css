@@ -117,15 +117,14 @@ main {
 
 /* Tablero */
 #game-board {
-  display: grid;
-  grid-template-rows: repeat(6, 1fr);
+  display: flex;
+  flex-direction: column;
   gap: 6px;
   margin-bottom: 16px;
 }
 
 .board-row {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
   gap: 6px;
 }
 
@@ -141,6 +140,8 @@ main {
   text-transform: uppercase;
   border-radius: 4px;
   user-select: none;
+  background-color: transparent;
+  color: var(--color-text);
 }
 
 .tile.filled {
