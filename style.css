@@ -1,6 +1,6 @@
 :root {
   --color-correct: #2e7d32;
-  --color-present: #d9a014; /* Amarillo para letras presentes */
+  --color-present: #d9a014;
   --color-absent: #757575;
   --color-bg: #ffffff;
   --color-card-bg: #ffffff;
@@ -119,7 +119,6 @@ main {
   border: 1px solid #cbd5e1;
 }
 
-/* Tablero adapable a 5-9 letras */
 #game-board {
   display: flex;
   flex-direction: column;
@@ -151,6 +150,24 @@ main {
   user-select: none;
   background-color: #fff;
   color: var(--color-text);
+  perspective: 1000px;
+}
+
+/* Animación de volteo al comprobar la palabra */
+@keyframes flipTile {
+  0% {
+    transform: rotateX(0deg);
+  }
+  50% {
+    transform: rotateX(90deg);
+  }
+  100% {
+    transform: rotateX(0deg);
+  }
+}
+
+.tile.flip {
+  animation: flipTile 0.5s ease forwards;
 }
 
 .tile.filled {
@@ -210,6 +227,7 @@ main {
   cursor: pointer;
   user-select: none;
   font-size: 0.95rem;
+  transition: background-color 0.3s ease;
 }
 
 .key.wide-key {
