@@ -9,66 +9,50 @@
 <body>
 
   <header>
-    <h1>PALABRA ARAGONESA</h1>
-    <div class="menu-buttons">
-      <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
-      <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
+    <div class="header-top">
+      <h1>PALABRA ARAGONESA</h1>
+      <div class="menu-buttons">
+        <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
+        <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
+      </div>
+    </div>
+
+    <!-- Selección de Modo de Juego -->
+    <div class="mode-selector">
+      <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
+      <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
     </div>
   </header>
 
   <main>
+    <!-- Botón de Nueva Palabra solo para Modo Libre -->
+    <div id="free-mode-controls" class="free-controls hidden">
+      <button id="btn-new-word" class="action-btn-secondary">🔄 Nueva palabra</button>
+    </div>
+
+    <!-- Tablero de Juego -->
     <div id="game-board">
-      <!-- Fila 1 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <!-- Fila 2 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <!-- Fila 3 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <!-- Fila 4 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <!-- Fila 5 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
-      <!-- Fila 6 -->
       <div class="row">
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
-        <div class="tile"></div>
+        <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
       </div>
     </div>
 
-    <!-- Teclado virtual -->
+    <!-- Teclado Virtual -->
     <div id="keyboard">
       <div class="keyboard-row">
         <button class="key" data-key="Q">Q</button>
@@ -108,16 +92,15 @@
     </div>
   </main>
 
-  <!-- Modal Tutorial -->
+  <!-- Modal Instrucciones / Tutorial -->
   <div id="help-modal" class="modal hidden">
     <div class="modal-content tutorial-content">
       <button id="close-help" class="close-btn">&times;</button>
       <h2>Cómo jugar</h2>
       <p>Adivina la palabra oculta en 6 intentos.</p>
-      <p>Cada intento debe ser una palabra válida. Tras cada intento, el color de las letras cambiará para mostrar qué tan cerca estás de acertar.</p>
-      
-      <hr class="tutorial-divider">
+      <p>Tras cada intento, las casillas cambiarán de color para mostrarte lo cerca que estás de la palabra.</p>
 
+      <hr class="tutorial-divider">
       <h3>Ejemplos</h3>
 
       <div class="tutorial-example">
@@ -140,7 +123,7 @@
           <div class="tile">R</div>
           <div class="tile">A</div>
         </div>
-        <p>La letra <strong>O</strong> está en la palabra pero en una posición incorrecta.</p>
+        <p>La letra <strong>O</strong> está en la palabra pero en posición incorrecta.</p>
       </div>
 
       <div class="tutorial-example">
@@ -151,7 +134,7 @@
           <div class="tile">M</div>
           <div class="tile">O</div>
         </div>
-        <p>La letra <strong>E</strong> no está en la palabra en ninguna posición.</p>
+        <p>La letra <strong>E</strong> no está en la palabra.</p>
       </div>
 
       <hr class="tutorial-divider">
@@ -167,12 +150,40 @@
     </div>
   </div>
 
-  <!-- Modal Estadísticas / Final de partida -->
+  <!-- Modal Estadísticas -->
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
-      <h2 id="modal-title">Estadísticas</h2>
+      <h2 id="stats-title">Estadísticas</h2>
+      
+      <div class="stats-summary">
+        <div class="stat-box">
+          <span id="stat-played" class="stat-num">0</span>
+          <span class="stat-label">Jugadas</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-winrate" class="stat-num">0%</span>
+          <span class="stat-label">% Victorias</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-streak" class="stat-num">0</span>
+          <span class="stat-label">Racha actual</span>
+        </div>
+        <div class="stat-box">
+          <span id="stat-maxstreak" class="stat-num">0</span>
+          <span class="stat-label">Racha máx.</span>
+        </div>
+      </div>
+
+      <h3>Distribución de intentos</h3>
+      <div id="guess-distribution" class="distribution-container">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <!-- Definición de la palabra al terminar -->
       <div id="word-definition" class="definition-box hidden"></div>
+
+      <button id="modal-next-btn" class="action-btn hidden">Siguiente palabra</button>
     </div>
   </div>
 
