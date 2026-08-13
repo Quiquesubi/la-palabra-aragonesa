@@ -49,23 +49,18 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
 }
 
-/* Estilo Hashtag para el Título (Inseparable en cualquier pantalla) */
+/* Estilo Hashtag para el Título */
 .hashtag-title {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  white-space: nowrap;
   gap: 4px;
   background-color: #f1f5f9;
   padding: 6px 12px;
   border-radius: 20px;
   border: 1px solid #cbd5e1;
   max-width: fit-content;
-  flex-shrink: 0;
 }
 
 .hashtag-symbol {
@@ -73,7 +68,6 @@ header {
   font-weight: 900;
   color: var(--color-correct);
   line-height: 1;
-  flex-shrink: 0;
 }
 
 .hashtag-title h1 {
@@ -84,13 +78,11 @@ header {
   color: #0f172a;
   text-transform: none;
   white-space: nowrap;
-  display: inline-block;
 }
 
 .menu-buttons {
   display: flex;
   gap: 8px;
-  flex-shrink: 0;
 }
 
 .icon-btn {
@@ -159,6 +151,38 @@ main {
   margin-bottom: 12px;
   text-align: center;
   width: 100%;
+}
+
+/* Botón de Pistas */
+.hint-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.hint-btn {
+  background-color: #d97706;
+  color: #ffffff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.hint-btn:hover:not(:disabled) {
+  background-color: #b45309;
+}
+
+.hint-btn:disabled {
+  background-color: #94a3b8;
+  cursor: not-allowed;
+  opacity: 0.7;
+  box-shadow: none;
 }
 
 #game-board {
