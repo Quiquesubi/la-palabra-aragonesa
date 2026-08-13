@@ -80,6 +80,8 @@ function loadSavedStats() {
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
   if (savedFreeIndex !== null) {
     currentGame.freeWordIndex = parseInt(savedFreeIndex, 10) || 0;
+  } else {
+    currentGame.freeWordIndex = 0; // Por defecto arranca en la Palabra 1
   }
 }
 
@@ -108,6 +110,7 @@ function loadWordsJSON() {
   fetch('words.json')
     .then(res => res.json())
     .then(data => {
+      // Mantenemos la lista ordenada según viene en el JSON
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
 
       if (validWords.length === 0) {
@@ -208,13 +211,30 @@ function getTodayString() {
   return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
 }
 
+/**
+ * Calcula el índice diario asegurando que la palabra de HOY sea la 1201 (índice 1200 en el array)
+ * y que avance secuencialmente cada día, reiniciando al principio si supera el total.
+ */
 function getDailyIndex() {
-  const epoch = new Date(2026, 0, 1);
+  // Fecha base: Día de hoy
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diffTime = today - epoch;
+
+  // Fecha de inicio fija
+  const startDate = new Date(2026, 7, 13); // 13 de agosto de 2026
+
+  const diffTime = today - startDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  return Math.abs(diffDays) % validWords.length;
+
+  // Índice base para la palabra 1201 (posiciones en array empiezan en 0)
+  const targetId = 1201;
+  const baseIndex = validWords.findIndex(w => w.id === targetId);
+
+  // Si por alguna razón no se encuentra id: 1201, se toma el índice 1200 por defecto
+  const startIndex = baseIndex !== -1 ? baseIndex : 1200;
+
+  // Calculamos el índice resultante respetando el total del listado
+  return (startIndex + diffDays) % validWords.length;
 }
 
 function initGame(mode) {
@@ -231,7 +251,7 @@ function initGame(mode) {
     currentGame.wordObj = validWords[dailyIdx];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 
-    // Restaurar estado guardado (en progreso o finalizado) de la palabra diaria
+    // Restaurar estado guardado de la palabra diaria
     const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
     if (savedDaily) {
       try {
@@ -254,9 +274,12 @@ function initGame(mode) {
     }
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
-    wordBadge.textContent = `Palabra ${currentGame.freeWordIndex + 1}`;
+    
+    // Muestra el ID o número de palabra real en el badge
+    const displayNum = currentGame.wordObj.id || (currentGame.freeWordIndex + 1);
+    wordBadge.textContent = `Palabra ${displayNum}`;
 
-    // Restaurar estado guardado (en progreso o finalizado) del Modo Libre
+    // Restaurar estado guardado del Modo Libre
     const savedFree = localStorage.getItem('palabra_aragonesa_free_game');
     if (savedFree) {
       try {
@@ -297,13 +320,13 @@ function nextFreeWord() {
   hideMainActionButtons();
   currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
   localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
-  localStorage.removeItem('palabra_aragonesa_free_game'); // Limpiar progreso de la palabra anterior
+  localStorage.removeItem('palabra_aragonesa_free_game');
   initGame('free');
 }
 
 function retryFreeWord() {
   resultModal.classList.add('hidden');
-  localStorage.removeItem('palabra_aragonesa_free_game'); // Resetear intentos guardados al reintentar
+  localStorage.removeItem('palabra_aragonesa_free_game');
   resetCurrentWord();
 }
 
@@ -344,7 +367,6 @@ function submitAttempt() {
     recordStats(false, 'X');
   }
 
-  // Guardar estado actual inmediatamente tras el intento
   saveGameState();
 
   if (currentGame.mode === 'daily' && (isWin || isLoss)) {
@@ -353,7 +375,6 @@ function submitAttempt() {
 
   renderBoard();
 
-  // Marcar la fila recién enviada como animada tras la comprobación inicial
   const submittedRowIndex = currentGame.attempts.length - 1;
   currentGame.animatedRows.push(submittedRowIndex);
 
@@ -396,7 +417,6 @@ function renderBoard() {
         tile.textContent = attempt[c];
         const status = evaluateTileStatus(attempt, c);
 
-        // La animación de volteo se ejecuta SÓLO una vez al comprobar
         if (isLatestSubmitted && !currentGame.animatedRows.includes(r)) {
           tile.classList.add('flip');
           tile.style.animationDelay = `${c * 150}ms`;
@@ -496,7 +516,6 @@ function recordStats(isWin, attemptKey) {
   saveStats();
 }
 
-/* Modal de Resultado al finalizar una partida */
 function openResultModal(isWin) {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
@@ -519,11 +538,10 @@ function openResultModal(isWin) {
 
     btnShare.classList.remove('hidden');
 
-    // Contador de tiempo restante en la palabra diaria
     startCountdownTimer();
     resultCountdownBox.classList.remove('hidden');
 
-  } else { // Modo Libre
+  } else {
     if (isWin) {
       const attemptCount = currentGame.attempts.length;
       resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
@@ -535,7 +553,6 @@ function openResultModal(isWin) {
       btnShare.classList.remove('hidden');
       btnNextWord.classList.remove('hidden');
     } else {
-      // Mensaje de fallo en Modo Libre con fondo verde
       resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que la adivinas.";
       resultBanner.className = 'feedback-banner win';
 
@@ -546,7 +563,6 @@ function openResultModal(isWin) {
   resultModal.classList.remove('hidden');
 }
 
-/* Modal si la palabra diaria de hoy ya fue jugada previamente */
 function openDailyAlreadyPlayedModal() {
   resultWordDefinition.classList.add('hidden');
   btnShare.classList.add('hidden');
@@ -567,7 +583,6 @@ function openDailyAlreadyPlayedModal() {
   resultModal.classList.remove('hidden');
 }
 
-/* Actualiza la visibilidad de los botones en la pantalla principal al cerrar el emergente */
 function updateMainActionButtons() {
   hideMainActionButtons();
 
@@ -585,7 +600,6 @@ function hideMainActionButtons() {
   btnMainRetry.classList.add('hidden');
 }
 
-/* Modal de Estadísticas */
 function openStatsModal() {
   renderStatsData();
   statsModal.classList.remove('hidden');
