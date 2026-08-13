@@ -8,7 +8,8 @@ let currentGame = {
   currentInput: '',
   status: 'IN_PROGRESS',
   freeWordIndex: 0,
-  animatedRows: []
+  animatedRows: [],
+  hintLevel: 0 // 0 = ninguna pista, 1 = descartar letras, 2 = significado, 3 = letra verde
 };
 
 // Estadísticas separadas por modo
@@ -35,6 +36,7 @@ const boardEl = document.getElementById('game-board');
 const keyboardEl = document.getElementById('keyboard');
 const btnHelp = document.getElementById('btn-help');
 const btnStats = document.getElementById('btn-stats');
+const btnHint = document.getElementById('btn-hint');
 
 const helpModal = document.getElementById('help-modal');
 const closeHelp = document.getElementById('close-help');
@@ -80,8 +82,6 @@ function loadSavedStats() {
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
   if (savedFreeIndex !== null) {
     currentGame.freeWordIndex = parseInt(savedFreeIndex, 10) || 0;
-  } else {
-    currentGame.freeWordIndex = 0; // Por defecto arranca en la Palabra 1
   }
 }
 
@@ -95,13 +95,15 @@ function saveGameState() {
     localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
       date: getTodayString(),
       attempts: currentGame.attempts,
-      status: currentGame.status
+      status: currentGame.status,
+      hintLevel: currentGame.hintLevel
     }));
   } else if (currentGame.mode === 'free') {
     localStorage.setItem('palabra_aragonesa_free_game', JSON.stringify({
       wordIndex: currentGame.freeWordIndex,
       attempts: currentGame.attempts,
-      status: currentGame.status
+      status: currentGame.status,
+      hintLevel: currentGame.hintLevel
     }));
   }
 }
@@ -110,7 +112,6 @@ function loadWordsJSON() {
   fetch('words.json')
     .then(res => res.json())
     .then(data => {
-      // Mantenemos la lista ordenada según viene en el JSON
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
 
       if (validWords.length === 0) {
@@ -142,6 +143,11 @@ function initEventListeners() {
     }
     helpModal.classList.add('hidden');
   });
+
+  // Evento Botón de Pistas
+  if (btnHint) {
+    btnHint.addEventListener('click', handleHintClick);
+  }
 
   // Modal Resultados
   btnCloseResultModal.addEventListener('click', () => {
@@ -211,29 +217,18 @@ function getTodayString() {
   return `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
 }
 
-/**
- * Calcula el índice diario asegurando que la palabra de HOY sea la 1201 (índice 1200 en el array)
- * y que avance secuencialmente cada día, reiniciando al principio si supera el total.
- */
 function getDailyIndex() {
-  // Fecha base: Día de hoy
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-  // Fecha de inicio fija
   const startDate = new Date(2026, 7, 13); // 13 de agosto de 2026
 
   const diffTime = today - startDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  // Índice base para la palabra 1201 (posiciones en array empiezan en 0)
   const targetId = 1201;
   const baseIndex = validWords.findIndex(w => w.id === targetId);
-
-  // Si por alguna razón no se encuentra id: 1201, se toma el índice 1200 por defecto
   const startIndex = baseIndex !== -1 ? baseIndex : 1200;
 
-  // Calculamos el índice resultante respetando el total del listado
   return (startIndex + diffDays) % validWords.length;
 }
 
@@ -243,6 +238,7 @@ function initGame(mode) {
   currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
+  currentGame.hintLevel = 0;
   dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
 
@@ -259,6 +255,7 @@ function initGame(mode) {
         if (dailyData.date === getTodayString()) {
           currentGame.attempts = dailyData.attempts || [];
           currentGame.status = dailyData.status || 'IN_PROGRESS';
+          currentGame.hintLevel = dailyData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
@@ -274,8 +271,6 @@ function initGame(mode) {
     }
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
-    
-    // Muestra el ID o número de palabra real en el badge
     const displayNum = currentGame.wordObj.id || (currentGame.freeWordIndex + 1);
     wordBadge.textContent = `Palabra ${displayNum}`;
 
@@ -287,6 +282,7 @@ function initGame(mode) {
         if (freeData.wordIndex === currentGame.freeWordIndex) {
           currentGame.attempts = freeData.attempts || [];
           currentGame.status = freeData.status || 'IN_PROGRESS';
+          currentGame.hintLevel = freeData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
@@ -301,6 +297,11 @@ function initGame(mode) {
   if (currentGame.attempts.length > 0) {
     currentGame.attempts.forEach(att => updateKeyboardColors(att));
   }
+  
+  // Re-aplicar pistas si el usuario ya había pedido alguna en esta partida
+  if (currentGame.hintLevel >= 1) discardKeyboardLetters(3);
+
+  updateHintButtonUI();
   renderBoard();
 }
 
@@ -309,9 +310,11 @@ function resetCurrentWord() {
   currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
+  currentGame.hintLevel = 0;
   hideMainActionButtons();
   saveGameState();
   resetKeyboardColors();
+  updateHintButtonUI();
   renderBoard();
 }
 
@@ -368,6 +371,7 @@ function submitAttempt() {
   }
 
   saveGameState();
+  updateHintButtonUI();
 
   if (currentGame.mode === 'daily' && (isWin || isLoss)) {
     dailyCompletedBanner.classList.remove('hidden');
@@ -496,6 +500,116 @@ function resetKeyboardColors() {
   const keys = keyboardEl.querySelectorAll('.key');
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
+
+// --- SISTEMA DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
+
+function updateHintButtonUI() {
+  if (!btnHint) return;
+
+  if (currentGame.status !== 'IN_PROGRESS') {
+    btnHint.disabled = true;
+    btnHint.textContent = '💡 Pista';
+    return;
+  }
+
+  btnHint.disabled = false;
+  switch (currentGame.hintLevel) {
+    case 0:
+      btnHint.textContent = '💡 Pista 1/3 (Descartar letras)';
+      break;
+    case 1:
+      btnHint.textContent = '💡 Pista 2/3 (Significado)';
+      break;
+    case 2:
+      btnHint.textContent = '💡 Pista 3/3 (Revelar letra)';
+      break;
+    default:
+      btnHint.textContent = '💡 Pistas agotadas';
+      btnHint.disabled = true;
+      break;
+  }
+}
+
+async function handleHintClick() {
+  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= 3) return;
+
+  const adWatched = await simulateRewardedAd();
+
+  if (adWatched) {
+    currentGame.hintLevel++;
+    saveGameState();
+    applyHint(currentGame.hintLevel);
+    updateHintButtonUI();
+  }
+}
+
+// Simulación de anuncio de vídeo para pruebas web (se reemplazará por AdMob en móvil)
+function simulateRewardedAd() {
+  return new Promise((resolve) => {
+    const confirmed = confirm("🎬 [Anuncio de prueba]\n\nVisualizando vídeo de 15 segundos...\n¿Completar vídeo para obtener la pista?");
+    resolve(confirmed);
+  });
+}
+
+function applyHint(level) {
+  switch (level) {
+    case 1:
+      discardKeyboardLetters(3);
+      alert('💡 Pista 1/3:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.');
+      break;
+
+    case 2:
+      const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
+      alert(`💡 Pista 2/3 (Significado):\n\n"${significado}"`);
+      break;
+
+    case 3:
+      revealGreenLetter();
+      break;
+  }
+}
+
+function discardKeyboardLetters(count) {
+  const target = currentGame.targetWord;
+  const allKeys = Array.from(keyboardEl.querySelectorAll('.key'));
+
+  const eligibleKeys = allKeys.filter(keyEl => {
+    const key = keyEl.getAttribute('data-key');
+    if (!key || key === 'ENTER' || key === 'BACKSPACE') return false;
+    return !target.includes(key) && !keyEl.classList.contains('absent');
+  });
+
+  const shuffled = eligibleKeys.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, count);
+
+  selected.forEach(keyEl => {
+    keyEl.classList.add('absent');
+  });
+}
+
+function revealGreenLetter() {
+  const target = currentGame.targetWord;
+  const greenMap = getGreenLettersMap();
+
+  const unrevealedIndices = [];
+  for (let i = 0; i < target.length; i++) {
+    if (!greenMap[i]) {
+      unrevealedIndices.push(i);
+    }
+  }
+
+  if (unrevealedIndices.length === 0) {
+    alert('💡 ¡Ya tienes todas las casillas correctas descubiertas!');
+    return;
+  }
+
+  const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
+  const letter = target[randomIndex];
+
+  alert(`💡 Pista 3/3 (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
+}
+
+// --- FIN SISTEMA DE PISTAS ---
 
 function recordStats(isWin, attemptKey) {
   const currentStats = stats[currentGame.mode];
