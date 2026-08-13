@@ -19,7 +19,7 @@
   },
   {
     "id": 4,
-    "palabra": "CHARRÍN",
+    "palabra": "CHARRIN",
     "longitud": 7,
     "significado": "se dice de una persona que habla mucho."
   },
@@ -39,13 +39,13 @@
     "id": 7,
     "palabra": "CAPAZO",
     "longitud": 6,
-    "significado": "conversación larga que suele ocurrir en la calle."
+    "significado": "es una conversación larga que suele ocurrir en la calle."
   },
   {
     "id": 8,
     "palabra": "CUTIO",
     "longitud": 5,
-    "significado": "continuamente. Y PA CUTIO significa para siempre."
+    "significado": "significa continuamente. Y PA CUTIO quiere decir para siempre."
   },
   {
     "id": 9,
@@ -73,7 +73,7 @@
   },
   {
     "id": 13,
-    "palabra": "MOSÉN",
+    "palabra": "MOSEN",
     "longitud": 5,
     "significado": "es como se llama a los curas."
   },
@@ -127,7 +127,7 @@
   },
   {
     "id": 22,
-    "palabra": "MARIPÍS",
+    "palabra": "MARIPIS",
     "longitud": 7,
     "significado": "se llamo a las zapatillas de deporte."
   },
@@ -181,7 +181,7 @@
   },
   {
     "id": 31,
-    "palabra": "LAMPARÓN",
+    "palabra": "LAMPARON",
     "longitud": 8,
     "significado": "es una mancha bastante visible en la ropa, producida por grasa o aceite."
   },
@@ -193,7 +193,7 @@
   },
   {
     "id": 33,
-    "palabra": "TOZOLÓN",
+    "palabra": "TOZOLON",
     "longitud": 7,
     "significado": "es una caída o un golpe violento"
   },
@@ -229,7 +229,7 @@
   },
   {
     "id": 39,
-    "palabra": "ESCORCHÓN",
+    "palabra": "ESCORCHON",
     "longitud": 9,
     "significado": "es una herida en la que se levanta la piel, generalmente en la rodilla. También se llama, cuando se levanta la pintura de la pared."
   },
@@ -307,7 +307,7 @@
   },
   {
     "id": 52,
-    "palabra": "FOCÍN",
+    "palabra": "FOCIN",
     "longitud": 5,
     "significado": "quiere decir puerco. Se llama así a una persona que se mancha con facilidad."
   },
@@ -505,7 +505,7 @@
   },
   {
     "id": 85,
-    "palabra": "CHANDRÍO",
+    "palabra": "CHANDRIO",
     "longitud": 8,
     "significado": "quiere decir desbarajuste, destrozo o mala faena."
   },
@@ -535,7 +535,7 @@
   },
   {
     "id": 90,
-    "palabra": "COCHÍN",
+    "palabra": "COCHIN",
     "longitud": 6,
     "significado": "es una forma de nombrar al cerdo."
   },
@@ -559,9 +559,9 @@
   },
   {
     "id": 94,
-    "palabra": "ABÓN",
-    "longitud": 4,
-    "significado": "es como se llama a los granos que salen en la piel producidos por la picadura de algún insecto."
+    "palabra": "ABONES",
+    "longitud": 6,
+    "significado": "son los granos que salen en la piel producidos por la picadura de algún insecto."
   },
   {
     "id": 95,
@@ -619,7 +619,7 @@
   },
   {
     "id": 104,
-    "palabra": "TORZÓN",
+    "palabra": "TORZON",
     "longitud": 6,
     "significado": "se dice a un cólico o empacho."
   },
@@ -649,7 +649,7 @@
   },
   {
     "id": 109,
-    "palabra": "CURRÍN",
+    "palabra": "CURRIN",
     "longitud": 6,
     "significado": "es como se llama al dedo meñique o algo muy pequeño."
   },
@@ -703,9 +703,9 @@
   },
   {
     "id": 118,
-    "palabra": "DE PROPIO",
+    "palabra": "DEPROPIO",
     "longitud": 9,
-    "significado": "es una expresión muy utilizada en Aragón que quiere decir: ex profeso, a propósito, expresamente..."
+    "significado": "DE PROPIO es una expresión muy utilizada en Aragón que quiere decir: ex profeso, a propósito, expresamente..."
   },
   {
     "id": 119,
@@ -759,7 +759,7 @@
     "id": 127,
     "palabra": "RIPAS",
     "longitud": 5,
-    "significado": "se denomina a un montón y a un terreno con mucha pendiente."
+    "significado": "se denominan a unos montones y a unos terrenos con mucha pendiente."
   },
   {
     "id": 128,
@@ -835,9 +835,9 @@
   },
   {
     "id": 140,
-    "palabra": "PA CUTIO",
+    "palabra": "PACUTIO",
     "longitud": 8,
-    "significado": "quiere decir para siempre, eternamente."
+    "significado": "Pa cutio es una expresión que quiere decir para siempre, eternamente."
   },
   {
     "id": 141,
@@ -847,7 +847,7 @@
   },
   {
     "id": 142,
-    "palabra": "REPELÓN",
+    "palabra": "REPELON",
     "longitud": 7,
     "significado": "es como se llama al pedazo de piel que se desprende, normalmente, al lado de la uña."
   },
@@ -877,7 +877,7 @@
   },
   {
     "id": 147,
-    "palabra": "REPATÁN",
+    "palabra": "REPATAN",
     "longitud": 7,
     "significado": "se llama al aprendiz de pastor a las órdenes de un mayoral. También acompaña a los danzantes de los palotiaus."
   },
@@ -997,7 +997,7 @@
   },
   {
     "id": 167,
-    "palabra": "GARGALÉ",
+    "palabra": "GARGALE",
     "longitud": 7,
     "significado": "es la forma de beber del botijo, del porrón... cuando se coloca a cierta altura."
   },
@@ -1051,7 +1051,7 @@
   },
   {
     "id": 176,
-    "palabra": "TARDANÉ",
+    "palabra": "TARDANE",
     "longitud": 7,
     "significado": "es como se llama al hijo menor que tiene mucha diferencia de edad con el anterior."
   },
@@ -1087,7 +1087,7 @@
   },
   {
     "id": 182,
-    "palabra": "ABADÍA",
+    "palabra": "ABADIA",
     "longitud": 6,
     "significado": "es como se llama a la casa parroquial en los pueblos de Aragón."
   },
@@ -1135,7 +1135,7 @@
   },
   {
     "id": 190,
-    "palabra": "QUIÓS",
+    "palabra": "QUIOS",
     "longitud": 5,
     "significado": "¡Quió! o ¡quiá! Es una expresión para llamar a una persona."
   },
@@ -1171,7 +1171,7 @@
   },
   {
     "id": 196,
-    "palabra": "MATACÍA",
+    "palabra": "MATACIA",
     "longitud": 7,
     "significado": "consiste en sacrificar a los cerdos que se han engordado todo el año para obtener alimentos para invierno."
   },
@@ -1231,13 +1231,13 @@
   },
   {
     "id": 206,
-    "palabra": "PITA",
-    "longitud": 4,
-    "significado": "se llama a la rabieta o berrinche que se suelen coger los niños y las niñas cuando son pequeños."
+    "palabra": "PITAS",
+    "longitud": 5,
+    "significado": "son las rabietas o berrinches que se suelen coger los niños y las niñas cuando son pequeños."
   },
   {
     "id": 207,
-    "palabra": "MASCARÓN",
+    "palabra": "MASCARON",
     "longitud": 8,
     "significado": "se llama a una mancha de hollín."
   },
@@ -1255,7 +1255,7 @@
   },
   {
     "id": 210,
-    "palabra": "CLARIÓN",
+    "palabra": "CLARION",
     "longitud": 7,
     "significado": "aunque apenas se utiliza ahora en las aulas, quiere decir tiza."
   },
@@ -1267,9 +1267,9 @@
   },
   {
     "id": 212,
-    "palabra": "FURO",
-    "longitud": 4,
-    "significado": "se dice de alguien fiero, huraño o salvaje. También se dice de un animal que está sin domesticar."
+    "palabra": "FUROS",
+    "longitud": 5,
+    "significado": "se dice quienes son fieros, huraños o salvajes. También se dice de un animal que está sin domesticar."
   },
   {
     "id": 213,
@@ -1303,7 +1303,7 @@
   },
   {
     "id": 218,
-    "palabra": "NONÓN",
+    "palabra": "NONON",
     "longitud": 5,
     "significado": "quiere decir sueño o ganas de dormir (en lenguaje infantil)."
   },
@@ -1345,15 +1345,15 @@
   },
   {
     "id": 225,
-    "palabra": "ARRACLÁN",
+    "palabra": "ARRACLAN",
     "longitud": 8,
     "significado": "es como se llama al alacrán o escorpión."
   },
   {
     "id": 226,
-    "palabra": "LUNA",
-    "longitud": 4,
-    "significado": "se llama al patio de luces de las casas que tienen varios pisos."
+    "palabra": "LUNAS",
+    "longitud": 5,
+    "significado": "se llama a los patios de luces de las casas que tienen varios pisos."
   },
   {
     "id": 227,
@@ -1405,19 +1405,19 @@
   },
   {
     "id": 235,
-    "palabra": "ZOCA",
-    "longitud": 4,
-    "significado": "también se llama Tronca de Navidad y es una de las tradiciones de la Navidad en algunas zonas de Aragón."
+    "palabra": "ZOCAS",
+    "longitud": 5,
+    "significado": "La Zoca o Tronca de Navidad es una de las tradiciones de la Navidad en algunas zonas de Aragón."
   },
   {
     "id": 236,
-    "palabra": "CHICOTÓN",
+    "palabra": "CHICOTON",
     "longitud": 8,
     "significado": "quiere decir chiquitín, pequeño…"
   },
   {
     "id": 237,
-    "palabra": "CHESÚS",
+    "palabra": "CHESUS",
     "longitud": 6,
     "significado": "es un nombre aragonés que significa Jesús."
   },
@@ -1431,7 +1431,7 @@
     "id": 239,
     "palabra": "TAPES",
     "longitud": 5,
-    "significado": "el tape es la tapa o tapadera que se pone en recipientes, bolis, pegamentos…"
+    "significado": "son las tapas o tapaderas que se ponen en recipientes, bolis, pegamentos…"
   },
   {
     "id": 240,
