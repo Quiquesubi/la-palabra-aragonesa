@@ -1,2 +1,2 @@
 # la-palabra-aragonesa
-Adivina la palabra aragonesa en 6 intentos. Pon a prueba y amplía tu vocabulario sobre la lengua aragonesa de forma divertida.
+Juega a La Palabra Aragonesa. Descubre nuevo vocabulario aragonés en 6 intentos con pistas, estadísticas... Disfruta del modo libre sin límites o de la palabra aragonesa del día. ¡Demuestra cuánto sabes!
