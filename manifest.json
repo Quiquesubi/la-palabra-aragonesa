@@ -1,0 +1,29 @@
+{
+  "background_color": "#ffffff",
+  "description": "Juega a La Palabra Aragonesa. Descubre nuevo vocabulario aragonés en 6 intentos con pistas, estadísticas... Disfruta del modo libre sin límites o de la palabra aragonesa del día. ¡Demuestra cuánto sabes!",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "La Palabra Aragonesa del Día",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "La Palabra Aragonesa",
+  "start_url": "/",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "https://quiquesubi.github.io/la-palabra-aragonesa/favicon.png",
+      "type": "image/png",
+      "sizes": "32x32",
+      "isSquare": true,
+      "isPng": true,
+      "isWebp": false,
+      "isJpg": false,
+      "width": 32,
+      "is512x512": false,
+      "is256x256": false,
+      "is192x192": false
+    }
+  ],
+  "id": "/",
+  "lang": "es"
+}
