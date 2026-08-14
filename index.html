@@ -14,6 +14,9 @@
   <!-- Configuración PWA / Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <!-- SDK de Anuncios Recompensados de Google AdMob (ID de prueba) -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-3940256099942544" crossorigin="anonymous"></script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -56,7 +59,7 @@
       <!-- Tablero -->
       <div id="game-board"></div>
 
-      <!-- Botones de Acción en Tablero Principal (visibles tras cerrar el emergente) -->
+      <!-- Botones de Acción en Tablero Principal -->
       <div id="main-game-actions" class="main-actions-container">
         <button id="btn-main-next" class="action-btn hidden">Siguiente palabra ➡️</button>
         <button id="btn-main-retry" class="action-btn hidden">🔄 Reintentar palabra</button>
@@ -189,7 +192,6 @@
 
       <h2>Estadísticas</h2>
 
-      <!-- Menú Superior Filtro Estadísticas -->
       <div class="stats-tab-menu">
         <button class="stats-tab-btn active" data-tab="daily">Palabra del Día</button>
         <button class="stats-tab-btn" data-tab="free">Modo Libre</button>
