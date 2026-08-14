@@ -109,7 +109,8 @@ function saveGameState() {
 }
 
 function loadWordsJSON() {
-  fetch('words.json')
+  // Se añade parámetro de tiempo para obligar a descargar la versión más reciente sin usar caché
+  fetch('words.json?v=' + new Date().getTime())
     .then(res => res.json())
     .then(data => {
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
