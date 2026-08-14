@@ -90,7 +90,6 @@ function saveStats() {
   localStorage.setItem('palabra_aragonesa_stats_v2', JSON.stringify(stats));
 }
 
-// Guardar el estado parcial o final de la partida actual en localStorage
 function saveGameState() {
   if (currentGame.mode === 'daily') {
     localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
@@ -145,23 +144,19 @@ function initEventListeners() {
     helpModal.classList.add('hidden');
   });
 
-  // Evento Botón de Pistas
   if (btnHint) {
     btnHint.addEventListener('click', handleHintClick);
   }
 
-  // Modal Resultados
   btnCloseResultModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     updateMainActionButtons();
   });
 
-  // Modal Estadísticas
   btnStats.addEventListener('click', () => openStatsModal());
   closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
   btnModalCloseStats.addEventListener('click', () => statsModal.classList.add('hidden'));
 
-  // Pestañas Filtro Estadísticas
   document.querySelectorAll('.stats-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
       document.querySelectorAll('.stats-tab-btn').forEach(b => b.classList.remove('active'));
@@ -171,14 +166,12 @@ function initEventListeners() {
     });
   });
 
-  btnModeDaily.addEventListener('click', () => switchMode('daily'));
-  btnModeFree.addEventListener('click', () => switchMode('free'));
+  if (btnModeDaily) btnModeDaily.addEventListener('click', () => switchMode('daily'));
+  if (btnModeFree) btnModeFree.addEventListener('click', () => switchMode('free'));
 
-  // Acciones Modal
   btnNextWord.addEventListener('click', nextFreeWord);
   btnRetryWord.addEventListener('click', retryFreeWord);
 
-  // Acciones Botones Principales (debajo del tablero)
   btnMainNext.addEventListener('click', nextFreeWord);
   btnMainRetry.addEventListener('click', retryFreeWord);
 
@@ -207,9 +200,9 @@ function initEventListeners() {
 
 function switchMode(mode) {
   if (currentGame.mode === mode) return;
-  btnModeDaily.classList.toggle('active', mode === 'daily');
-  btnModeFree.classList.toggle('active', mode === 'free');
-  freeControls.classList.toggle('hidden', mode === 'daily');
+  if (btnModeDaily) btnModeDaily.classList.toggle('active', mode === 'daily');
+  if (btnModeFree) btnModeFree.classList.toggle('active', mode === 'free');
+  if (freeControls) freeControls.classList.toggle('hidden', mode === 'daily');
   initGame(mode);
 }
 
@@ -221,7 +214,7 @@ function getTodayString() {
 function getDailyIndex() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startDate = new Date(2026, 7, 13); // 13 de agosto de 2026
+  const startDate = new Date(2026, 7, 13);
 
   const diffTime = today - startDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -240,7 +233,7 @@ function initGame(mode) {
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   currentGame.hintLevel = 0;
-  dailyCompletedBanner.classList.add('hidden');
+  if (dailyCompletedBanner) dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
 
   if (mode === 'daily') {
@@ -248,7 +241,6 @@ function initGame(mode) {
     currentGame.wordObj = validWords[dailyIdx];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 
-    // Restaurar estado guardado de la palabra diaria
     const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
     if (savedDaily) {
       try {
@@ -260,7 +252,7 @@ function initGame(mode) {
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
-            dailyCompletedBanner.classList.remove('hidden');
+            if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
             openDailyAlreadyPlayedModal();
           }
         }
@@ -273,9 +265,8 @@ function initGame(mode) {
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
     const displayNum = currentGame.wordObj.id || (currentGame.freeWordIndex + 1);
-    wordBadge.textContent = `Palabra ${displayNum}`;
+    if (wordBadge) wordBadge.textContent = `Palabra ${displayNum}`;
 
-    // Restaurar estado guardado del Modo Libre
     const savedFree = localStorage.getItem('palabra_aragonesa_free_game');
     if (savedFree) {
       try {
@@ -299,7 +290,6 @@ function initGame(mode) {
     currentGame.attempts.forEach(att => updateKeyboardColors(att));
   }
   
-  // Re-aplicar pistas si el usuario ya había pedido alguna en esta partida guardada
   if (currentGame.hintLevel >= 1) {
     discardKeyboardLetters(3);
   }
@@ -377,7 +367,7 @@ function submitAttempt() {
   updateHintButtonUI();
 
   if (currentGame.mode === 'daily' && (isWin || isLoss)) {
-    dailyCompletedBanner.classList.remove('hidden');
+    if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
   }
 
   renderBoard();
@@ -504,14 +494,14 @@ function resetKeyboardColors() {
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
-// --- SISTEMA DINÁMICO DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
+// --- SISTEMA DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
 
 function getMaxHints() {
   if (!currentGame.targetWord) return 3;
   const len = currentGame.targetWord.length;
   if (len <= 6) return 3;
   if (len === 7) return 4;
-  return 5; // Para 8 y 9 letras
+  return 5;
 }
 
 function updateHintButtonUI() {
@@ -556,30 +546,39 @@ async function handleHintClick() {
 }
 
 function initAdMobPlugin() {
-  if (window.admob) {
-    window.admob.start();
-  }
+  document.addEventListener('deviceready', () => {
+    try {
+      if (window.admob && typeof window.admob.start === 'function') {
+        window.admob.start();
+      }
+    } catch (e) {
+      console.warn('AdMob seguro:', e);
+    }
+  }, false);
 }
 
 function simulateRewardedAd() {
   return new Promise((resolve) => {
-    // Si la aplicación se ejecuta dentro de APK / Cordova / Capacitor con el plugin de AdMob
-    if (window.admob && window.admob.rewarded) {
-      window.admob.rewarded.prepare({
-        adId: 'ca-app-pub-3940256099942544/5224354917', // ID de prueba de AdMob para Anuncios Recompensados
-        isTesting: true
-      }).then(() => {
-        return window.admob.rewarded.show();
-      }).then(() => {
-        resolve(true);
-      }).catch((err) => {
-        console.warn('Error publicitario o anuncio cerrado:', err);
-        const confirmed = confirm("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo de prueba para obtener la pista?");
+    try {
+      if (window.admob && window.admob.rewarded && typeof window.admob.rewarded.prepare === 'function') {
+        window.admob.rewarded.prepare({
+          adId: 'ca-app-pub-3940256099942544/5224354917',
+          isTesting: true
+        }).then(() => {
+          return window.admob.rewarded.show();
+        }).then(() => {
+          resolve(true);
+        }).catch((err) => {
+          console.warn('AdMob no listo o cancelado:', err);
+          const confirmed = confirm("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo para obtener la pista?");
+          resolve(confirmed);
+        });
+      } else {
+        const confirmed = confirm("🎬 [Anuncio de prueba]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?");
         resolve(confirmed);
-      });
-    } else {
-      // Modo Navegador Web / PWA (Simulador emergente)
-      const confirmed = confirm("🎬 [Anuncio de prueba Web]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?");
+      }
+    } catch (err) {
+      const confirmed = confirm("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?");
       resolve(confirmed);
     }
   });
@@ -639,8 +638,6 @@ function revealGreenLetter(level, maxHints) {
   alert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
   renderBoard();
 }
-
-// --- FIN SISTEMA DE PISTAS ---
 
 function recordStats(isWin, attemptKey) {
   const currentStats = stats[currentGame.mode];
