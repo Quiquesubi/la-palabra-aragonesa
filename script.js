@@ -9,7 +9,7 @@ let currentGame = {
   status: 'IN_PROGRESS',
   freeWordIndex: 0,
   animatedRows: [],
-  hintLevel: 0 // 0 = ninguna pista, 1 = descartar letras, 2 = significado, 3 = letra verde
+  hintLevel: 0 // 0 = ninguna pista
 };
 
 // Estadísticas separadas por modo
@@ -298,8 +298,10 @@ function initGame(mode) {
     currentGame.attempts.forEach(att => updateKeyboardColors(att));
   }
   
-  // Re-aplicar pistas si el usuario ya había pedido alguna en esta partida
-  if (currentGame.hintLevel >= 1) discardKeyboardLetters(3);
+  // Re-aplicar pistas si el usuario ya había pedido alguna en esta partida guardada
+  if (currentGame.hintLevel >= 1) {
+    discardKeyboardLetters(3);
+  }
 
   updateHintButtonUI();
   renderBoard();
@@ -501,37 +503,46 @@ function resetKeyboardColors() {
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
-// --- SISTEMA DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
+// --- SISTEMA DINÁMICO DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
+
+function getMaxHints() {
+  if (!currentGame.targetWord) return 3;
+  const len = currentGame.targetWord.length;
+  if (len <= 6) return 3;
+  if (len === 7) return 4;
+  return 5; // Para 8 y 9 letras
+}
 
 function updateHintButtonUI() {
   if (!btnHint) return;
 
-  if (currentGame.status !== 'IN_PROGRESS') {
+  const maxHints = getMaxHints();
+
+  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) {
     btnHint.disabled = true;
-    btnHint.textContent = '💡 Pista';
+    if (currentGame.hintLevel >= maxHints) {
+      btnHint.textContent = '💡 Pistas agotadas';
+    } else {
+      btnHint.textContent = '💡 Pista';
+    }
     return;
   }
 
   btnHint.disabled = false;
-  switch (currentGame.hintLevel) {
-    case 0:
-      btnHint.textContent = '💡 Pista 1/3 (Descartar letras)';
-      break;
-    case 1:
-      btnHint.textContent = '💡 Pista 2/3 (Significado)';
-      break;
-    case 2:
-      btnHint.textContent = '💡 Pista 3/3 (Revelar letra)';
-      break;
-    default:
-      btnHint.textContent = '💡 Pistas agotadas';
-      btnHint.disabled = true;
-      break;
+  const nextHint = currentGame.hintLevel + 1;
+
+  if (nextHint === 1) {
+    btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
+  } else if (nextHint === 2) {
+    btnHint.textContent = `💡 Pista 2/${maxHints} (Significado)`;
+  } else {
+    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
   }
 }
 
 async function handleHintClick() {
-  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= 3) return;
+  const maxHints = getMaxHints();
+  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) return;
 
   const adWatched = await simulateRewardedAd();
 
@@ -543,7 +554,6 @@ async function handleHintClick() {
   }
 }
 
-// Simulación de anuncio de vídeo para pruebas web (se reemplazará por AdMob en móvil)
 function simulateRewardedAd() {
   return new Promise((resolve) => {
     const confirmed = confirm("🎬 [Anuncio de prueba]\n\nVisualizando vídeo de 15 segundos...\n¿Completar vídeo para obtener la pista?");
@@ -552,20 +562,16 @@ function simulateRewardedAd() {
 }
 
 function applyHint(level) {
-  switch (level) {
-    case 1:
-      discardKeyboardLetters(3);
-      alert('💡 Pista 1/3:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.');
-      break;
+  const maxHints = getMaxHints();
 
-    case 2:
-      const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
-      alert(`💡 Pista 2/3 (Significado):\n\n"${significado}"`);
-      break;
-
-    case 3:
-      revealGreenLetter();
-      break;
+  if (level === 1) {
+    discardKeyboardLetters(3);
+    alert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
+  } else if (level === 2) {
+    const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
+    alert(`💡 Pista 2/${maxHints} (Significado):\n\n"${significado}"`);
+  } else {
+    revealGreenLetter(level, maxHints);
   }
 }
 
@@ -587,7 +593,7 @@ function discardKeyboardLetters(count) {
   });
 }
 
-function revealGreenLetter() {
+function revealGreenLetter(level, maxHints) {
   const target = currentGame.targetWord;
   const greenMap = getGreenLettersMap();
 
@@ -599,14 +605,15 @@ function revealGreenLetter() {
   }
 
   if (unrevealedIndices.length === 0) {
-    alert('💡 ¡Ya tienes todas las casillas correctas descubiertas!');
+    alert(`💡 Pista ${level}/${maxHints}:\n\n¡Ya tienes todas las letras del tablero descubiertas!`);
     return;
   }
 
   const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
   const letter = target[randomIndex];
 
-  alert(`💡 Pista 3/3 (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
+  alert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
+  renderBoard();
 }
 
 // --- FIN SISTEMA DE PISTAS ---
