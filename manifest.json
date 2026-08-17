@@ -1,14 +1,19 @@
 {
   "name": "La Palabra Aragonesa del Día",
-  "short_name": "Palabra del Día",
-  "id": "/",
-  "start_url": "./index.html",
+  "short_name": "La Palabra Aragonesa",
+  "id": "/com.palabraaragonesa.app",
+  "start_url": "./index.https://quiquesubi.github.io/la-palabra-aragonesa/html",
   "display": "standalone",
-  "display_override": ["standalone"],
+  "display_override": [
+    "standalone"
+  ],
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "orientation": "portrait",
-  "categories": ["games", "entertainment"],
+  "categories": [
+    "games",
+    "entertainment"
+  ],
   "icons": [
     {
       "src": "favicon.png",
@@ -22,5 +27,7 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "description": "Adivina la palabra aragonesa de cada día o juega sin límites en el Modo Libre.",
+  "lang": "es"
 }
