@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Privacidad - La Palabra Aragonesa del Día</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; padding: 20px; max-width: 800px; margin: auto; color: #333; }
+        h1, h2 { color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <h1>Política de Privacidad</h1>
+    <p>Esta Política de Privacidad describe cómo se recopila, utiliza y comparte la información cuando utilizas la aplicación <strong>La Palabra Aragonesa del Día</strong>.</p>
+
+    <h2>1. Recopilación de información</h2>
+    <p>La aplicación no recopila directamente datos personales identificables del usuario (como nombre, correo o número de teléfono). El progreso o estado del juego se guarda de forma local en tu dispositivo.</p>
+
+    <h2>2. Servicios de terceros y Anuncios (Google AdMob)</h2>
+    <p>La aplicación utiliza servicios de terceros que pueden recopilar información utilizada para identificarte (como el Identificador de Publicidad de Android o dirección IP) con el fin de mostrar anuncios y analizar el rendimiento.</p>
+    <p>Servicios de terceros utilizados:</p>
+    <ul>
+        <li><a href="https://policies.google.com/privacy" target="_blank">Google Play Services</a></li>
+        <li><a href="https://support.google.com/admob/answer/6128543?hl=es" target="_blank">Google AdMob</a></li>
+    </ul>
+
+    <h2>3. Galletas y Almacenamiento Local</h2>
+    <p>Esta aplicación puede hacer uso de cookies o almacenamiento local en el dispositivo para mantener el estado de las partidas del juego y preferencias de usuario.</p>
+
+    <h2>4. Cambios en esta política</h2>
+    <p>Podemos actualizar nuestra Política de Privacidad de vez en cuando. Te recomendamos revisar esta página periódicamente.</p>
+
+    <h2>5. Contacto</h2>
+    <p>Si tienes alguna pregunta sobre esta política, puedes contactar con nosotros en: <strong>[lapalabraaragonesadeldia@gmail.com]</strong></p>
+</body>
+</html>
