@@ -5,7 +5,8 @@ let currentGame = {
   wordObj: null,
   targetWord: '',
   attempts: [],
-  currentInput: '',
+  currentInput: [], // Ahora guardamos un array con la longitud exacta de la palabra
+  selectedTileIndex: 0, // Índice de la casilla seleccionada activamente
   status: 'IN_PROGRESS',
   freeWordIndex: 0,
   animatedRows: [],
@@ -109,7 +110,6 @@ function saveGameState() {
 }
 
 function loadWordsJSON() {
-  // Se añade parámetro de tiempo para obligar a descargar la versión más reciente sin usar caché
   fetch('words.json?v=' + new Date().getTime())
     .then(res => res.json())
     .then(data => {
@@ -230,7 +230,6 @@ function getDailyIndex() {
 function initGame(mode) {
   currentGame.mode = mode;
   currentGame.attempts = [];
-  currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   currentGame.hintLevel = 0;
@@ -286,6 +285,9 @@ function initGame(mode) {
     }
   }
 
+  // Inicializar array de entrada para selección libre
+  resetInputArray();
+
   resetKeyboardColors();
   if (currentGame.attempts.length > 0) {
     currentGame.attempts.forEach(att => updateKeyboardColors(att));
@@ -299,12 +301,18 @@ function initGame(mode) {
   renderBoard();
 }
 
+function resetInputArray() {
+  const wordLength = currentGame.targetWord.length;
+  currentGame.currentInput = new Array(wordLength).fill('');
+  currentGame.selectedTileIndex = 0;
+}
+
 function resetCurrentWord() {
   currentGame.attempts = [];
-  currentGame.currentInput = '';
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   currentGame.hintLevel = 0;
+  resetInputArray();
   hideMainActionButtons();
   saveGameState();
   resetKeyboardColors();
@@ -335,21 +343,52 @@ function handleKeyPress(key) {
   if (key === 'ENTER') {
     submitAttempt();
   } else if (key === 'BACKSPACE') {
-    currentGame.currentInput = currentGame.currentInput.slice(0, -1);
+    // Si la casilla actual tiene una letra, la borramos
+    if (currentGame.currentInput[currentGame.selectedTileIndex] !== '') {
+      currentGame.currentInput[currentGame.selectedTileIndex] = '';
+    } else if (currentGame.selectedTileIndex > 0) {
+      // Si la casilla está vacía, retrocedemos y borramos la anterior
+      currentGame.selectedTileIndex--;
+      currentGame.currentInput[currentGame.selectedTileIndex] = '';
+    }
     renderBoard();
-  } else if (currentGame.currentInput.length < wordLength && /^[A-ZÑ]$/.test(key)) {
-    currentGame.currentInput += key;
+  } else if (/^[A-ZÑ]$/.test(key)) {
+    // Escribir en la casilla seleccionada activamente
+    currentGame.currentInput[currentGame.selectedTileIndex] = key;
+
+    // Buscar la siguiente casilla vacía después de la actual
+    let nextEmpty = -1;
+    for (let i = currentGame.selectedTileIndex + 1; i < wordLength; i++) {
+      if (currentGame.currentInput[i] === '') {
+        nextEmpty = i;
+        break;
+      }
+    }
+
+    if (nextEmpty !== -1) {
+      currentGame.selectedTileIndex = nextEmpty;
+    } else if (currentGame.selectedTileIndex < wordLength - 1) {
+      currentGame.selectedTileIndex++;
+    }
+
     renderBoard();
   }
 }
 
 function submitAttempt() {
   const wordLength = currentGame.targetWord.length;
-  if (currentGame.currentInput.length !== wordLength) return;
 
-  const attempt = currentGame.currentInput.toUpperCase();
+  // VERIFICACIÓN: Comprobar que todas las casillas tienen letra
+  const isComplete = currentGame.currentInput.every(char => char !== '');
+
+  if (!isComplete) {
+    alert('Debes completar todas las casillas antes de enviar la palabra.');
+    return;
+  }
+
+  const attempt = currentGame.currentInput.join('').toUpperCase();
   currentGame.attempts.push(attempt);
-  currentGame.currentInput = '';
+  resetInputArray();
 
   updateKeyboardColors(attempt);
 
@@ -423,6 +462,19 @@ function renderBoard() {
         tile.classList.add(status);
       } else if (isCurrentRow) {
         const char = currentGame.currentInput[c] || '';
+        
+        // Habilitar selección al hacer clic/toque en cualquier casilla
+        tile.dataset.col = c;
+        tile.classList.add('selectable');
+        tile.addEventListener('click', () => {
+          currentGame.selectedTileIndex = c;
+          renderBoard();
+        });
+
+        if (c === currentGame.selectedTileIndex) {
+          tile.classList.add('selected');
+        }
+
         if (char) {
           tile.textContent = char;
           tile.classList.add('filled');
@@ -495,7 +547,7 @@ function resetKeyboardColors() {
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
-// --- SISTEMA DE PISTAS Y ANUNCIOS RECOMPENSADOS ---
+// --- SISTEMA DE PISTAS REORDENADO (DEFINICIÓN COMO ÚLTIMA PISTA) ---
 
 function getMaxHints() {
   if (!currentGame.targetWord) return 3;
@@ -525,8 +577,8 @@ function updateHintButtonUI() {
 
   if (nextHint === 1) {
     btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
-  } else if (nextHint === 2) {
-    btnHint.textContent = `💡 Pista 2/${maxHints} (Significado)`;
+  } else if (nextHint === maxHints) {
+    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Significado)`;
   } else {
     btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
   }
@@ -591,10 +643,12 @@ function applyHint(level) {
   if (level === 1) {
     discardKeyboardLetters(3);
     alert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
-  } else if (level === 2) {
+  } else if (level === maxHints) {
+    // La ÚLTIMA pista siempre es el significado
     const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
-    alert(`💡 Pista 2/${maxHints} (Significado):\n\n"${significado}"`);
+    alert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
   } else {
+    // Las pistas intermedias revelan letras verdes
     revealGreenLetter(level, maxHints);
   }
 }
