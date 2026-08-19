@@ -217,6 +217,17 @@ main {
   background-color: #fff;
   color: var(--color-text);
   perspective: 1000px;
+  transition: border-color 0.2s ease, transform 0.1s ease;
+}
+
+/* Estilos de Selección Libre */
+.tile.selectable {
+  cursor: pointer;
+}
+
+.tile.selected {
+  border: 3px solid #0284c7;
+  box-shadow: 0 0 6px rgba(2, 132, 199, 0.4);
 }
 
 /* Animación de volteo que se activa sólo en la clase .flip */
