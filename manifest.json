@@ -2,13 +2,13 @@
   "name": "La Palabra Aragonesa del Día",
   "short_name": "La Palabra Aragonesa",
   "id": "/com.palabraaragonesa.app",
-  "start_url": "./index.https://quiquesubi.github.io/la-palabra-aragonesa/html",
+  "start_url": "./index.html",
   "display": "standalone",
   "display_override": [
     "standalone"
   ],
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#2e7d32",
   "orientation": "portrait",
   "categories": [
     "games",
