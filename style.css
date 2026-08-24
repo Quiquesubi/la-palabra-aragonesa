@@ -534,6 +534,27 @@ main {
   margin-top: 16px;
 }
 
+/* Modal de Alerta Personalizado */
+.alert-modal-content {
+  max-width: 380px;
+  padding: 20px;
+}
+
+.alert-modal-title {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 1.1rem;
+  color: var(--color-correct);
+}
+
+.alert-modal-text {
+  font-size: 0.95rem;
+  color: #334155;
+  line-height: 1.4;
+  white-space: pre-line;
+  margin-bottom: 18px;
+}
+
 /* Ajuste responsive para pantallas móviles muy estrechas */
 @media (max-width: 380px) {
   .hashtag-title {
