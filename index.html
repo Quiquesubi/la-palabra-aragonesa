@@ -6,6 +6,13 @@
   <meta name="description" content="Adivina la palabra aragonesa del día en 6 intentos. Pon a prueba y amplía tu vocabulario sobre la lengua aragonesa de forma divertida y gratuita.">
   <title>La Palabra Aragonesa del Día</title>
 
+  <!-- PWA & Mobile Display Setup -->
+  <meta name="theme-color" content="#2e7d32">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="La Palabra Aragonesa del Día">
+
   <!-- Favicon e iconos para dispositivos -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon.png">
@@ -222,6 +229,18 @@
 
       <div class="modal-actions">
         <button id="btn-modal-close-stats" class="action-btn-secondary">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Alerta Personalizado (Sustituye alert() de GitHub) -->
+  <div id="custom-alert-modal" class="modal hidden">
+    <div class="modal-content alert-modal-content">
+      <h3 class="alert-modal-title">La Palabra Aragonesa del Día</h3>
+      <p id="custom-alert-message" class="alert-modal-text"></p>
+      <div id="custom-alert-actions" class="modal-actions">
+        <button id="custom-alert-ok-btn" class="action-btn">Aceptar</button>
+        <button id="custom-alert-cancel-btn" class="action-btn-secondary hidden">Cancelar</button>
       </div>
     </div>
   </div>
