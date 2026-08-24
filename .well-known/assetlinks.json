@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.palabraaragonesa.app",
+      "sha256_cert_fingerprints": [
+        "29:45:D5:71:53:BA:A7:6A:B1:C5:77:68:A9:B7:32:87:2F:57:21:4A:64:F7:A2:71:FD:B6:29:2D:48:98:49:76"
+      ]
+    }
+  }
+]
