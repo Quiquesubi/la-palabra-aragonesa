@@ -5,12 +5,12 @@ let currentGame = {
   wordObj: null,
   targetWord: '',
   attempts: [],
-  currentInput: [], // Ahora guardamos un array con la longitud exacta de la palabra
-  selectedTileIndex: 0, // Índice de la casilla seleccionada activamente
+  currentInput: [], 
+  selectedTileIndex: 0, 
   status: 'IN_PROGRESS',
   freeWordIndex: 0,
   animatedRows: [],
-  hintLevel: 0 // 0 = ninguna pista
+  hintLevel: 0 
 };
 
 // Estadísticas separadas por modo
@@ -68,12 +68,101 @@ const freeControls = document.getElementById('free-mode-controls');
 const wordBadge = document.getElementById('word-number-badge');
 const dailyCompletedBanner = document.getElementById('daily-completed-banner');
 
+// Elementos Modal de Alerta Personalizado
+const customAlertModal = document.getElementById('custom-alert-modal');
+const customAlertMessage = document.getElementById('custom-alert-message');
+const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
+const customAlertCancelBtn = document.getElementById('custom-alert-cancel-btn');
+
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedStats();
   initEventListeners();
   loadWordsJSON();
   initAdMobPlugin();
+  setupDailyReminderNotification();
 });
+
+// --- SISTEMA DE ALERTA PERSONALIZADO (REEMPLAZA ALERT) ---
+function showAlert(message, isConfirm = false) {
+  return new Promise((resolve) => {
+    customAlertMessage.innerText = message;
+    customAlertModal.classList.remove('hidden');
+
+    if (isConfirm) {
+      customAlertCancelBtn.classList.remove('hidden');
+    } else {
+      customAlertCancelBtn.classList.add('hidden');
+    }
+
+    const onOk = () => {
+      cleanup();
+      resolve(true);
+    };
+
+    const onCancel = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    const cleanup = () => {
+      customAlertModal.classList.add('hidden');
+      customAlertOkBtn.removeEventListener('click', onOk);
+      customAlertCancelBtn.removeEventListener('click', onCancel);
+    };
+
+    customAlertOkBtn.addEventListener('click', onOk);
+    customAlertCancelBtn.addEventListener('click', onCancel);
+  });
+}
+
+// --- NOTIFICACIONES LOCALES A LAS 20:00 H ---
+function setupDailyReminderNotification() {
+  if ("Notification" in window) {
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }
+
+  schedule20pmCheck();
+}
+
+function schedule20pmCheck() {
+  const now = new Date();
+  const reminderTime = new Date();
+  reminderTime.setHours(20, 0, 0, 0);
+
+  if (now > reminderTime) {
+    reminderTime.setDate(reminderTime.getDate() + 1);
+  }
+
+  const timeoutMs = reminderTime - now;
+
+  setTimeout(() => {
+    checkAndSendDailyReminder();
+    setInterval(checkAndSendDailyReminder, 24 * 60 * 60 * 1000);
+  }, timeoutMs);
+}
+
+function checkAndSendDailyReminder() {
+  const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
+  let playedToday = false;
+
+  if (savedDaily) {
+    try {
+      const data = JSON.parse(savedDaily);
+      if (data.date === getTodayString() && data.status !== 'IN_PROGRESS') {
+        playedToday = true;
+      }
+    } catch (e) {}
+  }
+
+  if (!playedToday && "Notification" in window && Notification.permission === "granted") {
+    new Notification("La Palabra Aragonesa del Día", {
+      body: "¡No olvides completar la palabra del día de hoy! 🎯",
+      icon: "favicon.png"
+    });
+  }
+}
 
 function loadSavedStats() {
   const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
@@ -116,7 +205,7 @@ function loadWordsJSON() {
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
 
       if (validWords.length === 0) {
-        alert('No se encontraron palabras válidas en words.json.');
+        showAlert('No se encontraron palabras válidas en words.json.');
         return;
       }
 
@@ -188,7 +277,8 @@ function initEventListeners() {
   document.addEventListener('keydown', (e) => {
     if (!helpModal.classList.contains('hidden') || 
         !statsModal.classList.contains('hidden') || 
-        !resultModal.classList.contains('hidden')) return;
+        !resultModal.classList.contains('hidden') ||
+        !customAlertModal.classList.contains('hidden')) return;
 
     if (e.key === 'Enter') handleKeyPress('ENTER');
     else if (e.key === 'Backspace') handleKeyPress('BACKSPACE');
@@ -285,9 +375,7 @@ function initGame(mode) {
     }
   }
 
-  // Inicializar array de entrada para selección libre
   resetInputArray();
-
   resetKeyboardColors();
   if (currentGame.attempts.length > 0) {
     currentGame.attempts.forEach(att => updateKeyboardColors(att));
@@ -343,20 +431,16 @@ function handleKeyPress(key) {
   if (key === 'ENTER') {
     submitAttempt();
   } else if (key === 'BACKSPACE') {
-    // Si la casilla actual tiene una letra, la borramos
     if (currentGame.currentInput[currentGame.selectedTileIndex] !== '') {
       currentGame.currentInput[currentGame.selectedTileIndex] = '';
     } else if (currentGame.selectedTileIndex > 0) {
-      // Si la casilla está vacía, retrocedemos y borramos la anterior
       currentGame.selectedTileIndex--;
       currentGame.currentInput[currentGame.selectedTileIndex] = '';
     }
     renderBoard();
   } else if (/^[A-ZÑ]$/.test(key)) {
-    // Escribir en la casilla seleccionada activamente
     currentGame.currentInput[currentGame.selectedTileIndex] = key;
 
-    // Buscar la siguiente casilla vacía después de la actual
     let nextEmpty = -1;
     for (let i = currentGame.selectedTileIndex + 1; i < wordLength; i++) {
       if (currentGame.currentInput[i] === '') {
@@ -378,11 +462,10 @@ function handleKeyPress(key) {
 function submitAttempt() {
   const wordLength = currentGame.targetWord.length;
 
-  // VERIFICACIÓN: Comprobar que todas las casillas tienen letra
   const isComplete = currentGame.currentInput.every(char => char !== '');
 
   if (!isComplete) {
-    alert('Debes completar todas las casillas antes de enviar la palabra.');
+    showAlert('Debes completar todas las casillas antes de enviar la palabra.');
     return;
   }
 
@@ -463,7 +546,6 @@ function renderBoard() {
       } else if (isCurrentRow) {
         const char = currentGame.currentInput[c] || '';
         
-        // Habilitar selección al hacer clic/toque en cualquier casilla
         tile.dataset.col = c;
         tile.classList.add('selectable');
         tile.addEventListener('click', () => {
@@ -547,8 +629,6 @@ function resetKeyboardColors() {
   keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
-// --- SISTEMA DE PISTAS REORDENADO (DEFINICIÓN COMO ÚLTIMA PISTA) ---
-
 function getMaxHints() {
   if (!currentGame.targetWord) return 3;
   const len = currentGame.targetWord.length;
@@ -611,7 +691,7 @@ function initAdMobPlugin() {
 }
 
 function simulateRewardedAd() {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     try {
       if (window.admob && window.admob.rewarded && typeof window.admob.rewarded.prepare === 'function') {
         window.admob.rewarded.prepare({
@@ -621,17 +701,17 @@ function simulateRewardedAd() {
           return window.admob.rewarded.show();
         }).then(() => {
           resolve(true);
-        }).catch((err) => {
+        }).catch(async (err) => {
           console.warn('AdMob no listo o cancelado:', err);
-          const confirmed = confirm("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo para obtener la pista?");
+          const confirmed = await showAlert("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo para obtener la pista?", true);
           resolve(confirmed);
         });
       } else {
-        const confirmed = confirm("🎬 [Anuncio de prueba]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?");
+        const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?", true);
         resolve(confirmed);
       }
     } catch (err) {
-      const confirmed = confirm("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?");
+      const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?", true);
       resolve(confirmed);
     }
   });
@@ -642,13 +722,11 @@ function applyHint(level) {
 
   if (level === 1) {
     discardKeyboardLetters(3);
-    alert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
+    showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
   } else if (level === maxHints) {
-    // La ÚLTIMA pista siempre es el significado
     const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
-    alert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
+    showAlert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
   } else {
-    // Las pistas intermedias revelan letras verdes
     revealGreenLetter(level, maxHints);
   }
 }
@@ -683,14 +761,14 @@ function revealGreenLetter(level, maxHints) {
   }
 
   if (unrevealedIndices.length === 0) {
-    alert(`💡 Pista ${level}/${maxHints}:\n\n¡Ya tienes todas las letras del tablero descubiertas!`);
+    showAlert(`💡 Pista ${level}/${maxHints}:\n\n¡Ya tienes todas las letras del tablero descubiertas!`);
     return;
   }
 
   const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
   const letter = target[randomIndex];
 
-  alert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
+  showAlert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
   renderBoard();
 }
 
@@ -897,9 +975,9 @@ function shareResults() {
 
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareText).then(() => {
-      alert('¡Resultado copiado al portapapeles!');
+      showAlert('¡Resultado copiado al portapapeles!');
     });
   } else {
-    alert(shareText);
+    showAlert(shareText);
   }
 }
