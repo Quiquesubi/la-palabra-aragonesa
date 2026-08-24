@@ -7,7 +7,8 @@
       "namespace": "android_app",
       "package_name": "com.palabraaragonesa.app",
       "sha256_cert_fingerprints": [
-        "29:45:D5:71:53:BA:A7:6A:B1:C5:77:68:A9:B7:32:87:2F:57:21:4A:64:F7:A2:71:FD:B6:29:2D:48:98:49:76"
+        "29:45:D5:71:53:BA:A7:6A:B1:C5:77:68:A9:B7:32:87:2F:57:21:4A:64:F7:A2:71:FD:B6:29:2D:48:98:49:76",
+        "1E:A6:EF:49:C6:C7:CC:22:8B:9D:58:F3:F3:BC:80:D5:97:1A:A6:99:55:2C:18:04:7D:03:1B:5C:E2:F0:9C:BE"
       ]
     }
   }
