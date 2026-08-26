@@ -79,15 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   loadWordsJSON();
   initAdMobPlugin();
+  setupDailyReminderNotification();
 });
-
-// --- SISTEMA DE ETIQUETAS DE NOTIFICACIÓN ONESIGNAL ---
-function updateNotificationTag(playedToday) {
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(function(OneSignal) {
-    OneSignal.User.addTag("completado_hoy", playedToday ? "true" : "false");
-  });
-}
 
 // --- SISTEMA DE ALERTA PERSONALIZADO (REEMPLAZA ALERT) ---
 function showAlert(message, isConfirm = false) {
@@ -120,6 +113,70 @@ function showAlert(message, isConfirm = false) {
     customAlertOkBtn.addEventListener('click', onOk);
     customAlertCancelBtn.addEventListener('click', onCancel);
   });
+}
+
+// --- NOTIFICACIONES LOCALES AUTÓNOMAS A LAS 20:00 H (SIN ONESIGNAL / FIREBASE) ---
+function setupDailyReminderNotification() {
+  if ("Notification" in window && Notification.permission === "default") {
+    Notification.requestPermission();
+  }
+  schedule20pmCheck();
+}
+
+function schedule20pmCheck() {
+  const now = new Date();
+  const reminderTime = new Date();
+  
+  // Ajustar la hora del temporizador a las 20:00:00
+  reminderTime.setHours(20, 0, 0, 0);
+
+  // Si ya han pasado las 20:00 h de hoy, programamos para mañana
+  if (now > reminderTime) {
+    reminderTime.setDate(reminderTime.getDate() + 1);
+  }
+
+  const timeoutMs = reminderTime - now;
+
+  // Programar primer disparo a las 20:00 y luego repetición cada 24 horas
+  setTimeout(() => {
+    checkAndSendDailyReminder();
+    setInterval(checkAndSendDailyReminder, 24 * 60 * 60 * 1000);
+  }, timeoutMs);
+}
+
+function checkAndSendDailyReminder() {
+  const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
+  let playedToday = false;
+
+  if (savedDaily) {
+    try {
+      const data = JSON.parse(savedDaily);
+      if (data.date === getTodayString() && data.status !== 'IN_PROGRESS') {
+        playedToday = true;
+      }
+    } catch (e) {}
+  }
+
+  // Enviar si no ha jugado y existen permisos concedidos
+  if (!playedToday && "Notification" in window && Notification.permission === "granted") {
+    const title = "La Palabra Aragonesa del Día";
+    const options = {
+      body: "¡Aún no has completado la palabra de hoy! 🎯 Entra y acepta el reto.",
+      icon: "favicon.png",
+      badge: "favicon.png",
+      vibrate: [200, 100, 200]
+    };
+
+    // Lanzar mediante Service Worker si está activo (ideal para PWA/Android)
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then(registration => {
+        registration.showNotification(title, options);
+      });
+    } else {
+      // Fallback estándar de la API de Notificaciones
+      new Notification(title, options);
+    }
+  }
 }
 
 function loadSavedStats() {
@@ -289,8 +346,6 @@ function initGame(mode) {
     currentGame.wordObj = validWords[dailyIdx];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 
-    let playedToday = false;
-
     const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
     if (savedDaily) {
       try {
@@ -302,15 +357,12 @@ function initGame(mode) {
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
-            playedToday = true;
             if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
             openDailyAlreadyPlayedModal();
           }
         }
       } catch (e) {}
     }
-
-    updateNotificationTag(playedToday);
   } else {
     if (currentGame.freeWordIndex >= validWords.length) {
       currentGame.freeWordIndex = 0;
@@ -444,11 +496,9 @@ function submitAttempt() {
   if (isWin) {
     currentGame.status = 'WON';
     recordStats(true, currentGame.attempts.length);
-    if (currentGame.mode === 'daily') updateNotificationTag(true);
   } else if (isLoss) {
     currentGame.status = 'LOST';
     recordStats(false, 'X');
-    if (currentGame.mode === 'daily') updateNotificationTag(true);
   }
 
   saveGameState();
