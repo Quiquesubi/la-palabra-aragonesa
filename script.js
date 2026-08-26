@@ -115,36 +115,24 @@ function showAlert(message, isConfirm = false) {
   });
 }
 
-// --- NOTIFICACIONES LOCALES AUTÓNOMAS A LAS 20:00 H (SIN ONESIGNAL / FIREBASE) ---
+// --- NOTIFICACIONES LOCALES VÍA SERVICE WORKER A LAS 20:00 H ---
 function setupDailyReminderNotification() {
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
-  }
-  schedule20pmCheck();
+  if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+
+  navigator.serviceWorker.register('sw.js').then(registration => {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          scheduleLocalNotification(registration);
+        }
+      });
+    } else if (Notification.permission === 'granted') {
+      scheduleLocalNotification(registration);
+    }
+  }).catch(err => console.error('Error al registrar Service Worker:', err));
 }
 
-function schedule20pmCheck() {
-  const now = new Date();
-  const reminderTime = new Date();
-  
-  // Ajustar la hora del temporizador a las 20:00:00
-  reminderTime.setHours(20, 0, 0, 0);
-
-  // Si ya han pasado las 20:00 h de hoy, programamos para mañana
-  if (now > reminderTime) {
-    reminderTime.setDate(reminderTime.getDate() + 1);
-  }
-
-  const timeoutMs = reminderTime - now;
-
-  // Programar primer disparo a las 20:00 y luego repetición cada 24 horas
-  setTimeout(() => {
-    checkAndSendDailyReminder();
-    setInterval(checkAndSendDailyReminder, 24 * 60 * 60 * 1000);
-  }, timeoutMs);
-}
-
-function checkAndSendDailyReminder() {
+function scheduleLocalNotification(registration) {
   const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
   let playedToday = false;
 
@@ -157,24 +145,30 @@ function checkAndSendDailyReminder() {
     } catch (e) {}
   }
 
-  // Enviar si no ha jugado y existen permisos concedidos
-  if (!playedToday && "Notification" in window && Notification.permission === "granted") {
-    const title = "La Palabra Aragonesa del Día";
-    const options = {
-      body: "¡Aún no has completado la palabra de hoy! 🎯 Entra y acepta el reto.",
-      icon: "favicon.png",
-      badge: "favicon.png",
-      vibrate: [200, 100, 200]
-    };
+  if (playedToday) return;
 
-    // Lanzar mediante Service Worker si está activo (ideal para PWA/Android)
-    if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.ready.then(registration => {
-        registration.showNotification(title, options);
+  const now = new Date();
+  const reminderTime = new Date();
+  reminderTime.setHours(20, 0, 0, 0);
+
+  if (now > reminderTime) {
+    reminderTime.setDate(reminderTime.getDate() + 1);
+  }
+
+  if ('showTrigger' in Notification.prototype) {
+    registration.showNotification("La Palabra Aragonesa del Día", {
+      body: "¿Has resuelto ya la palabra aragonesa de hoy? 🎯 ¡Entra y acepta el reto!",
+      icon: "favicon.png",
+      tag: "daily-reminder",
+      showTrigger: new TimestampTrigger(reminderTime.getTime())
+    });
+  } else {
+    const delay = reminderTime.getTime() - now.getTime();
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({
+        action: 'schedule_notification',
+        delay: delay
       });
-    } else {
-      // Fallback estándar de la API de Notificaciones
-      new Notification(title, options);
     }
   }
 }
