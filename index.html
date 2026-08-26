@@ -21,6 +21,17 @@
   <!-- Configuración PWA / Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <!-- OneSignal Web Push SDK -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "89c2ebcd-bc32-4dea-bcd6-ec680aec20e6",
+      });
+    });
+  </script>
+
   <!-- SDK de Anuncios Recompensados de Google AdMob (ID de prueba) -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-3940256099942544" crossorigin="anonymous"></script>
 
