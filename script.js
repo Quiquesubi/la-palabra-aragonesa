@@ -79,8 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
   initEventListeners();
   loadWordsJSON();
   initAdMobPlugin();
-  setupDailyReminderNotification();
 });
+
+// --- SISTEMA DE ETIQUETAS DE NOTIFICACIÓN ONESIGNAL ---
+function updateNotificationTag(playedToday) {
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.User.addTag("completado_hoy", playedToday ? "true" : "false");
+  });
+}
 
 // --- SISTEMA DE ALERTA PERSONALIZADO (REEMPLAZA ALERT) ---
 function showAlert(message, isConfirm = false) {
@@ -113,55 +120,6 @@ function showAlert(message, isConfirm = false) {
     customAlertOkBtn.addEventListener('click', onOk);
     customAlertCancelBtn.addEventListener('click', onCancel);
   });
-}
-
-// --- NOTIFICACIONES LOCALES A LAS 20:00 H ---
-function setupDailyReminderNotification() {
-  if ("Notification" in window) {
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }
-
-  schedule20pmCheck();
-}
-
-function schedule20pmCheck() {
-  const now = new Date();
-  const reminderTime = new Date();
-  reminderTime.setHours(20, 0, 0, 0);
-
-  if (now > reminderTime) {
-    reminderTime.setDate(reminderTime.getDate() + 1);
-  }
-
-  const timeoutMs = reminderTime - now;
-
-  setTimeout(() => {
-    checkAndSendDailyReminder();
-    setInterval(checkAndSendDailyReminder, 24 * 60 * 60 * 1000);
-  }, timeoutMs);
-}
-
-function checkAndSendDailyReminder() {
-  const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
-  let playedToday = false;
-
-  if (savedDaily) {
-    try {
-      const data = JSON.parse(savedDaily);
-      if (data.date === getTodayString() && data.status !== 'IN_PROGRESS') {
-        playedToday = true;
-      }
-    } catch (e) {}
-  }
-
-  if (!playedToday && "Notification" in window && Notification.permission === "granted") {
-    new Notification("La Palabra Aragonesa del Día", {
-      body: "¡No olvides completar la palabra del día de hoy! 🎯",
-      icon: "favicon.png"
-    });
-  }
 }
 
 function loadSavedStats() {
@@ -331,6 +289,8 @@ function initGame(mode) {
     currentGame.wordObj = validWords[dailyIdx];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 
+    let playedToday = false;
+
     const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
     if (savedDaily) {
       try {
@@ -342,12 +302,15 @@ function initGame(mode) {
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
+            playedToday = true;
             if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
             openDailyAlreadyPlayedModal();
           }
         }
       } catch (e) {}
     }
+
+    updateNotificationTag(playedToday);
   } else {
     if (currentGame.freeWordIndex >= validWords.length) {
       currentGame.freeWordIndex = 0;
@@ -481,9 +444,11 @@ function submitAttempt() {
   if (isWin) {
     currentGame.status = 'WON';
     recordStats(true, currentGame.attempts.length);
+    if (currentGame.mode === 'daily') updateNotificationTag(true);
   } else if (isLoss) {
     currentGame.status = 'LOST';
     recordStats(false, 'X');
+    if (currentGame.mode === 'daily') updateNotificationTag(true);
   }
 
   saveGameState();
