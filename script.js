@@ -19,6 +19,9 @@ let stats = {
   free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
 
+// Lista global de palabras descubiertas para el Diccionario
+let unlockedWords = [];
+
 let activeStatsTab = 'daily';
 let countdownInterval = null;
 
@@ -38,6 +41,15 @@ const keyboardEl = document.getElementById('keyboard');
 const btnHelp = document.getElementById('btn-help');
 const btnStats = document.getElementById('btn-stats');
 const btnHint = document.getElementById('btn-hint');
+
+// Elementos Diccionario
+const btnDictionary = document.getElementById('btn-dictionary');
+const dictionaryModal = document.getElementById('dictionary-modal');
+const closeDictionary = document.getElementById('close-dictionary');
+const btnModalCloseDict = document.getElementById('btn-modal-close-dict');
+const dictionaryList = document.getElementById('dictionary-list');
+const dictCounter = document.getElementById('dict-counter');
+const dictSearchInput = document.getElementById('dict-search-input');
 
 const helpModal = document.getElementById('help-modal');
 const closeHelp = document.getElementById('close-help');
@@ -76,13 +88,14 @@ const customAlertCancelBtn = document.getElementById('custom-alert-cancel-btn');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedStats();
+  loadUnlockedWords();
   initEventListeners();
   loadWordsJSON();
   initAdMobPlugin();
   setupDailyReminderNotification();
 });
 
-// --- SISTEMA DE ALERTA PERSONALIZADO (REEMPLAZA ALERT) ---
+// --- SISTEMA DE ALERTA PERSONALIZADO ---
 function showAlert(message, isConfirm = false) {
   return new Promise((resolve) => {
     customAlertMessage.innerText = message;
@@ -173,6 +186,61 @@ function scheduleLocalNotification(registration) {
   }
 }
 
+// --- GESTIÓN DEL DICCIONARIO Y PALABRAS DESBLOQUEADAS ---
+function loadUnlockedWords() {
+  const saved = localStorage.getItem('palabra_aragonesa_unlocked_words');
+  if (saved) {
+    try { unlockedWords = JSON.parse(saved); } catch (e) {}
+  }
+}
+
+function unlockCurrentWord() {
+  if (!currentGame.wordObj) return;
+
+  const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
+  const exists = unlockedWords.some(item => item.id === wordId);
+
+  if (!exists) {
+    unlockedWords.push({
+      id: wordId,
+      palabra: currentGame.wordObj.palabra.toUpperCase().trim(),
+      significado: currentGame.wordObj.significado
+    });
+    localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
+  }
+}
+
+function renderDictionaryList(filterText = '') {
+  dictionaryList.innerHTML = '';
+  dictCounter.textContent = `Descubiertas: ${unlockedWords.length} / ${validWords.length}`;
+
+  const filtered = unlockedWords.filter(item => 
+    item.palabra.toLowerCase().includes(filterText.toLowerCase()) ||
+    item.significado.toLowerCase().includes(filterText.toLowerCase())
+  );
+
+  if (filtered.length === 0) {
+    dictionaryList.innerHTML = `<div class="dict-empty-msg">${
+      unlockedWords.length === 0 
+        ? 'Aún no has descubierto ninguna palabra. ¡Gana una partida para añadir tu primera palabra!' 
+        : 'No se encontraron palabras con ese filtro.'
+    }</div>`;
+    return;
+  }
+
+  filtered.sort((a, b) => a.palabra.localeCompare(b.palabra)).forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'dict-card';
+    card.innerHTML = `
+      <div class="dict-card-header">
+        <span class="dict-word">${item.palabra}</span>
+      </div>
+      <div class="dict-definition">${item.significado}</div>
+    `;
+    dictionaryList.appendChild(card);
+  });
+}
+
 function loadSavedStats() {
   const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
   if (saved) {
@@ -243,6 +311,23 @@ function initEventListeners() {
     helpModal.classList.add('hidden');
   });
 
+  if (btnDictionary) {
+    btnDictionary.addEventListener('click', () => {
+      if (dictSearchInput) dictSearchInput.value = '';
+      renderDictionaryList();
+      dictionaryModal.classList.remove('hidden');
+    });
+  }
+
+  if (closeDictionary) closeDictionary.addEventListener('click', () => dictionaryModal.classList.add('hidden'));
+  if (btnModalCloseDict) btnModalCloseDict.addEventListener('click', () => dictionaryModal.classList.add('hidden'));
+
+  if (dictSearchInput) {
+    dictSearchInput.addEventListener('input', (e) => {
+      renderDictionaryList(e.target.value);
+    });
+  }
+
   if (btnHint) {
     btnHint.addEventListener('click', handleHintClick);
   }
@@ -287,6 +372,7 @@ function initEventListeners() {
     if (!helpModal.classList.contains('hidden') || 
         !statsModal.classList.contains('hidden') || 
         !resultModal.classList.contains('hidden') ||
+        !dictionaryModal.classList.contains('hidden') ||
         !customAlertModal.classList.contains('hidden')) return;
 
     if (e.key === 'Enter') handleKeyPress('ENTER');
@@ -350,6 +436,10 @@ function initGame(mode) {
           currentGame.hintLevel = dailyData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
+          if (currentGame.status === 'WON') {
+            unlockCurrentWord();
+          }
+
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
             if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
             openDailyAlreadyPlayedModal();
@@ -376,7 +466,10 @@ function initGame(mode) {
           currentGame.hintLevel = freeData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
-          if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
+          if (currentGame.status === 'WON') {
+            unlockCurrentWord();
+            updateMainActionButtons();
+          } else if (currentGame.status === 'LOST') {
             updateMainActionButtons();
           }
         }
@@ -489,6 +582,7 @@ function submitAttempt() {
 
   if (isWin) {
     currentGame.status = 'WON';
+    unlockCurrentWord();
     recordStats(true, currentGame.attempts.length);
   } else if (isLoss) {
     currentGame.status = 'LOST';
@@ -589,7 +683,6 @@ function evaluateTileStatus(attempt, index) {
   const targetChars = target.split('');
   const attemptChars = attempt.split('');
 
-  // Paso 1: Identificar coincidencia exacta (verdes)
   for (let i = 0; i < wordLength; i++) {
     if (attemptChars[i] === targetChars[i]) {
       statuses[i] = 'correct';
@@ -597,7 +690,6 @@ function evaluateTileStatus(attempt, index) {
     }
   }
 
-  // Paso 2: Identificar posición incorrecta (amarillos)
   for (let i = 0; i < wordLength; i++) {
     if (statuses[i] !== 'correct') {
       const char = attemptChars[i];
