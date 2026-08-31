@@ -233,7 +233,7 @@ main {
   z-index: 2;
 }
 
-/* Animación de volteo que se activa sólo en la clase .flip */
+/* Animación de volteo */
 @keyframes flipTile {
   0% { transform: rotateX(0deg); }
   50% { transform: rotateX(90deg); }
@@ -553,6 +553,78 @@ main {
   line-height: 1.4;
   white-space: pre-line;
   margin-bottom: 18px;
+}
+
+/* Estilos para el Modal de Diccionario */
+.dict-counter {
+  font-weight: bold;
+  margin: 10px 0;
+  text-align: center;
+  color: #4a5568;
+  font-size: 0.9rem;
+}
+
+#dict-search-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #cbd5e0;
+  border-radius: 8px;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  outline: none;
+}
+
+#dict-search-input:focus {
+  border-color: var(--color-correct);
+}
+
+.dictionary-list {
+  max-height: 350px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+  margin-top: 10px;
+}
+
+.dict-card {
+  background-color: #f7fafc;
+  border-left: 5px solid var(--color-correct);
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  text-align: left;
+}
+
+.dict-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.dict-word {
+  font-size: 1.05rem;
+  font-weight: bold;
+  color: #2d3748;
+  text-transform: uppercase;
+}
+
+.dict-definition {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.4;
+}
+
+.dict-empty-msg {
+  text-align: center;
+  color: #a0aec0;
+  padding: 24px 10px;
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 /* Ajuste responsive para pantallas móviles muy estrechas */
