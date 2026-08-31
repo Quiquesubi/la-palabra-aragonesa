@@ -73,6 +73,7 @@
           <h1>LaPalabraAragonesaDelDía</h1>
         </div>
         <div class="menu-buttons">
+          <button id="btn-dictionary" class="icon-btn" title="Diccionario">📖</button>
           <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
           <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
         </div>
@@ -148,6 +149,22 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Modal Diccionario -->
+  <div id="dictionary-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-dictionary" class="close-btn">&times;</button>
+      <h2>📖 Diccionario de Palabras</h2>
+      <input type="text" id="dict-search-input" placeholder="Buscar palabra descubierta..." />
+      <div id="dict-counter" class="dict-counter">Descubiertas: 0</div>
+      <div id="dictionary-list" class="dictionary-list">
+        <!-- Las tarjetas se cargarán dinámicamente -->
+      </div>
+      <div class="modal-actions">
+        <button id="btn-modal-close-dict" class="action-btn-secondary">Cerrar</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Instrucciones -->
