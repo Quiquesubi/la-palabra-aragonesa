@@ -836,7 +836,7 @@
   {
     "id": 140,
     "palabra": "PACUTIO",
-    "longitud": 8,
+    "longitud": 7,
     "significado": "Pa cutio es una expresión que quiere decir para siempre, eternamente."
   },
   {
@@ -885,7 +885,7 @@
     "id": 148,
     "palabra": "CHITO",
     "longitud": 5,
-    "significado": "se llama a los brotes de una plata o esquejes."
+    "significado": "se llama a los brotes de una planta o esquejes."
   },
   {
     "id": 149,
@@ -1743,7 +1743,7 @@
     "id": 291,
     "palabra": "APARADOR",
     "longitud": 8,
-    "significado": "se llama a al estante de obra, madera u otro material, generalmente de las cocinas o despensas, que sirve para dejar la vajilla."
+    "significado": "se llama al estante de obra, madera u otro material, generalmente de las cocinas o despensas, que sirve para dejar la vajilla."
   },
   {
     "id": 292,
@@ -1825,7 +1825,7 @@
   },
   {
     "id": 305,
-    "palabra": "BUFAs",
+    "palabra": "BUFAS",
     "longitud": 5,
     "significado": "es como se llaman a los pedos o ventosidades."
   },
@@ -2715,11 +2715,11 @@
     "id": 453,
     "palabra": "BILLAS",
     "longitud": 6,
-    "significado": "es un juego de bolos que se jugaba antiguamente Aragón."
+    "significado": "es un juego de bolos que se jugaba antiguamente en Aragón."
   },
   {
     "id": 454,
-    "palabra": "ESPÁRVEL",
+    "palabra": "ESPARVEL",
     "longitud": 8,
     "significado": "es como se llama al gavilán o milano"
   },
@@ -6553,8 +6553,8 @@
   },
   {
     "id": 1093,
-    "palabra": "GORGOLETAS",
-    "longitud": 10,
+    "palabra": "GORGOLETA",
+    "longitud": 9,
     "significado": "se llama a los zarajos o trenzado de intestinos."
   },
   {
@@ -6590,7 +6590,7 @@
   {
     "id": 1099,
     "palabra": "FATUGAZ",
-    "longitud": 8,
+    "longitud": 7,
     "significado": "se dice de alguien que es tonto, necio, simple, estúpido, memo, lelo, imbécil, infeliz…"
   },
   {
@@ -6643,8 +6643,8 @@
   },
   {
     "id": 1108,
-    "palabra": "MALCARARSE",
-    "longitud": 10,
+    "palabra": "MALCARAR",
+    "longitud": 8,
     "significado": "quiere decir contestar con descaro o desairar."
   },
   {
@@ -7063,8 +7063,8 @@
   },
   {
     "id": 1178,
-    "palabra": "INFLAR",
-    "longitud": 6,
+    "palabra": "RINFLAR",
+    "longitud": 7,
     "significado": "quiere decir hinchar, inflar... Además, también significa abotagar, abotargar..."
   },
   {
