@@ -190,15 +190,24 @@ function scheduleLocalNotification(registration) {
 function loadUnlockedWords() {
   const saved = localStorage.getItem('palabra_aragonesa_unlocked_words');
   if (saved) {
-    try { unlockedWords = JSON.parse(saved); } catch (e) {}
+    try { 
+      unlockedWords = JSON.parse(saved); 
+    } catch (e) {
+      unlockedWords = [];
+    }
+  } else {
+    unlockedWords = [];
   }
 }
 
 function unlockCurrentWord() {
   if (!currentGame.wordObj) return;
 
+  // Cargar siempre el estado actualizado desde localStorage
+  loadUnlockedWords();
+
   const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
-  const exists = unlockedWords.some(item => item.id === wordId);
+  const exists = unlockedWords.some(item => item.id === wordId || item.palabra.toUpperCase().trim() === currentGame.wordObj.palabra.toUpperCase().trim());
 
   if (!exists) {
     unlockedWords.push({
@@ -211,6 +220,9 @@ function unlockCurrentWord() {
 }
 
 function renderDictionaryList(filterText = '') {
+  // Aseguramos cargar las palabras guardadas antes de pintar la lista
+  loadUnlockedWords();
+
   dictionaryList.innerHTML = '';
   dictCounter.textContent = `Descubiertas: ${unlockedWords.length} / ${validWords.length}`;
 
@@ -341,9 +353,9 @@ function initEventListeners() {
   closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
   btnModalCloseStats.addEventListener('click', () => statsModal.classList.add('hidden'));
 
-  document.querySelectorAll('.stats-tab-btn').forEach(btn => {
+  document.querySelectorAll('.stats-tab-menu .stats-tab-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
-      document.querySelectorAll('.stats-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.stats-tab-menu .stats-tab-btn').forEach(b => b.classList.remove('active'));
       e.target.classList.add('active');
       activeStatsTab = e.target.getAttribute('data-tab');
       renderStatsData();
