@@ -583,33 +583,33 @@ function renderBoard() {
 }
 
 function evaluateTileStatus(attempt, index) {
-  const char = attempt[index];
   const target = currentGame.targetWord;
   const wordLength = target.length;
+  const statuses = new Array(wordLength).fill('absent');
+  const targetChars = target.split('');
+  const attemptChars = attempt.split('');
 
-  if (target[index] === char) return 'correct';
-
-  let targetChars = target.split('');
-  let attemptChars = attempt.split('');
-
+  // Paso 1: Identificar coincidencia exacta (verdes)
   for (let i = 0; i < wordLength; i++) {
     if (attemptChars[i] === targetChars[i]) {
+      statuses[i] = 'correct';
       targetChars[i] = null;
     }
   }
 
+  // Paso 2: Identificar posición incorrecta (amarillos)
   for (let i = 0; i < wordLength; i++) {
-    if (attemptChars[i] === targetChars[i]) continue;
-    if (i === index) {
+    if (statuses[i] !== 'correct') {
+      const char = attemptChars[i];
       const foundIdx = targetChars.indexOf(char);
-      if (foundIdx !== -1) return 'present';
-    } else {
-      const foundIdx = targetChars.indexOf(attemptChars[i]);
-      if (foundIdx !== -1) targetChars[foundIdx] = null;
+      if (foundIdx !== -1) {
+        statuses[i] = 'present';
+        targetChars[foundIdx] = null;
+      }
     }
   }
 
-  return 'absent';
+  return statuses[index];
 }
 
 function updateKeyboardColors(attempt) {
