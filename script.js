@@ -88,7 +88,6 @@ const customAlertCancelBtn = document.getElementById('custom-alert-cancel-btn');
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSavedStats();
-  loadUnlockedWords();
   initEventListeners();
   loadWordsJSON();
   initAdMobPlugin();
@@ -198,12 +197,42 @@ function loadUnlockedWords() {
   } else {
     unlockedWords = [];
   }
+
+  // MIGRACIÓN/RECUPERACIÓN AUTOMÁTICA DEL MODO LIBRE
+  const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
+  if (savedFreeIndex !== null && validWords && validWords.length > 0) {
+    const currentIndex = parseInt(savedFreeIndex, 10) || 0;
+    
+    let hasNewImport = false;
+    for (let i = 0; i < currentIndex; i++) {
+      const wObj = validWords[i];
+      if (!wObj) continue;
+
+      const wordId = wObj.id || wObj.palabra;
+      const exists = unlockedWords.some(item => 
+        item.id === wordId || 
+        item.palabra.toUpperCase().trim() === wObj.palabra.toUpperCase().trim()
+      );
+
+      if (!exists) {
+        unlockedWords.push({
+          id: wordId,
+          palabra: wObj.palabra.toUpperCase().trim(),
+          significado: wObj.significado
+        });
+        hasNewImport = true;
+      }
+    }
+
+    if (hasNewImport) {
+      localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
+    }
+  }
 }
 
 function unlockCurrentWord() {
   if (!currentGame.wordObj) return;
 
-  // Cargar siempre el estado actualizado desde localStorage
   loadUnlockedWords();
 
   const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
@@ -220,7 +249,6 @@ function unlockCurrentWord() {
 }
 
 function renderDictionaryList(filterText = '') {
-  // Aseguramos cargar las palabras guardadas antes de pintar la lista
   loadUnlockedWords();
 
   dictionaryList.innerHTML = '';
@@ -298,6 +326,7 @@ function loadWordsJSON() {
         return;
       }
 
+      loadUnlockedWords();
       checkFirstVisitTutorial();
       initGame('daily');
     })
