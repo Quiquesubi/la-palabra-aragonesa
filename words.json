@@ -3014,7 +3014,7 @@
   {
     "id": 503,
     "palabra": "PALOSANTO",
-    "longitud": 10,
+    "longitud": 9,
     "significado": "así es como se llama al caqui en algunas zonas de Aragón."
   },
   {
@@ -3451,7 +3451,7 @@
   },
   {
     "id": 576,
-    "palabra": "MOZARRÓN",
+    "palabra": "MOZARRON",
     "longitud": 8,
     "significado": "se dice de una persona joven, corpulenta y fornida."
   },
@@ -3697,8 +3697,8 @@
   },
   {
     "id": 617,
-    "palabra": "LITORNERO",
-    "longitud": 9,
+    "palabra": "LITONERO",
+    "longitud": 8,
     "significado": "se llama al almez, árbol de la familia de las ulmáceas que puede llegar a medir unos 12 ó 14 metros."
   },
   {
@@ -4531,7 +4531,7 @@
   },
   {
     "id": 756,
-    "palabra": "GuEBRA",
+    "palabra": "GUEBRA",
     "longitud": 6,
     "significado": "Güebra es como se llama a un terreno que ya ha sido arado y se va a dejar en barbecho."
   },
@@ -5089,9 +5089,9 @@
   },
   {
     "id": 849,
-    "palabra": "TUCA",
-    "longitud": 4,
-    "significado": "se llama a una cima, cumbre o pico."
+    "palabra": "TUCAS",
+    "longitud": 5,
+    "significado": "Tuca se llama a una cima, cumbre o pico."
   },
   {
     "id": 850,
@@ -5161,7 +5161,7 @@
   },
   {
     "id": 861,
-    "palabra": "CHAFANDÍN",
+    "palabra": "CHAFANDIN",
     "longitud": 9,
     "significado": "se dice de una persona informal, irresponsable y de poco seso."
   },
@@ -5659,15 +5659,15 @@
   },
   {
     "id": 944,
-    "palabra": "ABERGONYAR",
-    "longitud": 10,
-    "significado": "quiere decir avergonzar."
+    "palabra": "REGACHA",
+    "longitud": 7,
+    "significado": "es un reguero o un canal pequeño abierto en la tierra para dar curso a las aguas."
   },
   {
     "id": 945,
-    "palabra": "ACOTRACIAR",
-    "longitud": 10,
-    "significado": "quiere decir preparar, adecentar, ordenar, arreglar, apañar..."
+    "palabra": "RECHITAR",
+    "longitud": 8,
+    "significado": "significa rebrotar o retoñar."
   },
   {
     "id": 946,
@@ -5893,7 +5893,7 @@
   },
   {
     "id": 983,
-    "palabra": "FORRÓN",
+    "palabra": "FORRON",
     "longitud": 6,
     "significado": "se dice de alguien tacaño, mezquino, miserable, agarrado..."
   },
