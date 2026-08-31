@@ -21,6 +21,15 @@
   <!-- Configuración PWA / Web App Manifest -->
   <link rel="manifest" href="manifest.json">
 
+  <!-- Registro automático de Service Worker para PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+      });
+    }
+  </script>
+
   <!-- SDK de OneSignal Web Push v16 -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
