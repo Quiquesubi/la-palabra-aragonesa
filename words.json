@@ -235,6 +235,7 @@
   {
     "id": 39,
     "palabra": "ESCORCHON",
+    "palabraMostrar": "ESCORCHÓN",
     "longitud": 9,
     "significado": "es una herida en la que se levanta la piel, generalmente en la rodilla. También se llama, cuando se levanta la pintura de la pared."
   },
@@ -313,6 +314,7 @@
   {
     "id": 52,
     "palabra": "FOCIN",
+    "palabraMostrar": "FOCÍN",
     "longitud": 5,
     "significado": "quiere decir puerco. Se llama así a una persona que se mancha con facilidad."
   },
@@ -511,6 +513,7 @@
   {
     "id": 85,
     "palabra": "CHANDRIO",
+    "palabraMostrar": "CHANDRÍO",
     "longitud": 8,
     "significado": "quiere decir desbarajuste, destrozo o mala faena."
   },
@@ -541,6 +544,7 @@
   {
     "id": 90,
     "palabra": "COCHIN",
+    "palabraMostrar": "COCHÍN",
     "longitud": 6,
     "significado": "es una forma de nombrar al cerdo."
   },
@@ -625,6 +629,7 @@
   {
     "id": 104,
     "palabra": "TORZON",
+    "palabraMostrar": "TORZÓN",
     "longitud": 6,
     "significado": "se dice a un cólico o empacho."
   },
@@ -637,8 +642,9 @@
   {
     "id": 106,
     "palabra": "IXORAI",
+    "palabraMostrar": "IXO RAI!",
     "longitud": 6,
-    "significado": "es una expresión que significa “¡Qué más da!”. Así se llama un famoso grupo de música aragonés."
+    "significado": "es una expresión que significa ¡Qué más da!. Así se llama un famoso grupo de música aragonés."
   },
   {
     "id": 107,
@@ -655,6 +661,7 @@
   {
     "id": 109,
     "palabra": "CURRIN",
+    "palabraMostrar": "CURRÍN",
     "longitud": 6,
     "significado": "es como se llama al dedo meñique o algo muy pequeño."
   },
@@ -709,6 +716,7 @@
   {
     "id": 118,
     "palabra": "DEPROPIO",
+    "palabraMostrar": "DE PROPIO",
     "longitud": 9,
     "significado": "DE PROPIO es una expresión muy utilizada en Aragón que quiere decir: ex profeso, a propósito, expresamente..."
   },
@@ -841,6 +849,7 @@
   {
     "id": 140,
     "palabra": "PACUTIO",
+    "palabraMostrar": "PA CUTIO",
     "longitud": 7,
     "significado": "Pa cutio es una expresión que quiere decir para siempre, eternamente."
   },
@@ -853,6 +862,7 @@
   {
     "id": 142,
     "palabra": "REPELON",
+    "palabraMostrar": "REPELÓN",
     "longitud": 7,
     "significado": "es como se llama al pedazo de piel que se desprende, normalmente, al lado de la uña."
   },
@@ -883,6 +893,7 @@
   {
     "id": 147,
     "palabra": "REPATAN",
+    "palabraMostrar": "REPATÁN",
     "longitud": 7,
     "significado": "se llama al aprendiz de pastor a las órdenes de un mayoral. También acompaña a los danzantes de los palotiaus."
   },
@@ -1003,6 +1014,7 @@
   {
     "id": 167,
     "palabra": "GARGALE",
+    "palabraMostrar": "GARGALÉ",
     "longitud": 7,
     "significado": "es la forma de beber del botijo, del porrón... cuando se coloca a cierta altura."
   },
@@ -1057,6 +1069,7 @@
   {
     "id": 176,
     "palabra": "TARDANE",
+    "palabraMostrar": "TARDANÉ",
     "longitud": 7,
     "significado": "es como se llama al hijo menor que tiene mucha diferencia de edad con el anterior."
   },
@@ -1093,6 +1106,7 @@
   {
     "id": 182,
     "palabra": "ABADIA",
+    "palabraMostrar": "ABADÍA",
     "longitud": 6,
     "significado": "es como se llama a la casa parroquial en los pueblos de Aragón."
   },
@@ -1141,8 +1155,9 @@
   {
     "id": 190,
     "palabra": "QUIOS",
+    "palabraMostrar": "QUIÓ",
     "longitud": 5,
-    "significado": "¡Quió! o ¡quiá! Es una expresión para llamar a una persona."
+    "significado": "es una expresión para llamar a una persona."
   },
   {
     "id": 191,
@@ -1177,6 +1192,7 @@
   {
     "id": 196,
     "palabra": "MATACIA",
+    "palabraMostrar": "MATACÍA",
     "longitud": 7,
     "significado": "consiste en sacrificar a los cerdos que se han engordado todo el año para obtener alimentos para invierno."
   },
@@ -1243,6 +1259,7 @@
   {
     "id": 207,
     "palabra": "MASCARON",
+    "palabraMostrar": "MASCARÓN",
     "longitud": 8,
     "significado": "se llama a una mancha de hollín."
   },
@@ -1261,6 +1278,7 @@
   {
     "id": 210,
     "palabra": "CLARION",
+    "palabraMostrar": "CLARIÓN",
     "longitud": 7,
     "significado": "aunque apenas se utiliza ahora en las aulas, quiere decir tiza."
   },
@@ -1309,6 +1327,7 @@
   {
     "id": 218,
     "palabra": "NONON",
+    "palabraMostrar": "NONÓN",
     "longitud": 5,
     "significado": "quiere decir sueño o ganas de dormir (en lenguaje infantil)."
   },
@@ -1351,6 +1370,7 @@
   {
     "id": 225,
     "palabra": "ARRACLAN",
+    "palabraMostrar": "ARRACLÁN",
     "longitud": 8,
     "significado": "es como se llama al alacrán o escorpión."
   },
@@ -1417,12 +1437,14 @@
   {
     "id": 236,
     "palabra": "CHICOTON",
+    "palabraMostrar": "CHICOTÓN",
     "longitud": 8,
     "significado": "quiere decir chiquitín, pequeño…"
   },
   {
     "id": 237,
     "palabra": "CHESUS",
+    "palabraMostrar": "CHESÚS",
     "longitud": 6,
     "significado": "es un nombre aragonés que significa Jesús."
   },
@@ -1435,8 +1457,9 @@
   {
     "id": 239,
     "palabra": "TAPES",
+    "palabraMostrar": "TAPE",
     "longitud": 5,
-    "significado": "son las tapas o tapaderas que se ponen en recipientes, bolis, pegamentos…"
+    "significado": "es la tapa o tapadera que se pone en recipientes, bolis, pegamentos…"
   },
   {
     "id": 240,
@@ -1447,8 +1470,9 @@
   {
     "id": 241,
     "palabra": "RETES",
+    "palabraMostrar": "RETE",
     "longitud": 5,
-    "significado": "el rete es una malla o red que se pone alrededor de algún sitio para evitar que se salgan los animales o algún objeto."
+    "significado": "es una malla o red que se pone alrededor de algún sitio para evitar que se salgan los animales o algún objeto."
   },
   {
     "id": 242,
@@ -1471,8 +1495,9 @@
   {
     "id": 245,
     "palabra": "BUCHO",
+    "palabraMostrar": "BUCHO o BUXO",
     "longitud": 5,
-    "significado": "o BUXO es como se llama al boj, un arbusto de madera muy dura."
+    "significado": "es como se llama al boj, un arbusto de madera muy dura."
   },
   {
     "id": 246,
