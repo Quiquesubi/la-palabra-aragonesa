@@ -2,6 +2,7 @@
   {
     "id": 1,
     "palabra": "LAMIN",
+    "palabraMostrar": "LAMÍN",
     "longitud": 5,
     "significado": "se llama a los dulces o golosinas."
   },
@@ -20,6 +21,7 @@
   {
     "id": 4,
     "palabra": "CHARRIN",
+    "palabraMostrar": "CHARRÍN",
     "longitud": 7,
     "significado": "se dice de una persona que habla mucho."
   },
@@ -128,6 +130,7 @@
   {
     "id": 22,
     "palabra": "MARIPIS",
+    "palabraMostrar": "MARIPÍS",
     "longitud": 7,
     "significado": "se llaman a las zapatillas de deporte."
   },
@@ -182,6 +185,7 @@
   {
     "id": 31,
     "palabra": "LAMPARON",
+    "palabraMostrar": "LAMPARÓN",
     "longitud": 8,
     "significado": "es una mancha bastante visible en la ropa, producida por grasa o aceite."
   },
@@ -194,6 +198,7 @@
   {
     "id": 33,
     "palabra": "TOZOLON",
+    "palabraMostrar": "TOZOLÓN",
     "longitud": 7,
     "significado": "es una caída o un golpe violento."
   },
