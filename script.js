@@ -218,6 +218,7 @@ function loadUnlockedWords() {
         unlockedWords.push({
           id: wordId,
           palabra: wObj.palabra.toUpperCase().trim(),
+          palabraMostrar: wObj.palabraMostrar || wObj.palabra,
           significado: wObj.significado
         });
         hasNewImport = true;
@@ -236,16 +237,21 @@ function unlockCurrentWord() {
   loadUnlockedWords();
 
   const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
-  const exists = unlockedWords.some(item => item.id === wordId || item.palabra.toUpperCase().trim() === currentGame.wordObj.palabra.toUpperCase().trim());
+  const existsIndex = unlockedWords.findIndex(item => item.id === wordId || item.palabra.toUpperCase().trim() === currentGame.wordObj.palabra.toUpperCase().trim());
 
-  if (!exists) {
+  if (existsIndex === -1) {
     unlockedWords.push({
       id: wordId,
       palabra: currentGame.wordObj.palabra.toUpperCase().trim(),
+      palabraMostrar: currentGame.wordObj.palabraMostrar || currentGame.wordObj.palabra,
       significado: currentGame.wordObj.significado
     });
-    localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
+  } else {
+    // Actualiza la propiedad palabraMostrar por si se añade posteriormente
+    unlockedWords[existsIndex].palabraMostrar = currentGame.wordObj.palabraMostrar || currentGame.wordObj.palabra;
   }
+  
+  localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
 }
 
 function renderDictionaryList(filterText = '') {
@@ -254,10 +260,11 @@ function renderDictionaryList(filterText = '') {
   dictionaryList.innerHTML = '';
   dictCounter.textContent = `Descubiertas: ${unlockedWords.length} / ${validWords.length}`;
 
-  const filtered = unlockedWords.filter(item => 
-    item.palabra.toLowerCase().includes(filterText.toLowerCase()) ||
-    item.significado.toLowerCase().includes(filterText.toLowerCase())
-  );
+  const filtered = unlockedWords.filter(item => {
+    const displayWord = item.palabraMostrar || item.palabra;
+    return displayWord.toLowerCase().includes(filterText.toLowerCase()) ||
+           item.significado.toLowerCase().includes(filterText.toLowerCase());
+  });
 
   if (filtered.length === 0) {
     dictionaryList.innerHTML = `<div class="dict-empty-msg">${
@@ -268,12 +275,17 @@ function renderDictionaryList(filterText = '') {
     return;
   }
 
-  filtered.sort((a, b) => a.palabra.localeCompare(b.palabra)).forEach(item => {
+  filtered.sort((a, b) => {
+    const wordA = a.palabraMostrar || a.palabra;
+    const wordB = b.palabraMostrar || b.palabra;
+    return wordA.localeCompare(wordB);
+  }).forEach(item => {
     const card = document.createElement('div');
     card.className = 'dict-card';
+    const textoMostrar = item.palabraMostrar || item.palabra;
     card.innerHTML = `
       <div class="dict-card-header">
-        <span class="dict-word">${item.palabra}</span>
+        <span class="dict-word">${textoMostrar}</span>
       </div>
       <div class="dict-definition">${item.significado}</div>
     `;
@@ -940,17 +952,21 @@ function openResultModal(isWin) {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
 
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
+    ? currentGame.wordObj.palabraMostrar 
+    : currentGame.targetWord;
+
   if (currentGame.mode === 'daily') {
     if (isWin) {
       const attemptCount = currentGame.attempts.length;
       resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
       resultBanner.className = 'feedback-banner win';
     } else {
-      resultBanner.textContent = `¡Ánimo! La palabra era: ${currentGame.targetWord}`;
+      resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}`;
       resultBanner.className = 'feedback-banner lose';
     }
 
-    resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+    resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
     resultWordDefinition.classList.remove('hidden');
 
     btnShare.classList.remove('hidden');
@@ -964,7 +980,7 @@ function openResultModal(isWin) {
       resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
       resultBanner.className = 'feedback-banner win';
 
-      resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+      resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
       resultWordDefinition.classList.remove('hidden');
 
       btnShare.classList.remove('hidden');
@@ -986,10 +1002,14 @@ function openDailyAlreadyPlayedModal() {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
 
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
+    ? currentGame.wordObj.palabraMostrar 
+    : currentGame.targetWord;
+
   resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
   resultBanner.className = 'feedback-banner win';
 
-  resultWordDefinition.innerHTML = `<strong>${currentGame.targetWord}</strong>: ${currentGame.wordObj.significado}`;
+  resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
   resultWordDefinition.classList.remove('hidden');
 
   btnShare.classList.remove('hidden');
