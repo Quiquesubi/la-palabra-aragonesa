@@ -247,7 +247,6 @@ function unlockCurrentWord() {
       significado: currentGame.wordObj.significado
     });
   } else {
-    // Actualiza la propiedad palabraMostrar por si se añade posteriormente
     unlockedWords[existsIndex].palabraMostrar = currentGame.wordObj.palabraMostrar || currentGame.wordObj.palabra;
   }
   
@@ -261,7 +260,9 @@ function renderDictionaryList(filterText = '') {
   dictCounter.textContent = `Descubiertas: ${unlockedWords.length} / ${validWords.length}`;
 
   const filtered = unlockedWords.filter(item => {
-    const displayWord = item.palabraMostrar || item.palabra;
+    const originalObj = validWords.find(w => (w.id && w.id === item.id) || w.palabra.toUpperCase().trim() === item.palabra.toUpperCase().trim());
+    const displayWord = (originalObj && originalObj.palabraMostrar) || item.palabraMostrar || item.palabra;
+    
     return displayWord.toLowerCase().includes(filterText.toLowerCase()) ||
            item.significado.toLowerCase().includes(filterText.toLowerCase());
   });
@@ -276,13 +277,19 @@ function renderDictionaryList(filterText = '') {
   }
 
   filtered.sort((a, b) => {
-    const wordA = a.palabraMostrar || a.palabra;
-    const wordB = b.palabraMostrar || b.palabra;
+    const origA = validWords.find(w => (w.id && w.id === a.id) || w.palabra.toUpperCase().trim() === a.palabra.toUpperCase().trim());
+    const origB = validWords.find(w => (w.id && w.id === b.id) || w.palabra.toUpperCase().trim() === b.palabra.toUpperCase().trim());
+
+    const wordA = (origA && origA.palabraMostrar) || a.palabraMostrar || a.palabra;
+    const wordB = (origB && origB.palabraMostrar) || b.palabraMostrar || b.palabra;
     return wordA.localeCompare(wordB);
   }).forEach(item => {
     const card = document.createElement('div');
     card.className = 'dict-card';
-    const textoMostrar = item.palabraMostrar || item.palabra;
+    
+    const originalObj = validWords.find(w => (w.id && w.id === item.id) || w.palabra.toUpperCase().trim() === item.palabra.toUpperCase().trim());
+    const textoMostrar = (originalObj && originalObj.palabraMostrar) || item.palabraMostrar || item.palabra;
+
     card.innerHTML = `
       <div class="dict-card-header">
         <span class="dict-word">${textoMostrar}</span>
