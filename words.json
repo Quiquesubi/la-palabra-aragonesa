@@ -1820,6 +1820,7 @@
   {
     "id": 299,
     "palabra": "CODUJON",
+    "palabraMostrar": "CODUJÓN",
     "longitud": 8,
     "significado": "es como se llama a cada una de las puntas que se forman en las sábanas, colchones..."
   },
@@ -1844,6 +1845,7 @@
   {
     "id": 303,
     "palabra": "POCHON",
+    "palabraMostrar": "POCHÓN",
     "longitud": 6,
     "significado": "es como se llama a un bolsillo o una bolsa."
   },
@@ -2066,6 +2068,7 @@
   {
     "id": 340,
     "palabra": "SIÑALIN",
+    "palabraMostrar": "SIÑALÍN",
     "longitud": 7,
     "significado": "quiere decir poca cantidad."
   },
@@ -2210,6 +2213,7 @@
   {
     "id": 364,
     "palabra": "CRIANZON",
+    "palabraMostrar": "CRIANZÓN",
     "longitud": 8,
     "significado": "es como se dice crío en sentido despectivo."
   },
@@ -2294,6 +2298,7 @@
   {
     "id": 378,
     "palabra": "REBULLON",
+    "palabraMostrar": "REBULLÓN",
     "longitud": 8,
     "significado": "se llama a un revoltijo o amasijo de cosas desordenadas."
   },
@@ -2414,6 +2419,7 @@
   {
     "id": 398,
     "palabra": "MALLACAN",
+    "palabraMostrar": "MALLACÁN",
     "longitud": 8,
     "significado": "se llama a un terreno que no es productivo porque tiene rocas debajo."
   },
@@ -2630,6 +2636,7 @@
   {
     "id": 434,
     "palabra": "TOSTON",
+    "palabraMostrar": "TOSTÓN",
     "longitud": 6,
     "significado": "se dice de los actos o situaciones que resultan aburridos, tediosos o fastidiosos."
   },
@@ -2683,8 +2690,8 @@
   },
   {
     "id": 443,
-    "palabra": "TROZAU",
-    "longitud": 6,
+    "palabra": "TRONZAU",
+    "longitud": 7,
     "significado": "se dice cuando alguien está cansado excesivamente."
   },
   {
@@ -2696,6 +2703,7 @@
   {
     "id": 445,
     "palabra": "CHUPON",
+    "palabraMostrar": "CHUPÓN",
     "longitud": 6,
     "significado": "se llama al carámbano o trozo de hielo más o menos largo y puntiagudo que cuelga de una roca, tejado..."
   },
@@ -2726,6 +2734,7 @@
   {
     "id": 450,
     "palabra": "MOLON",
+    "palabraMostrar": "MOLÓN",
     "longitud": 5,
     "significado": "se llama al rodillo de piedra grande usado para apisonar tierra, carreteras, eras…"
   },
@@ -2750,6 +2759,7 @@
   {
     "id": 454,
     "palabra": "ESPARVEL",
+    "palabraMostrar": "ESPÁRVEL",
     "longitud": 8,
     "significado": "es como se llama al gavilán o milano."
   },
@@ -2816,6 +2826,7 @@
   {
     "id": 465,
     "palabra": "ROÑON",
+    "palabraMostrar": "ROÑÓN",
     "longitud": 5,
     "significado": "se dice de una persona que es protestona o quejica."
   },
@@ -2966,6 +2977,7 @@
   {
     "id": 490,
     "palabra": "COFLON",
+    "palabraMostrar": "COFLÓN",
     "longitud": 6,
     "significado": "se dice de una persona que es comodona u holgazana."
   },
@@ -3050,6 +3062,7 @@
   {
     "id": 504,
     "palabra": "CUQUIN",
+    "palabraMostrar": "CUQUÍN",
     "longitud": 6,
     "significado": "es como se llama a los murciélagos."
   },
@@ -3170,6 +3183,7 @@
   {
     "id": 524,
     "palabra": "BARAMBAN",
+    "palabraMostrar": "BARAMBÁN",
     "longitud": 8,
     "significado": "se llama al bullicio, jaleo o barullo."
   },
@@ -3242,6 +3256,7 @@
   {
     "id": 536,
     "palabra": "CEPREN",
+    "palabraMostrar": "CEPRÉN",
     "longitud": 6,
     "significado": "es como se llama a una palanca, manivela, barra rígida o bomba de mano para extraer agua."
   },
@@ -3326,6 +3341,7 @@
   {
     "id": 550,
     "palabra": "TOTON",
+    "palabraMostrar": "TOTÓN",
     "longitud": 5,
     "significado": "se llama a los fantasmas o a alguien que es alguien huidizo, huraño…"
   },
@@ -3362,6 +3378,7 @@
   {
     "id": 556,
     "palabra": "REBOLLON",
+    "palabraMostrar": "REBOLLÓN",
     "longitud": 8,
     "significado": "es como se llama a los robellones o níscalos."
   },
@@ -3422,6 +3439,7 @@
   {
     "id": 566,
     "palabra": "BOZON",
+    "palabraMostrar": "BOZÓN",
     "longitud": 5,
     "significado": "es como se llama a un atasco o tapón."
   },
@@ -3482,6 +3500,7 @@
   {
     "id": 576,
     "palabra": "MOZARRON",
+    "palabraMostrar": "MOZARRÓN",
     "longitud": 8,
     "significado": "se dice de una persona joven, corpulenta y fornida."
   },
@@ -3512,6 +3531,7 @@
   {
     "id": 581,
     "palabra": "ZANCARRON",
+    "palabraMostrar": "ZANCARRÓN",
     "longitud": 9,
     "significado": "se llama a alguien que es un zopenco o carcamal."
   },
@@ -3566,6 +3586,7 @@
   {
     "id": 590,
     "palabra": "ROSIGON",
+    "palabraMostrar": "ROSIGÓN",
     "longitud": 7,
     "significado": "es como se llama a un mendrugo de pan."
   },
@@ -3698,6 +3719,7 @@
   {
     "id": 612,
     "palabra": "DORONDON",
+    "palabraMostrar": "DORONDÓN",
     "longitud": 8,
     "significado": "se llama a la cencellada, una niebla espesa y fría que forma escarcha o rosada."
   },
@@ -3758,6 +3780,7 @@
   {
     "id": 622,
     "palabra": "ASTIBAN",
+    "palabraMostrar": "ASTIBÁN",
     "longitud": 7,
     "significado": "quiere decir ahí, ahí delante o ahí mismo."
   },
@@ -3776,6 +3799,7 @@
   {
     "id": 625,
     "palabra": "ENTADEBAN",
+    "palabraMostrar": "ENTADEBÁN",
     "longitud": 9,
     "significado": "quiere decir hacia delante."
   },
@@ -3830,8 +3854,9 @@
   {
     "id": 634,
     "palabra": "TIONES",
+    "palabraMostrar": "TIÓN",
     "longitud": 6,
-    "significado": "TIÓN es como se llama al solterón que permanece en casa de sus padres, un solterón."
+    "significado": "es como se llama al solterón que permanece en casa de sus padres, un solterón."
   },
   {
     "id": 635,
@@ -3854,6 +3879,7 @@
   {
     "id": 638,
     "palabra": "FORICON",
+    "palabraMostrar": "FORICÓN",
     "longitud": 7,
     "significado": "se llama a un agujero, recoveco, hueco, oquedad..."
   },
@@ -3878,6 +3904,7 @@
   {
     "id": 642,
     "palabra": "MATUTAN",
+    "palabraMostrar": "MATUTÁN",
     "longitud": 7,
     "significado": "se dice de una persona que es ruda, vaga, perezosa, torpe, bruta..."
   },
@@ -3992,6 +4019,7 @@
   {
     "id": 661,
     "palabra": "MATAPAN",
+    "palabraMostrar": "MATAPÁN",
     "longitud": 7,
     "significado": "se dice de una persona muy bruta, torpe, patán, tonta..."
   },
@@ -4052,8 +4080,9 @@
   {
     "id": 671,
     "palabra": "COSAS",
+    "palabraMostrar": "COSA",
     "longitud": 5,
-    "significado": "COSA quiere decir nada."
+    "significado": "quiere decir nada."
   },
   {
     "id": 672,
@@ -4082,6 +4111,7 @@
   {
     "id": 676,
     "palabra": "MOCES",
+    "palabraMostrar": "MOCÉ",
     "longitud": 5,
     "significado": "es como se llama a los niños y adolescentes."
   },
@@ -4184,6 +4214,7 @@
   {
     "id": 693,
     "palabra": "PELOTON",
+    "palabraMostrar": "PELOTÓN",
     "longitud": 7,
     "significado": "es como se llama al balón."
   },
@@ -4268,6 +4299,7 @@
   {
     "id": 707,
     "palabra": "MAMBRU",
+    "palabraMostrar": "MAMBRÚ",
     "longitud": 6,
     "significado": "se dice de una persona terca u obstinada."
   },
@@ -4478,6 +4510,7 @@
   {
     "id": 742,
     "palabra": "ZANGUILON",
+    "palabraMostrar": "ZANGUILÓN",
     "longitud": 9,
     "significado": "se dice de alguien que es vago y de pocas habilidades. También de alguien desgarbado, espigado o larguirucho."
   },
@@ -4508,6 +4541,7 @@
   {
     "id": 747,
     "palabra": "CROSTON",
+    "palabraMostrar": "CROSTÓN",
     "longitud": 7,
     "significado": "se llama a la corteza del pan y el currusco o coscurro."
   },
@@ -4520,6 +4554,7 @@
   {
     "id": 749,
     "palabra": "GALBAN",
+    "palabraMostrar": "GALBÁN",
     "longitud": 6,
     "significado": "se dice de alguien que es perezoso, vago, holgazán..."
   },
@@ -4562,6 +4597,7 @@
   {
     "id": 756,
     "palabra": "GUEBRA",
+    "palabraMostrar": "GÜEBRA",
     "longitud": 6,
     "significado": "Güebra es como se llama a un terreno que ya ha sido arado y se va a dejar en barbecho."
   },
@@ -4634,6 +4670,7 @@
   {
     "id": 768,
     "palabra": "MANGUAN",
+    "palabraMostrar": "MANGUÁN",
     "longitud": 7,
     "significado": "se dice de alguien que es un vago, holgazán, perezoso..."
   },
@@ -4754,8 +4791,9 @@
   {
     "id": 788,
     "palabra": "CIRGUELLA",
+    "palabraMostrar": "CIRGÜELLA",
     "longitud": 9,
-    "significado": "Cirgüella se llama a las ciruelas. También se llama así a una persona mema o tonta."
+    "significado": "se llama a las ciruelas. También se llama así a una persona mema o tonta."
   },
   {
     "id": 789,
@@ -4910,6 +4948,7 @@
   {
     "id": 814,
     "palabra": "NINON",
+    "palabraMostrar": "NINÓN",
     "longitud": 5,
     "significado": "se llama a un bebé o niño pequeño."
   },
@@ -4922,8 +4961,9 @@
   {
     "id": 816,
     "palabra": "LEZAS",
+    "palabraMostrar": "LEZA",
     "longitud": 5,
-    "significado": "Leza se llama a una laja, losa o roca laminar."
+    "significado": "es una laja, losa o roca laminar."
   },
   {
     "id": 817,
@@ -4946,6 +4986,7 @@
   {
     "id": 820,
     "palabra": "FAYANAS",
+    "palabraMostrar": "FAYANÁS",
     "longitud": 7,
     "significado": "se dice de alguien que es hacendoso, trabajador o laborioso."
   },
@@ -5000,6 +5041,7 @@
   {
     "id": 829,
     "palabra": "MACARRON",
+    "palabraMostrar": "MACARRÓN",
     "longitud": 8,
     "significado": "se llama a una rebanada de pan empapada en vino y cubierta de azúcar. También se dice de alguien testarudo."
   },
@@ -5024,6 +5066,7 @@
   {
     "id": 833,
     "palabra": "LORIEN",
+    "palabraMostrar": "LORIÉN",
     "longitud": 6,
     "significado": "es como se llama a los Lorenzos en aragonés."
   },
@@ -5114,6 +5157,7 @@
   {
     "id": 848,
     "palabra": "MARGUIN",
+    "palabraMostrar": "MARGUÍN",
     "longitud": 7,
     "significado": "es como se llama límite, margen o lindero de un campo."
   },
@@ -5168,8 +5212,9 @@
   {
     "id": 857,
     "palabra": "LERAS",
+    "palabraMostrar": "LERA",
     "longitud": 5,
-    "significado": "Lera se llama a una losa de gran tamaño y, en algunas zonas, se llama así a la GLERA, que es una playa de piedras junto al río."
+    "significado": "se llama a una losa de gran tamaño y, en algunas zonas, se llama así a la GLERA, que es una playa de piedras junto al río."
   },
   {
     "id": 858,
@@ -5192,6 +5237,7 @@
   {
     "id": 861,
     "palabra": "CHAFANDIN",
+    "palabraMostrar": "CHAFANDÍN",
     "longitud": 9,
     "significado": "se dice de una persona informal, irresponsable y de poco seso."
   },
@@ -5378,6 +5424,7 @@
   {
     "id": 892,
     "palabra": "REDOLON",
+    "palabraMostrar": "REDOLÓN",
     "longitud": 7,
     "significado": "se llama a una voltereta o caída en la que se rueda por el suelo."
   },
@@ -5390,6 +5437,7 @@
   {
     "id": 894,
     "palabra": "ALGORIN",
+    "palabraMostrar": "ALGORÍN",
     "longitud": 7,
     "significado": "se llama al hueco, cuarto pequeño o compartimento destinado a guardar o recoger algo."
   },
@@ -5414,6 +5462,7 @@
   {
     "id": 898,
     "palabra": "CORRENTIA",
+    "palabraMostrar": "CORRENTÍA",
     "longitud": 9,
     "significado": "se llama a la inundación artificial de un terreno."
   },
@@ -5510,6 +5559,7 @@
   {
     "id": 914,
     "palabra": "CARRERON",
+    "palabraMostrar": "CARRERÓN",
     "longitud": 8,
     "significado": "es como se llama a una senda o sendero."
   },
@@ -5528,6 +5578,7 @@
   {
     "id": 917,
     "palabra": "CAMATON",
+    "palabraMostrar": "CAMATÓN",
     "longitud": 7,
     "significado": "se llama a un haz o manejo pequeño de leña."
   },
@@ -5552,6 +5603,7 @@
   {
     "id": 921,
     "palabra": "CHORDON",
+    "palabraMostrar": "CHORDÓN",
     "longitud": 7,
     "significado": "es como se llama a la frambuesa."
   },
@@ -5630,6 +5682,7 @@
   {
     "id": 934,
     "palabra": "FIZON",
+    "palabraMostrar": "FIZÓN",
     "longitud": 5,
     "significado": "es como se llama al aguijón de los insectos o al colmillo de las serpientes. También se llama así a alguien que es muy provocador."
   },
@@ -5672,6 +5725,7 @@
   {
     "id": 941,
     "palabra": "ZAPARRON",
+    "palabraMostrar": "ZAPARRÓN",
     "longitud": 8,
     "significado": "es como se llama a la cepa de un árbol o cepejón."
   },
@@ -5756,8 +5810,9 @@
   {
     "id": 955,
     "palabra": "BASAS",
+    "palabraMostrar": "BASA",
     "longitud": 5,
-    "significado": "Basa se llama a una balsa, charca, estanque... La más conocida es la Basa de la Mora o Ibón de Plan."
+    "significado": "se llama a una balsa, charca, estanque... La más conocida es la Basa de la Mora o Ibón de Plan."
   },
   {
     "id": 956,
@@ -5822,6 +5877,7 @@
   {
     "id": 966,
     "palabra": "MOTILON",
+    "palabraMostrar": "MOTILÓN",
     "longitud": 7,
     "significado": "se dice de alguien antipático, serio, adusto... También significa grande, corpulento..."
   },
@@ -5888,6 +5944,7 @@
   {
     "id": 977,
     "palabra": "CAPIN",
+    "palabraMostrar": "CAPÍN",
     "longitud": 5,
     "significado": "quiere decir ebrio, borracho…"
   },
@@ -5906,8 +5963,9 @@
   {
     "id": 980,
     "palabra": "CHICHETAS",
+    "palabraMostrar": "EN CHICHETAS",
     "longitud": 9,
-    "significado": "En chichetas es una expresión que quiere decir en cueros, en porretas, en pelotas..."
+    "significado": "es una expresión que quiere decir en cueros, en porretas, en pelotas..."
   },
   {
     "id": 981,
@@ -5918,12 +5976,14 @@
   {
     "id": 982,
     "palabra": "CAMAMILON",
+    "palabraMostrar": "CAMILÓN",
     "longitud": 9,
     "significado": "se llama a una persona que es tonta, simple, pánfila..."
   },
   {
     "id": 983,
     "palabra": "FORRON",
+    "palabraMostrar": "FORRÓN",
     "longitud": 6,
     "significado": "se dice de alguien tacaño, mezquino, miserable, agarrado..."
   },
@@ -6002,6 +6062,7 @@
   {
     "id": 996,
     "palabra": "CHISTABIN",
+    "palabraMostrar": "CHISTABÍN",
     "longitud": 9,
     "significado": "se llama a la gente de la Bal de Chistau y al dialecto que se habla en ese valle."
   },
@@ -6038,6 +6099,7 @@
   {
     "id": 1002,
     "palabra": "GORRIN",
+    "palabraMostrar": "GORRÍN",
     "longitud": 6,
     "significado": "es una de las formas de llamar al dedo meñique."
   },
@@ -6056,6 +6118,7 @@
   {
     "id": 1005,
     "palabra": "BOFORON",
+    "palabraMostrar": "BOFORÓN",
     "longitud": 7,
     "significado": "se llama al culo o ano."
   },
@@ -6134,6 +6197,7 @@
   {
     "id": 1018,
     "palabra": "REMIRON",
+    "palabraMostrar": "REMIRÓN",
     "longitud": 7,
     "significado": "se dice de alguien que es entrometido, chismoso, fisgón, cotilla..."
   },
@@ -6176,6 +6240,7 @@
   {
     "id": 1025,
     "palabra": "REBIEN",
+    "palabraMostrar": "REBIÉN",
     "longitud": 6,
     "significado": "quiere decir requetebién, muy bien..."
   },
@@ -6218,12 +6283,14 @@
   {
     "id": 1032,
     "palabra": "MALLON",
+    "palabraMostrar": "MALLÓN",
     "longitud": 6,
     "significado": "se dice de alguien fornido, corpulento o fortachón."
   },
   {
     "id": 1033,
     "palabra": "LALON",
+    "palabraMostrar": "LALÓN",
     "longitud": 5,
     "significado": "se llama a una persona que es reservada."
   },
@@ -6236,6 +6303,7 @@
   {
     "id": 1035,
     "palabra": "REDOLIN",
+    "palabraMostrar": "REDOLÍN",
     "longitud": 7,
     "significado": "quiere decir turno, tanda... y, A REDOLÍN, por tunos, rotando..."
   },
@@ -6260,6 +6328,7 @@
   {
     "id": 1039,
     "palabra": "PUNCHON",
+    "palabraMostrar": "PUNCHÓN",
     "longitud": 7,
     "significado": "se dice de una persona cizañera, provocadora, cargante, que chincha..."
   },
@@ -6272,6 +6341,7 @@
   {
     "id": 1041,
     "palabra": "SECALLON",
+    "palabraMostrar": "SECALLÓN",
     "longitud": 8,
     "significado": "se dice de una persona o animal muy delgado."
   },
@@ -6344,6 +6414,7 @@
   {
     "id": 1053,
     "palabra": "CUCION",
+    "palabraMostrar": "CUCIÓN",
     "longitud": 6,
     "significado": "se dice de alguien que es terco, tozudo, obstinado..."
   },
@@ -6524,6 +6595,7 @@
   {
     "id": 1083,
     "palabra": "MORGON",
+    "palabraMostrar": "MORGÓN",
     "longitud": 6,
     "significado": "se llama a alguien que es refunfuñón, gruñón, protestón..."
   },
@@ -6590,6 +6662,7 @@
   {
     "id": 1094,
     "palabra": "FIZCON",
+    "palabraMostrar": "FIZCÓN",
     "longitud": 6,
     "significado": "se llama a alguien que es provocador."
   },
@@ -6668,6 +6741,7 @@
   {
     "id": 1107,
     "palabra": "LAMINERIA",
+    "palabraMostrar": "LAMINERÍA",
     "longitud": 9,
     "significado": "se llama a un LAMÍN, dulce, golosina..."
   },
@@ -6704,6 +6778,7 @@
   {
     "id": 1113,
     "palabra": "PARRABAN",
+    "palabraMostrar": "PARRABÁN",
     "longitud": 8,
     "significado": "se dice de alguien que es impetuoso, impulsivo, irreflexivo..."
   },
@@ -6746,6 +6821,7 @@
   {
     "id": 1120,
     "palabra": "RECOPON",
+    "palabraMostrar": "RECOPÓN",
     "longitud": 7,
     "significado": "es una expresión que expresa sorpresa o disgusto y quiere decir caramba."
   },
@@ -6800,6 +6876,7 @@
   {
     "id": 1129,
     "palabra": "TALAPEN",
+    "palabraMostrar": "TALAPÉN",
     "longitud": 7,
     "significado": "se dice de alguien que está flaco."
   },
@@ -6818,12 +6895,14 @@
   {
     "id": 1132,
     "palabra": "ESVARIZON",
+    "palabraMostrar": "ESVARIZÓN",
     "longitud": 9,
     "significado": "se llama a un patinazo o resbalón. También significa desliz."
   },
   {
     "id": 1133,
     "palabra": "LABEDAN",
+    "palabraMostrar": "LABEDÁN",
     "longitud": 7,
     "significado": "se dice de alguien que es pícaro, perillán, granuja..."
   },
@@ -6836,6 +6915,7 @@
   {
     "id": 1135,
     "palabra": "LABAZON",
+    "palabraMostrar": "LABAZÓN",
     "longitud": 7,
     "significado": "quiere decir hinchazón."
   },
@@ -7160,6 +7240,7 @@
   {
     "id": 1189,
     "palabra": "MAITIN",
+    "palabraMostrar": "MAITÍN",
     "longitud": 6,
     "significado": "significa mañana."
   },
@@ -7232,8 +7313,9 @@
   {
     "id": 1201,
     "palabra": "CUTOS",
+    "palabraMostrar": "CUTO",
     "longitud": 5,
-    "significado": "Cuto quiere decir cerdo, puerco, marrano, guarro…"
+    "significado": "quiere decir cerdo, puerco, marrano, guarro…"
   },
   {
     "id": 1202,
@@ -7310,6 +7392,7 @@
   {
     "id": 1214,
     "palabra": "MANCHON",
+    "palabraMostrar": "MANCHÓN",
     "longitud": 7,
     "significado": "es como se llama al fuelle de la fragua o del órgano."
   },
@@ -7352,6 +7435,7 @@
   {
     "id": 1221,
     "palabra": "ISONES",
+    "palabraMostrar": "ISÓN",
     "longitud": 6,
     "significado": "es una forma de de llamar a los perrechicos o seta de San Jorge, típica de primavera."
   },
@@ -7376,6 +7460,7 @@
   {
     "id": 1225,
     "palabra": "MAMBRUN",
+    "palabraMostrar": "MAMBRÚN",
     "longitud": 7,
     "significado": "significa terco, obstinado, feo…"
   },
@@ -7424,6 +7509,7 @@
   {
     "id": 1233,
     "palabra": "CHIBON",
+    "palabraMostrar": "CHIBÓN",
     "longitud": 6,
     "significado": "es como se llama a una chiba o canica grande."
   },
@@ -7448,6 +7534,7 @@
   {
     "id": 1237,
     "palabra": "MELON",
+    "palabraMostrar": "MELÓN",
     "longitud": 5,
     "significado": "es una de las formas de llamar al tejón."
   },
