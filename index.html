@@ -73,6 +73,7 @@
           <h1>LaPalabraAragonesaDelDía</h1>
         </div>
         <div class="menu-buttons">
+          <button id="btn-badges" class="icon-btn" title="Emblemas y Logros">🏅</button>
           <button id="btn-dictionary" class="icon-btn" title="Diccionario">📖</button>
           <button id="btn-help" class="icon-btn" title="Cómo jugar">❓</button>
           <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
@@ -149,6 +150,21 @@
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Modal Emblemas / Logros -->
+  <div id="badges-modal" class="modal hidden">
+    <div class="modal-content">
+      <button id="close-badges" class="close-btn">&times;</button>
+      <h2>🏅 Emblemas y Logros</h2>
+      <div id="badges-counter" class="dict-counter">Desbloqueados: 0 / 100</div>
+      <div id="badges-grid" class="badges-grid">
+        <!-- Generado dinámicamente -->
+      </div>
+      <div class="modal-actions">
+        <button id="btn-modal-close-badges" class="action-btn-secondary">Cerrar</button>
+      </div>
+    </div>
   </div>
 
   <!-- Modal Diccionario -->
