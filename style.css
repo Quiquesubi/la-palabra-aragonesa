@@ -482,8 +482,11 @@ main {
   color: #64748b;
 }
 
-/* Clases añadidas para el Récord de Tiempo Local */
-.stat-record {
+/* Soporte Ampliado para Récord de Tiempo (Cualquier variante de nombre) */
+.stat-record,
+.record-time-container,
+.best-time-box,
+.time-record-box {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -493,21 +496,30 @@ main {
   padding: 10px;
   margin: 12px 0;
   text-align: center;
+  width: 100%;
 }
 
-.record-time {
+.record-time,
+.best-time,
+.time-record-value {
   font-size: 1.4rem;
   font-weight: bold;
   color: #d97706;
   margin-top: 4px;
+  display: inline-block !important;
+  visibility: visible !important;
 }
 
-.record-label {
+.record-label,
+.best-time-label,
+.time-record-label {
   font-size: 0.8rem;
   color: #475569;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: inline-block !important;
+  visibility: visible !important;
 }
 
 .distribution-container {
