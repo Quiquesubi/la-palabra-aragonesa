@@ -310,7 +310,7 @@ main {
 .key.present { background-color: var(--color-present); color: #fff; }
 .key.absent { background-color: var(--color-absent); color: #fff; }
 
-/* Modales - Optimizado para despliegue correcto */
+/* Modales */
 .modal {
   position: fixed;
   top: 0;
@@ -635,7 +635,7 @@ main {
   line-height: 1.4;
 }
 
-/* SISTEMA DE EMBLEMAS / BADGES - Optimizado para 200 elementos */
+/* SISTEMA DE EMBLEMAS / BADGES */
 .badges-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
