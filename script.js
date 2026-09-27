@@ -370,7 +370,6 @@ function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintsUsedCoun
   if (unlockedCount >= 99) checkAndUnlockBadge('b99');
   if (unlockedCount >= 100) checkAndUnlockBadge('b100');
 
-  // Comprobaciones para los emblemas hasta el 200 (Meta 2.0)
   if (unlockedCount >= 110) checkAndUnlockBadge('b191');
   if (unlockedCount >= 125) checkAndUnlockBadge('b192');
   if (unlockedCount >= 140) checkAndUnlockBadge('b193');
@@ -414,7 +413,6 @@ const btnHelp = document.getElementById('btn-help');
 const btnStats = document.getElementById('btn-stats');
 const btnHint = document.getElementById('btn-hint');
 
-// Elementos Diccionario y Emblemas
 const btnBadges = document.getElementById('btn-badges');
 const badgesModal = document.getElementById('badges-modal');
 const closeBadges = document.getElementById('close-badges');
@@ -457,7 +455,6 @@ const freeControls = document.getElementById('free-mode-controls');
 const wordBadge = document.getElementById('word-number-badge');
 const dailyCompletedBanner = document.getElementById('daily-completed-banner');
 
-// Elementos Modal de Alerta Personalizado
 const customAlertModal = document.getElementById('custom-alert-modal');
 const customAlertMessage = document.getElementById('custom-alert-message');
 const customAlertOkBtn = document.getElementById('custom-alert-ok-btn');
@@ -471,7 +468,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDailyReminderNotification();
 });
 
-// --- SISTEMA DE ALERTA PERSONALIZADO ---
 function showAlert(message, isConfirm = false) {
   return new Promise((resolve) => {
     customAlertMessage.innerText = message;
@@ -504,7 +500,6 @@ function showAlert(message, isConfirm = false) {
   });
 }
 
-// --- NOTIFICACIONES LOCALES VÍA SERVICE WORKER A LAS 20:00 H ---
 function setupDailyReminderNotification() {
   if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
 
@@ -562,7 +557,6 @@ function scheduleLocalNotification(registration) {
   }
 }
 
-// --- GESTIÓN DEL DICCIONARIO Y PALABRAS DESBLOQUEADAS ---
 function loadUnlockedWords() {
   const saved = localStorage.getItem('palabra_aragonesa_unlocked_words');
   if (saved) {
