@@ -1,194 +1,221 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="an">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Palabra Aragonesa del Día</title>
+  
+  <!-- Manifest y Tema PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d97706">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="favicon.png">
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <!-- AdMob SDK (Google Mobile Ads) para Cordova/Capacitor/Web fallback -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0000000000000000" crossorigin="anonymous"></script>
+
+  <!-- OneSignal Push Notifications SDK v16 -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "YOUR_ONESIGNAL_APP_ID_HERE",
+        safari_web_id: "YOUR_SAFARI_WEB_ID_HERE",
+        notifyButton: {
+          enable: false,
+        },
+      });
+    });
+  </script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+          .catch(err => console.error('Error registrando Service Worker:', err));
+      });
+    }
+  </script>
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- Encabezado / Barra Superior -->
-  <header class="app-header">
-    <div class="header-left">
-      <button id="btn-help" class="icon-btn" title="Instrucciones">❓</button>
-      <button id="btn-dictionary" class="icon-btn" title="Diccionario">📖</button>
-    </div>
-    <h1 class="app-title">Palabra Aragonesa</h1>
-    <div class="header-right">
-      <button id="btn-badges" class="icon-btn" title="Emblemas y Logros">🏅</button>
-      <button id="btn-stats" class="icon-btn" title="Estadísticas">📊</button>
-    </div>
-  </header>
+  <!-- Contenedor Principal de la App -->
+  <div id="app-container">
+    
+    <!-- Cabecera / Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <button id="btn-badges" class="icon-btn" title="Emblemas y Logros" aria-label="Logros">
+          <svg viewBox="0 0 24 24" class="header-icon"><path fill="currentColor" d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+        </button>
+        <button id="btn-dictionary" class="icon-btn" title="Diccionario de Palabras" aria-label="Diccionario">
+          <svg viewBox="0 0 24 24" class="header-icon"><path fill="currentColor" d="M18,2A2,2 0 0,1 20,4V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V4A2,2 0 0,1 6,2H18M6,4V11H18V4H6M6,13V20H18V13H6Z"/></svg>
+        </button>
+      </div>
 
-  <!-- Selector de Modo de Juego -->
-  <nav class="mode-selector">
-    <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
-    <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
-  </nav>
+      <div class="header-center">
+        <h1 class="app-title"><span class="title-hashtag">#</span>PalabraAragonesa</h1>
+        <div class="mode-selector-container">
+          <button id="mode-daily-btn" class="mode-btn active">Diario</button>
+          <button id="mode-free-btn" class="mode-btn">Libre</button>
+        </div>
+      </div>
 
-  <!-- Avisos / Controles en Juego -->
-  <div id="daily-completed-banner" class="banner hidden">
-    ¡Ya has completado la palabra de hoy! Vuelve mañana para un nuevo reto.
+      <div class="header-right">
+        <button id="btn-help" class="icon-btn" title="Cómo jugar" aria-label="Ayuda">
+          <svg viewBox="0 0 24 24" class="header-icon"><path fill="currentColor" d="M11 18H13V16H11V18M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M12 6C9.79 6 8 7.79 8 10H10C10 8.9 10.9 8 12 8S14 8.9 14 10C14 12 11 11.75 11 15H13C13 12.75 16 12.5 16 10C16 7.79 14.21 6 12 6Z"/></svg>
+        </button>
+        <button id="btn-stats" class="icon-btn" title="Estadísticas" aria-label="Estadísticas">
+          <svg viewBox="0 0 24 24" class="header-icon"><path fill="currentColor" d="M16,11V3H8V11H2V21H22V11H16M10,5H14V11H10V5M4,13H6V19H4V13M18,19V13H20V19H18Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Subcabecera con información del modo / palabra actual -->
+    <div id="game-info-bar" class="game-info-bar">
+      <span id="game-mode-label" class="info-label">Cargando...</span>
+      <span id="streak-mini-label" class="streak-label">🔥 0</span>
+    </div>
+
+    <!-- Tablero de Juego (Grid Dinámico) -->
+    <main id="board-container" class="board-container">
+      <div id="board" class="board-grid"></div>
+    </main>
+
+    <!-- Barra de Pistas Avanzadas y Recompensas -->
+    <section class="hints-section">
+      <button id="btn-hint-discard" class="hint-btn">
+        <span class="hint-icon">🧹</span> Descartar Letra <span id="ad-badge-discard" class="ad-tag">AD</span>
+      </button>
+      <button id="btn-hint-reveal" class="hint-btn">
+        <span class="hint-icon">💡</span> Revelar Posición <span id="ad-badge-reveal" class="ad-tag">AD</span>
+      </button>
+      <button id="btn-hint-meaning" class="hint-btn">
+        <span class="hint-icon">📖</span> Significado <span id="ad-badge-meaning" class="ad-tag">AD</span>
+      </button>
+    </section>
+
+    <!-- Teclado Virtual con Caracteres Aragoneses -->
+    <footer class="keyboard-container">
+      <div id="keyboard" class="keyboard-grid"></div>
+    </footer>
+
   </div>
 
-  <div id="free-mode-controls" class="free-controls hidden">
-    <span id="word-number-badge" class="badge">Palabra 1</span>
-  </div>
+  <!-- MODALES DE LA APLICACIÓN -->
 
-  <!-- Tablero de Juego -->
-  <main id="game-container">
-    <div id="game-board" class="board"></div>
-
-    <div class="action-buttons">
-      <button id="btn-hint" class="btn btn-hint">💡 Pista</button>
-      <button id="btn-main-next" class="btn btn-action hidden">Siguiente Palabra ➡️</button>
-      <button id="btn-main-retry" class="btn btn-action hidden">Reintentar 🔄</button>
-    </div>
-
-    <!-- Teclado En Pantalla -->
-    <div id="keyboard" class="keyboard">
-      <div class="keyboard-row">
-        <button class="key" data-key="Q">Q</button>
-        <button class="key" data-key="W">W</button>
-        <button class="key" data-key="E">E</button>
-        <button class="key" data-key="R">R</button>
-        <button class="key" data-key="T">T</button>
-        <button class="key" data-key="Y">Y</button>
-        <button class="key" data-key="U">U</button>
-        <button class="key" data-key="I">I</button>
-        <button class="key" data-key="O">O</button>
-        <button class="key" data-key="P">P</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key" data-key="A">A</button>
-        <button class="key" data-key="S">S</button>
-        <button class="key" data-key="D">D</button>
-        <button class="key" data-key="F">F</button>
-        <button class="key" data-key="G">G</button>
-        <button class="key" data-key="H">H</button>
-        <button class="key" data-key="J">J</button>
-        <button class="key" data-key="K">K</button>
-        <button class="key" data-key="L">L</button>
-        <button class="key" data-key="Ñ">Ñ</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key key-large" data-key="ENTER">ENVIAR</button>
-        <button class="key" data-key="Z">Z</button>
-        <button class="key" data-key="X">X</button>
-        <button class="key" data-key="C">C</button>
-        <button class="key" data-key="V">V</button>
-        <button class="key" data-key="B">B</button>
-        <button class="key" data-key="N">N</button>
-        <button class="key" data-key="M">M</button>
-        <button class="key key-large" data-key="BACKSPACE">⌫</button>
-      </div>
-    </div>
-  </main>
-
-  <!-- MODAL: EMBLEMAS Y LOGROS -->
+  <!-- Modal 1: Emblemas / Logros (100 Badges) -->
   <div id="badges-modal" class="modal hidden">
-    <div class="modal-content">
-      <span id="close-badges" class="close">&times;</span>
-      <h2>Emblemas y Logros</h2>
-      <p id="badges-counter" class="counter-text">Desbloqueados: 0 / 100</p>
-      <div id="badges-grid" class="badges-grid"></div>
-      <button id="btn-modal-close-badges" class="btn btn-primary">Cerrar</button>
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <h2>🏆 Logros y Emblemas (<span id="badges-unlocked-count">0</span>/100)</h2>
+        <button class="close-modal-btn" data-modal="badges-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="badges-grid" class="badges-grid"></div>
+      </div>
     </div>
   </div>
 
-  <!-- MODAL: DICCIONARIO -->
+  <!-- Modal 2: Diccionario de Palabras -->
   <div id="dictionary-modal" class="modal hidden">
-    <div class="modal-content">
-      <span id="close-dictionary" class="close">&times;</span>
-      <h2>Diccionario Descubierto</h2>
-      <p id="dict-counter" class="counter-text">Descubiertas: 0 / 0</p>
-      <input type="text" id="dict-search-input" placeholder="Buscar palabra o significado..." class="search-input">
-      <div id="dictionary-list" class="dictionary-list"></div>
-      <button id="btn-modal-close-dict" class="btn btn-primary">Cerrar</button>
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <h2>📖 Diccionario Aragonés</h2>
+        <button class="close-modal-btn" data-modal="dictionary-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="dict-search-input" placeholder="Buscar palabra o significado..." class="search-input">
+        <div id="dictionary-list" class="dictionary-list"></div>
+      </div>
     </div>
   </div>
 
-  <!-- MODAL: INSTRUCCIONES / AYUDA -->
+  <!-- Modal 3: Instrucciones / Tutorial -->
   <div id="help-modal" class="modal hidden">
     <div class="modal-content">
-      <span id="close-help" class="close">&times;</span>
-      <h2>Cómo Jugar</h2>
-      <p>Adivina la palabra aragonesa en 6 intentos.</p>
-      <ul>
-        <li>Cada intento debe ser una palabra válida.</li>
-        <li>El color de las casillas cambiará para mostrar qué tan cerca estás:
-          <ul>
-            <li><strong style="color: #4caf50;">Verde</strong>: La letra está en la palabra y en la posición correcta.</li>
-            <li><strong style="color: #ff9800;">Amarillo</strong>: La letra está en la palabra pero en posición incorrecta.</li>
-            <li><strong style="color: #757575;">Gris</strong>: La letra no está en la palabra.</li>
-          </ul>
-        </li>
-      </ul>
-      <div class="modal-footer">
-        <label><input type="checkbox" id="dont-show-help"> No volver a mostrar al inicio</label>
-        <button id="start-game-btn" class="btn btn-primary">¡A jugar!</button>
+      <div class="modal-header">
+        <h2>Cómo Jugar</h2>
+        <button class="close-modal-btn" data-modal="help-modal">&times;</button>
+      </div>
+      <div class="modal-body help-text">
+        <p>Adivina la <strong>#PalabraAragonesa</strong> en 6 intentos.</p>
+        <p>Cada intento debe ser una palabra válida. Tras cada intento, el color de las casillas cambiará para mostrar qué tan cerca estás:</p>
+        <div class="example-grid">
+          <div class="tile correct">A</div>
+          <div class="tile present">R</div>
+          <div class="tile absent">A</div>
+        </div>
+        <ul>
+          <li><strong class="text-correct">Verde:</strong> La letra está en la palabra y en la posición correcta.</li>
+          <li><strong class="text-present">Amarillo:</strong> La letra está en la palabra pero en posición incorrecta.</li>
+          <li><strong class="text-absent">Gris:</strong> La letra no está en la palabra.</li>
+        </ul>
+        <p>Incluye caracteres del aragonés como <strong>Ç</strong> o vocales con tilde si corresponden.</p>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: ESTADÍSTICAS -->
-  <div id="stats-modal" class="modal hidden">
-    <div class="modal-content">
-      <span id="close-stats" class="close">&times;</span>
-      <h2>Estadísticas</h2>
-      
-      <div class="stats-tab-menu">
-        <button class="stats-tab-btn active" data-tab="daily">Diaria</button>
-        <button class="stats-tab-btn" data-tab="free">Libre</button>
-        <button class="stats-tab-btn" data-tab="total">Total</button>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-box"><span id="stat-played">0</span><label>Jugadas</label></div>
-        <div class="stat-box"><span id="stat-winrate">0%</span><label>% Victorias</label></div>
-        <div class="stat-box"><span id="stat-streak">0</span><label>Racha</label></div>
-        <div class="stat-box"><span id="stat-maxstreak">0</span><label>Máx Racha</label></div>
-      </div>
-
-      <h3>Distribución de Intentos</h3>
-      <div id="guess-distribution" class="guess-distribution"></div>
-
-      <button id="btn-modal-close-stats" class="btn btn-primary">Cerrar</button>
-    </div>
-  </div>
-
-  <!-- MODAL: RESULTADO DE LA PARTIDA -->
+  <!-- Modal 4: Resultado de la Partida -->
   <div id="result-modal" class="modal hidden">
     <div class="modal-content">
-      <span id="btn-close-result-modal" class="close">&times;</span>
-      <div id="result-banner" class="feedback-banner"></div>
-      <p id="result-word-definition" class="word-definition"></p>
-      
-      <div id="result-countdown-box" class="countdown-box hidden">
-        <span>Próxima palabra diaria en:</span>
-        <div id="daily-timer" class="timer">00:00:00</div>
+      <div class="modal-header">
+        <h2 id="result-title">¡Resultado!</h2>
+        <button class="close-modal-btn" data-modal="result-modal">&times;</button>
       </div>
-
-      <div class="result-actions">
-        <button id="btn-share" class="btn btn-share">Compartir 📤</button>
-        <button id="btn-next-word" class="btn btn-primary hidden">Siguiente Palabra ➡️</button>
-        <button id="btn-retry-word" class="btn btn-secondary hidden">Reintentar 🔄</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: ALERTA PERSONALIZADA / CONFIRMACIÓN -->
-  <div id="custom-alert-modal" class="modal hidden alert-modal">
-    <div class="modal-content alert-content">
-      <p id="custom-alert-message"></p>
-      <div class="alert-actions">
-        <button id="custom-alert-ok-btn" class="btn btn-primary">Aceptar</button>
-        <button id="custom-alert-cancel-btn" class="btn btn-secondary hidden">Cancelar</button>
+      <div class="modal-body center-text">
+        <p id="result-word-display" class="word-reveal-text"></p>
+        <p id="result-meaning-display" class="meaning-text"></p>
+        <div id="next-word-timer-container" class="timer-box hidden">
+          <span>Próxima palabra diaria en:</span>
+          <div id="next-word-timer" class="timer-clock">00:00:00</div>
+        </div>
+        <div class="result-actions">
+          <button id="btn-share" class="primary-btn">Compartir Resultado 📋</button>
+          <button id="btn-next-free" class="secondary-btn hidden">Siguiente Palabra Libre ➡️</button>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Modal 5: Estadísticas -->
+  <div id="stats-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Estadísticas</h2>
+        <button class="close-modal-btn" data-modal="stats-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-counters">
+          <div class="stat-box"><span id="stat-played">0</span><label>Jugadas</label></div>
+          <div class="stat-box"><span id="stat-win-pct">0%</span><label>% Victorias</label></div>
+          <div class="stat-box"><span id="stat-streak">0</span><label>Racha Actual</label></div>
+          <div class="stat-box"><span id="stat-max-streak">0</span><label>Mejor Racha</label></div>
+        </div>
+        <h3>Distribución de Intentos</h3>
+        <div id="guess-distribution" class="distribution-graph"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal 6: Alerta Personalizada / Feedback -->
+  <div id="custom-alert-modal" class="modal hidden">
+    <div class="modal-content small-modal">
+      <div class="modal-body center-text">
+        <p id="custom-alert-message"></p>
+        <button id="btn-custom-alert-close" class="primary-btn">Entendido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logic Script Principal -->
   <script src="script.js"></script>
 </body>
 </html>
