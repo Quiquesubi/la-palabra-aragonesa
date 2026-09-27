@@ -51,7 +51,6 @@ header {
   align-items: center;
 }
 
-/* Estilo Hashtag para el Título */
 .hashtag-title {
   display: flex;
   align-items: center;
@@ -159,7 +158,6 @@ main {
   width: 100%;
 }
 
-/* Botón de Pistas */
 .hint-container {
   display: flex;
   justify-content: center;
@@ -226,7 +224,6 @@ main {
   transition: border-color 0.2s ease, transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Estilos de Selección Libre */
 .tile.selectable {
   cursor: pointer;
 }
@@ -239,7 +236,6 @@ main {
   z-index: 2;
 }
 
-/* Animación de volteo */
 @keyframes flipTile {
   0% { transform: rotateX(0deg); }
   50% { transform: rotateX(90deg); }
@@ -261,7 +257,6 @@ main {
   background-color: rgba(46, 125, 50, 0.1);
 }
 
-/* Botones Principales debajo del tablero */
 .main-actions-container {
   display: flex;
   justify-content: center;
@@ -269,7 +264,6 @@ main {
   width: 100%;
 }
 
-/* Teclado Virtual */
 #keyboard {
   width: 100%;
   display: flex;
@@ -310,7 +304,6 @@ main {
 .key.present { background-color: var(--color-present); color: #fff; }
 .key.absent { background-color: var(--color-absent); color: #fff; }
 
-/* Modales */
 .modal {
   position: fixed;
   top: 0;
@@ -325,7 +318,6 @@ main {
   padding: 16px;
 }
 
-/* Estilos de Tarjetas de Emblemas */
 .badge-card {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
