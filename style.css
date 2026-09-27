@@ -482,6 +482,34 @@ main {
   color: #64748b;
 }
 
+/* Clases añadidas para el Récord de Tiempo Local */
+.stat-record {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 12px 0;
+  text-align: center;
+}
+
+.record-time {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #d97706;
+  margin-top: 4px;
+}
+
+.record-label {
+  font-size: 0.8rem;
+  color: #475569;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .distribution-container {
   display: flex;
   flex-direction: column;
