@@ -13,9 +13,14 @@ let currentGame = {
   hintLevel: 0 
 };
 
-// Estadísticas separadas por modo
+// Variables para el control del cronómetro en Palabra del Día
+let dailyTimerSeconds = 0;
+let dailyTimerInterval = null;
+let dailyStartTime = null;
+
+// Estadísticas separadas por modo (añadido bestTime para Palabra del Día)
 let stats = {
-  daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
+  daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestTime: null, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
   free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
 
@@ -434,6 +439,8 @@ const dontShowHelp = document.getElementById('dont-show-help');
 const resultModal = document.getElementById('result-modal');
 const btnCloseResultModal = document.getElementById('btn-close-result-modal');
 const resultBanner = document.getElementById('result-banner');
+const resultTimeBox = document.getElementById('result-time-box');
+const resultTimeVal = document.getElementById('result-time-val');
 const resultWordDefinition = document.getElementById('result-word-definition');
 const resultCountdownBox = document.getElementById('result-countdown-box');
 const dailyTimer = document.getElementById('daily-timer');
@@ -673,7 +680,13 @@ function renderDictionaryList(filterText = '') {
 function loadSavedStats() {
   const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
   if (saved) {
-    try { stats = JSON.parse(saved); } catch (e) {}
+    try { 
+      stats = JSON.parse(saved); 
+      // Asegurarse de que daily tenga bestTime por compatibilidad con guardados anteriores
+      if (!stats.daily.hasOwnProperty('bestTime')) {
+        stats.daily.bestTime = null;
+      }
+    } catch (e) {}
   }
 
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
@@ -692,7 +705,9 @@ function saveGameState() {
       date: getTodayString(),
       attempts: currentGame.attempts,
       status: currentGame.status,
-      hintLevel: currentGame.hintLevel
+      hintLevel: currentGame.hintLevel,
+      timerSeconds: dailyTimerSeconds,
+      startTime: dailyStartTime
     }));
   } else if (currentGame.mode === 'free') {
     localStorage.setItem('palabra_aragonesa_free_game', JSON.stringify({
@@ -857,12 +872,47 @@ function getDailyIndex() {
   return (startIndex + diffDays) % validWords.length;
 }
 
+// Gestión del cronómetro (Solo Palabra del Día)
+function startDailyGameTimer() {
+  stopDailyGameTimer();
+  if (currentGame.mode !== 'daily') return;
+  
+  if (!dailyStartTime && currentGame.status === 'IN_PROGRESS' && currentGame.attempts.length === 0) {
+    dailyStartTime = Date.now();
+    dailyTimerSeconds = 0;
+  }
+
+  dailyTimerInterval = setInterval(() => {
+    if (currentGame.status === 'IN_PROGRESS') {
+      dailyTimerSeconds++;
+    }
+  }, 1000);
+}
+
+function stopDailyGameTimer() {
+  if (dailyTimerInterval) {
+    clearInterval(dailyTimerInterval);
+    dailyTimerInterval = null;
+  }
+}
+
+function formatSecondsToMinutes(totalSeconds) {
+  if (totalSeconds === null || totalSeconds === undefined || isNaN(totalSeconds)) return '--:--';
+  const mins = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+  const secs = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${mins}:${secs}`;
+}
+
 function initGame(mode) {
+  stopDailyGameTimer();
   currentGame.mode = mode;
   currentGame.attempts = [];
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   currentGame.hintLevel = 0;
+  dailyTimerSeconds = 0;
+  dailyStartTime = null;
+
   if (dailyCompletedBanner) dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
 
@@ -880,6 +930,8 @@ function initGame(mode) {
           currentGame.status = dailyData.status || 'IN_PROGRESS';
           currentGame.hintLevel = dailyData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
+          dailyTimerSeconds = dailyData.timerSeconds || 0;
+          dailyStartTime = dailyData.startTime || null;
 
           if (currentGame.status === 'WON') {
             unlockCurrentWord();
@@ -891,6 +943,10 @@ function initGame(mode) {
           }
         }
       } catch (e) {}
+    }
+
+    if (currentGame.status === 'IN_PROGRESS') {
+      startDailyGameTimer();
     }
   } else {
     if (currentGame.freeWordIndex >= validWords.length) {
@@ -1026,10 +1082,16 @@ function submitAttempt() {
 
   if (isWin) {
     currentGame.status = 'WON';
+    if (currentGame.mode === 'daily') {
+      stopDailyGameTimer();
+    }
     unlockCurrentWord();
     recordStats(true, currentGame.attempts.length);
   } else if (isLoss) {
     currentGame.status = 'LOST';
+    if (currentGame.mode === 'daily') {
+      stopDailyGameTimer();
+    }
     recordStats(false, 'X');
   }
 
@@ -1332,6 +1394,13 @@ function recordStats(isWin, attemptKey) {
       currentStats.maxStreak = currentStats.streak;
     }
     currentStats.distribution[attemptKey] = (currentStats.distribution[attemptKey] || 0) + 1;
+
+    // Registrar mejor tiempo solo en Palabra del Día si se gana
+    if (currentGame.mode === 'daily') {
+      if (currentStats.bestTime === null || dailyTimerSeconds < currentStats.bestTime) {
+        currentStats.bestTime = dailyTimerSeconds;
+      }
+    }
   } else {
     currentStats.streak = 0;
     currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
@@ -1343,6 +1412,7 @@ function recordStats(isWin, attemptKey) {
 function openResultModal(isWin) {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
+  resultTimeBox.classList.add('hidden');
   btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
@@ -1360,6 +1430,10 @@ function openResultModal(isWin) {
       resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}`;
       resultBanner.className = 'feedback-banner lose';
     }
+
+    // Mostrar tiempo empleado en la modal de resultado (solo Palabra del Día)
+    resultTimeVal.textContent = formatSecondsToMinutes(dailyTimerSeconds);
+    resultTimeBox.classList.remove('hidden');
 
     resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
     resultWordDefinition.classList.remove('hidden');
@@ -1393,6 +1467,7 @@ function openResultModal(isWin) {
 
 function openDailyAlreadyPlayedModal() {
   resultWordDefinition.classList.add('hidden');
+  resultTimeBox.classList.add('hidden');
   btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
@@ -1404,6 +1479,12 @@ function openDailyAlreadyPlayedModal() {
   resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
   resultBanner.className = 'feedback-banner win';
 
+  // Mostrar el tiempo guardado en la partida del día ya completada
+  if (dailyTimerSeconds > 0) {
+    resultTimeVal.textContent = formatSecondsToMinutes(dailyTimerSeconds);
+    resultTimeBox.classList.remove('hidden');
+  }
+
   resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
   resultWordDefinition.classList.remove('hidden');
 
@@ -1412,6 +1493,7 @@ function openDailyAlreadyPlayedModal() {
   startCountdownTimer();
   resultCountdownBox.classList.remove('hidden');
 
+  resultModal.classList.add('hidden'); // Se puede abrir o dejar bajo demanda, mantenemos la apertura original:
   resultModal.classList.remove('hidden');
 }
 
@@ -1446,11 +1528,20 @@ function renderStatsData() {
     distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
   };
 
+  const recordContainer = document.getElementById('stats-record-time-container');
+  const recordValEl = document.getElementById('stat-record-time');
+
   if (activeStatsTab === 'daily') {
     combinedStats = stats.daily;
+    if (recordContainer) recordContainer.classList.remove('hidden');
+    if (recordValEl) {
+      recordValEl.textContent = formatSecondsToMinutes(stats.daily.bestTime);
+    }
   } else if (activeStatsTab === 'free') {
     combinedStats = stats.free;
+    if (recordContainer) recordContainer.classList.add('hidden');
   } else {
+    // Pestaña Total
     combinedStats.played = stats.daily.played + stats.free.played;
     combinedStats.wins = stats.daily.wins + stats.free.wins;
     combinedStats.streak = stats.daily.streak;
@@ -1460,6 +1551,11 @@ function renderStatsData() {
     keys.forEach(k => {
       combinedStats.distribution[k] = (stats.daily.distribution[k] || 0) + (stats.free.distribution[k] || 0);
     });
+
+    if (recordContainer) recordContainer.classList.remove('hidden');
+    if (recordValEl) {
+      recordValEl.textContent = formatSecondsToMinutes(stats.daily.bestTime);
+    }
   }
 
   document.getElementById('stat-played').textContent = combinedStats.played;
