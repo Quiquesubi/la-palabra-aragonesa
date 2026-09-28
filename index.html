@@ -87,9 +87,13 @@
     </header>
 
     <main>
-      <!-- Indicador Modo Libre -->
+      <!-- Indicador Modo Libre y Cronómetro de Partida -->
       <div id="free-mode-controls" class="free-controls hidden">
         <span id="word-number-badge" class="word-badge">Palabra 1</span>
+      </div>
+
+      <div id="game-timer-container" class="game-timer-container">
+        ⏱️ Tiempo: <span id="game-timer-digits">00:00</span>
       </div>
 
       <!-- Aviso diario completado -->
@@ -158,9 +162,7 @@
       <button id="close-badges" class="close-btn">&times;</button>
       <h2>🏅 Emblemas y Logros</h2>
       <div id="badges-counter" class="dict-counter">Desbloqueados: 0 / 100</div>
-      <div id="badges-grid" class="badges-grid">
-        <!-- Generado dinámicamente -->
-      </div>
+      <div id="badges-grid" class="badges-grid"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-badges" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -174,9 +176,7 @@
       <h2>📖 Diccionario de Palabras</h2>
       <input type="text" id="dict-search-input" placeholder="Buscar palabra descubierta..." />
       <div id="dict-counter" class="dict-counter">Descubiertas: 0</div>
-      <div id="dictionary-list" class="dictionary-list">
-        <!-- Las tarjetas se cargarán dinámicamente -->
-      </div>
+      <div id="dictionary-list" class="dictionary-list"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-dict" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -296,6 +296,12 @@
 
       <h3>Distribución de intentos</h3>
       <div id="guess-distribution" class="distribution-container"></div>
+
+      <!-- Apartado para el Tiempo Récord en Palabra del Día -->
+      <div id="record-time-section" class="record-time-container">
+        <span class="record-time-label">⚡ Tiempo récord (Palabra del Día):</span>
+        <span id="stat-record-time" class="record-time-value">--:--</span>
+      </div>
 
       <div class="modal-actions">
         <button id="btn-modal-close-stats" class="action-btn-secondary">Cerrar</button>
