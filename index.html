@@ -246,6 +246,11 @@
     <div class="modal-content">
       <div id="result-banner" class="feedback-banner"></div>
 
+      <!-- Cronómetro de tiempo en Palabra del Día -->
+      <div id="result-time-box" class="result-time-container hidden">
+        <span>⏱️ Tiempo empleado: <strong id="result-time-val">00:00</strong></span>
+      </div>
+
       <div id="result-word-definition" class="definition-box hidden"></div>
 
       <div id="result-countdown-box" class="countdown-box hidden">
@@ -296,6 +301,12 @@
 
       <h3>Distribución de intentos</h3>
       <div id="guess-distribution" class="distribution-container"></div>
+
+      <!-- Apartado de Tiempo Récord debajo de la distribución -->
+      <div id="stats-record-time-container" class="record-time-box hidden">
+        <span class="record-label">⏱️ Tiempo récord (Palabra del Día):</span>
+        <span id="stat-record-time" class="record-value">--:--</span>
+      </div>
 
       <div class="modal-actions">
         <button id="btn-modal-close-stats" class="action-btn-secondary">Cerrar</button>
