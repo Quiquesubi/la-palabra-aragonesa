@@ -7616,4 +7616,47 @@
     "longitud": 9,
     "significado": "quiere decir harto o atiborrado."
   }
+  {
+    "id": 1251,
+    "palabra": "ZARALLO",
+    "longitud": 7,
+    "significado": "es como se llama a un trapo, estropajo o andrajo. También quiere decir espantajo."
+  }
+  {
+    "id": 1252,
+    "palabra": "CATAPON",
+    "palabraMostrar": "CATAPÓN",
+    "longitud": 7,
+    "significado": "es un leño a medio quemar o un tizón que arde mal."
+  }
+  {
+    "id": 1253,
+    "palabra": "ZARPOTIAR",
+    "longitud": 9,
+    "significado": "significa manotear o golpear con la mano."
+  }
+   {
+    "id": 1254,
+    "palabra": "FRANCHO",
+    "longitud": 7,
+    "significado": "es como se llama a los Franciscos en aragonés."
+  }
+   {
+    "id": 1255,
+    "palabra": "BAFOROSO",
+    "longitud": 8,
+    "significado": "significa sucio, desaseado, cubierto de manchas, insolente..."
+  }
+   {
+    "id": 1256,
+    "palabra": "ENTRONZAU",
+    "longitud": 9,
+    "significado": "significa cortado, partido... También quiere decir cansado o fatigado."
+  }
+   {
+    "id": 1257,
+    "palabra": "SACATACAS",
+    "longitud": 9,
+    "significado": "quiere decir quitamanchas o sacamanchas."
+  }
 ]
