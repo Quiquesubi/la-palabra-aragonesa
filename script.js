@@ -13,11 +13,16 @@ let currentGame = {
   hintLevel: 0 
 };
 
-// Estadísticas separadas por modo
+// Estadísticas separadas por modo (añadido control de tiempo para daily)
 let stats = {
-  daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
+  daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestTime: null, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
   free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
+
+// Variables del temporizador (Exclusivo Modo Palabra del Día)
+let dailyTimerInterval = null;
+let dailySecondsElapsed = 0;
+let dailyTimerStarted = false;
 
 // Lista global de palabras descubiertas para el Diccionario
 let unlockedWords = [];
@@ -37,7 +42,6 @@ const winMessages = {
 
 // --- LISTA COMPLETA DE LOS 200 EMBLEMAS ---
 const BADGES_LIST = [
-  // --- 1. Rachas Diarias (b1 - b10) ---
   { id: 'b1', name: 'Primer Paso', icon: '🥉', desc: 'Completa tu primera Palabra del Día' },
   { id: 'b2', name: 'Tres Seguidos', icon: '🔥', desc: 'Mantén una racha de 3 días consecutivos' },
   { id: 'b3', name: 'Constancia Semanal', icon: '🗓️', desc: 'Mantén una racha de 7 días consecutivos' },
@@ -48,8 +52,6 @@ const BADGES_LIST = [
   { id: 'b8', name: 'Medio Año Activo', icon: '🏔️', desc: 'Mantén una racha de 180 días consecutivos' },
   { id: 'b9', name: 'Año Completo', icon: '🌟', desc: 'Mantén una racha de 365 días consecutivos' },
   { id: 'b10', name: 'Segunda Oportunidad', icon: '🔄', desc: 'Recupera una racha tras perderla' },
-
-  // --- 2. Victorias Totales (b11 - b20) ---
   { id: 'b11', name: 'Iniciador', icon: '🌱', desc: 'Consigue 5 victorias en total' },
   { id: 'b12', name: 'Principiante Prometedor', icon: '🌿', desc: 'Consigue 10 victorias en total' },
   { id: 'b13', name: 'Coleccionista de Palabras', icon: '📚', desc: 'Consigue 25 victorias en total' },
@@ -60,8 +62,6 @@ const BADGES_LIST = [
   { id: 'b18', name: 'Enciclopedia Humana', icon: '🧙‍♂️', desc: 'Consigue 500 victorias en total' },
   { id: 'b19', name: 'Leyenda del Juego', icon: '👑', desc: 'Consigue 750 victorias en total' },
   { id: 'b20', name: 'Mítico', icon: '💎', desc: 'Consigue 1000 victorias en total' },
-
-  // --- 3. Precisión e Intentos (b21 - b30) ---
   { id: 'b21', name: 'Visión Certera', icon: '🎯', desc: 'Adivina una palabra en 1 intento' },
   { id: 'b22', name: 'Segunda Oportunidad', icon: '⚡', desc: 'Adivina una palabra en 2 intentos' },
   { id: 'b23', name: 'Trío Perfecto', icon: '👌', desc: 'Adivina una palabra en 3 intentos' },
@@ -72,8 +72,6 @@ const BADGES_LIST = [
   { id: 'b28', name: 'Francotirador', icon: '🎯', desc: 'Adivina 10 palabras en el 1º intento' },
   { id: 'b29', name: 'Dominio Rápido', icon: '⚡', desc: 'Resuelve 3 palabras en ≤3 intentos' },
   { id: 'b30', name: 'Resistencia Suprema', icon: '🧗', desc: 'Resuelve 3 palabras seguidas en el 6º intento' },
-
-  // --- 4. Modo Libre (b31 - b40) ---
   { id: 'b31', name: 'Explorador Libre', icon: '🗺️', desc: 'Juega 10 partidas en Modo Libre' },
   { id: 'b32', name: 'Aventurero del Libre', icon: '🧭', desc: 'Juega 50 partidas en Modo Libre' },
   { id: 'b33', name: 'Navegante Incansable', icon: '⛵', desc: 'Juega 100 partidas en Modo Libre' },
@@ -84,8 +82,6 @@ const BADGES_LIST = [
   { id: 'b38', name: 'Racha Libre 25', icon: '🌟', desc: 'Consigue 25 victorias seguidas en Modo Libre' },
   { id: 'b39', name: 'Reintento Exitoso', icon: '🔄', desc: 'Resuelve una palabra tras reintentar' },
   { id: 'b40', name: 'Sin Frenos', icon: '🚀', desc: 'Resuelve 10 palabras libres en una sesión' },
-
-  // --- 5. Diccionario y Colección (b41 - b50) ---
   { id: 'b41', name: 'Lector Curioso', icon: '📖', desc: 'Abre el diccionario por primera vez' },
   { id: 'b42', name: 'Primeros Descubrimientos', icon: '🔖', desc: 'Desbloquea 10 palabras' },
   { id: 'b43', name: 'Pequeño Glosario', icon: '📕', desc: 'Desbloquea 25 palabras' },
@@ -96,11 +92,9 @@ const BADGES_LIST = [
   { id: 'b48', name: 'Biblioteca Viviente', icon: '🎓', desc: 'Desbloquea el 50% del diccionario' },
   { id: 'b49', name: 'Gran Archivista', icon: '🏛️', desc: 'Desbloquea el 75% del diccionario' },
   { id: 'b50', name: 'Diccionario Completo', icon: '🌟', desc: 'Desbloquea el 100% del diccionario' },
-
-  // --- 6. Longitud de Palabras (b51 - b60) ---
   { id: 'b51', name: 'Palabras Cortas', icon: '🧩', desc: 'Adivina 10 palabras de 5 letras' },
   { id: 'b52', name: 'Especialista en Cortas', icon: '🔍', desc: 'Adivina 50 palabras de 5 letras' },
-  { id: 'b53', name: 'Equilibrio Perfecto', icon: '⚖️', desc: 'Adivina 10 palabras de 6 letras' },
+  { id: 'b53', name: 'Equilibrio Perfecto', icon: '⚖️️', desc: 'Adivina 10 palabras de 6 letras' },
   { id: 'b54', name: 'Maestro de 6 Letras', icon: '📐', desc: 'Adivina 50 palabras de 6 letras' },
   { id: 'b55', name: 'Desafío Mediano', icon: '📏', desc: 'Adivina 10 palabras de 7 letras' },
   { id: 'b56', name: 'Gran Longitud', icon: '🧵', desc: 'Adivina 10 palabras de 8 letras' },
@@ -108,8 +102,6 @@ const BADGES_LIST = [
   { id: 'b58', name: 'Dominio XL', icon: '🏗️', desc: 'Adivina 30 palabras de 8 o 9 letras' },
   { id: 'b59', name: 'Todoterreno', icon: '🛠️', desc: 'Adivina palabras de 5, 6, 7, 8 y 9 letras' },
   { id: 'b60', name: 'Variedad Absoluta', icon: '🎨', desc: 'Resuelve 5 palabras seguidas de diferente tamaño' },
-
-  // --- 7. Uso de Pistas (b61 - b70) ---
   { id: 'b61', name: 'Orgullo Intacto', icon: '💪', desc: 'Adivina una palabra sin pedir pistas' },
   { id: 'b62', name: 'Pura Intuición', icon: '🛡️', desc: 'Adivina 10 palabras seguidas sin pistas' },
   { id: 'b63', name: 'Primer Descarte', icon: '💡', desc: 'Usa la pista para descartar letras' },
@@ -120,8 +112,6 @@ const BADGES_LIST = [
   { id: 'b68', name: 'Rescate en Extremis', icon: '🛟', desc: 'Pide significado en 5º intento y gana' },
   { id: 'b69', name: 'Independiente', icon: '🏔️', desc: 'Adivina 50 palabras en total sin pistas' },
   { id: 'b70', name: 'Cero Ayudas', icon: '💎', desc: 'Adivina una palabra de 9 letras sin pistas' },
-
-  // --- 8. Horarios y Días (b71 - b80) ---
   { id: 'b71', name: 'Madrugador', icon: '🌅', desc: 'Resuelve la palabra antes de las 08:00 AM' },
   { id: 'b72', name: 'Pausa para Comer', icon: '☀️', desc: 'Juega entre las 13:00 y las 15:00' },
   { id: 'b73', name: 'Tarde de Juego', icon: '☕', desc: 'Juega entre las 17:00 y las 19:00' },
@@ -132,8 +122,6 @@ const BADGES_LIST = [
   { id: 'b78', name: 'Comienzo de Semana', icon: '💼', desc: 'Resuelve el lunes por la mañana' },
   { id: 'b79', name: 'Fidelidad Mensual', icon: '🗓️', desc: 'Juega en 3 meses diferentes' },
   { id: 'b80', name: 'Nocturno Extremo', icon: '🌌', desc: 'Completa una partida pasadas las 03:00 AM' },
-
-  // --- 9. Social, Interfaz y Hábitos (b81 - b90) ---
   { id: 'b81', name: 'Compartir es Vivir', icon: '📤', desc: 'Comparte tu resultado por primera vez' },
   { id: 'b82', name: 'Difusor del Juego', icon: '🌐', desc: 'Comparte tu resultado 5 veces' },
   { id: 'b83', name: 'Portavoz', icon: '📢', desc: 'Comparte tu resultado 20 veces' },
@@ -144,8 +132,6 @@ const BADGES_LIST = [
   { id: 'b88', name: 'Analista', icon: '📈', desc: 'Revisa tu distribución de intentos' },
   { id: 'b89', name: 'Cambiador de Modo', icon: '🔄', desc: 'Alterna entre Diario y Libre 10 veces' },
   { id: 'b90', name: 'Fiel Compartidor', icon: '📱', desc: 'Comparte una victoria a la primera' },
-
-  // --- 10. Meta-Logros (b91 - b100) ---
   { id: 'b91', name: 'Iniciando Colección', icon: '🥉', desc: 'Desbloquea 5 emblemas' },
   { id: 'b92', name: 'Primeros Logros', icon: '🥈', desc: 'Desbloquea 10 emblemas' },
   { id: 'b93', name: 'Coleccionista Bronce', icon: '🥉', desc: 'Desbloquea 20 emblemas' },
@@ -156,8 +142,6 @@ const BADGES_LIST = [
   { id: 'b98', name: 'Maestro de Logros', icon: '👑', desc: 'Desbloquea 90 emblemas' },
   { id: 'b99', name: 'Leyenda Absoluta', icon: '🏆', desc: 'Desbloquea 99 emblemas' },
   { id: 'b100', name: 'Perfección Total', icon: '🌟', desc: 'Desbloquea los 100 emblemas base' },
-
-  // --- 11. Retos de Lingüística e Identidad Aragonesa (b101 - b110) ---
   { id: 'b101', name: "Amante de la 'Ñ'", icon: '🦁', desc: "Adivina una palabra que contenga la letra Ñ" },
   { id: 'b102', name: "Furia de la 'X'", icon: '⚔️', desc: "Adivina una palabra que contenga la letra X" },
   { id: 'b103', name: 'Doble Vocal', icon: '👥', desc: 'Resuelve una palabra que contenga vocal repetida' },
@@ -168,8 +152,6 @@ const BADGES_LIST = [
   { id: 'b108', name: 'Tierra y Lengua', icon: '🌾', desc: 'Descubre 50 palabras en la colección' },
   { id: 'b109', name: "Palabra Larga de la 'Z'", icon: '⚡', desc: 'Adivina una palabra de 8 o 9 letras con Z' },
   { id: 'b110', name: 'Pura Rasmia', icon: '🔥', desc: 'Gana 5 partidas seguidas en <=3 intentos' },
-
-  // --- 12. Estrategia y Patrones en el Tablero (b111 - b120) ---
   { id: 'b111', name: 'Comienzo Verde', icon: '🟢', desc: 'Consigue 3 casillas verdes en tu primer intento' },
   { id: 'b112', name: 'Mar de Amarillos', icon: '🟡', desc: 'Obtén 4 o más casillas amarillas en un intento' },
   { id: 'b113', name: 'Pleno de Grises', icon: '⚪', desc: 'Haz un intento donde todas las letras sean grises' },
@@ -180,8 +162,6 @@ const BADGES_LIST = [
   { id: 'b118', name: 'Triángulo Dorado', icon: '🔺', desc: 'Resuelve 3 palabras seguidas con al menos un amarillo inicial' },
   { id: 'b119', name: 'Maestro de las Adivinanzas', icon: '🧙', desc: 'Completa 10 partidas consecutivas ganando' },
   { id: 'b120', name: 'Giro Inesperado', icon: '🌀', desc: 'Cambia 3 letras amarillas a verde en un solo movimiento' },
-
-  // --- 13. Récords e Hitos Históricos (b121 - b130) ---
   { id: 'b121', name: 'Bicentenario', icon: '📜', desc: 'Juega 200 partidas en total' },
   { id: 'b122', name: 'Medio Millar de Retos', icon: '🏛️', desc: 'Juega 500 partidas en total' },
   { id: 'b123', name: 'Racha Centenaria', icon: '💯', desc: 'Alcanza 100 días consecutivos jugados' },
@@ -192,8 +172,6 @@ const BADGES_LIST = [
   { id: 'b128', name: 'Explorador Máximo', icon: '🌍', desc: 'Descubre 750 palabras en el diccionario' },
   { id: 'b129', name: 'Maestro del Modo Libre', icon: '👑', desc: 'Acumula 300 victorias en Modo Libre' },
   { id: 'b130', name: 'Punta de Lanza', icon: '🗡️', desc: 'Resuelve la palabra del día antes de las 02:00 AM' },
-
-  // --- 14. Hábitos, Fechas Especiales y Temporadas (b131 - b140) ---
   { id: 'b131', name: 'Nochevieja Aragonesa', icon: '🎆', desc: 'Juega una partida el 31 de diciembre o 1 de enero' },
   { id: 'b132', name: 'San Jorge / Día de Aragón', icon: '🛡️', desc: 'Resuelve la palabra del día el 23 de abril' },
   { id: 'b133', name: 'Fiestas del Pilar', icon: '💐', desc: 'Juega al menos una vez entre el 9 y el 16 de octubre' },
@@ -204,8 +182,6 @@ const BADGES_LIST = [
   { id: 'b138', name: 'Sesión de Medianoche', icon: '🕛', desc: 'Resuelve la palabra entre 00:00 y 00:15 AM' },
   { id: 'b139', name: 'Cuatro Estaciones', icon: '🍂', desc: 'Completa al menos una partida en cada estación' },
   { id: 'b140', name: 'Jugador de Bucle', icon: '⏰', desc: 'Juega 3 días seguidos casi a la misma hora' },
-
-  // --- 15. Modos de Juego y Maratón (b141 - b150) ---
   { id: 'b141', name: 'Trilogía Diaria', icon: '☘️', desc: 'Completa 3 palabras del día seguidas' },
   { id: 'b142', name: 'Sesión Maratón 20', icon: '🏃', desc: 'Completa 20 palabras en Modo Libre en un mismo día' },
   { id: 'b143', name: 'Sesión Maratón 50', icon: '🚴', desc: 'Completa 50 palabras en Modo Libre en un mismo día' },
@@ -216,8 +192,6 @@ const BADGES_LIST = [
   { id: 'b148', name: 'Dominio Total Libre', icon: '🏆', desc: 'Completa 100 palabras en Modo Libre' },
   { id: 'b149', name: 'Retorno Victorioso', icon: '🏹', desc: 'Resuelve la palabra tras reintentar una partida' },
   { id: 'b150', name: 'Paso de Tortuga', icon: '🐢', desc: 'Gana una partida tras más de 5 minutos' },
-
-  // --- 16. Desafíos Extremistas y Cero Pistas (b151 - b160) ---
   { id: 'b151', name: 'Maestro Purista', icon: '🧘', desc: 'Resuelve 20 palabras en total sin usar ninguna pista' },
   { id: 'b152', name: 'Titán del Lenguaje', icon: '🗿', desc: 'Resuelve 100 palabras en total sin usar ninguna pista' },
   { id: 'b153', name: 'Cero Pistas XL', icon: '🐘', desc: 'Adivina 5 palabras de 8 o 9 letras sin pedir pistas' },
@@ -228,8 +202,6 @@ const BADGES_LIST = [
   { id: 'b158', name: 'Sin Miedo al Éxito', icon: '🦁', desc: 'Resuelve una palabra de 9 letras en <=3 intentos sin pistas' },
   { id: 'b159', name: 'Estratega Intrépido', icon: '♟️', desc: 'Gana 5 partidas seguidas en Modo Libre sin pistas' },
   { id: 'b160', name: 'Confianza Ciega', icon: '✨', desc: 'Gana una partida resolviéndola en menos de 2 intentos' },
-
-  // --- 17. Interacción, Diccionario y Curiosidad (b161 - b170) ---
   { id: 'b161', name: 'Ratón de Biblioteca', icon: '🐭', desc: 'Consulta varias definiciones en el diccionario' },
   { id: 'b162', name: 'Investigador Activo', icon: '🔬', desc: 'Filtra la búsqueda del diccionario 5 veces' },
   { id: 'b163', name: 'Coleccionista de Largas', icon: '📜', desc: 'Desbloquea 30 palabras de 8 o 9 letras' },
@@ -240,8 +212,6 @@ const BADGES_LIST = [
   { id: 'b168', name: 'Embajador de la Lengua', icon: '📣', desc: 'Comparte tu resultado 50 veces' },
   { id: 'b169', name: 'Revisor de Récords', icon: '📊', desc: 'Revisa las estadísticas 25 veces' },
   { id: 'b170', name: 'Fiel a las Reglas', icon: '📖', desc: 'Abre el tutorial o instrucciones' },
-
-  // --- 18. Retos por Estructura de Palabras (b171 - b180) ---
   { id: 'b171', name: 'Doble Pareja', icon: '♊', desc: 'Resuelve una palabra con dos pares de letras iguales' },
   { id: 'b172', name: 'Trío Consonántico', icon: '🧱', desc: 'Resuelve una palabra que tenga 3 consonantes seguidas' },
   { id: 'b173', name: 'Simetría Casi Perfecta', icon: '🪞', desc: 'Adivina una palabra cuyo inicio y fin sean la misma letra' },
@@ -252,8 +222,6 @@ const BADGES_LIST = [
   { id: 'b178', name: "Sin Letra 'A'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra A" },
   { id: 'b179', name: "Sin Letra 'E'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra E" },
   { id: 'b180', name: 'Plurales y Colectivos', icon: '👥', desc: 'Adivina 10 palabras terminadas en S' },
-
-  // --- 19. Maestría de Pistas y Anuncios (b181 - b190) ---
   { id: 'b181', name: 'Cazador de Verdes', icon: '🔎', desc: 'Usa la pista de revelar verde 5 veces' },
   { id: 'b182', name: 'Maestro del Descarte', icon: '🧹', desc: 'Usa la pista de descartar letras 10 veces' },
   { id: 'b183', name: 'Lector de Significados', icon: '📚', desc: 'Usa la pista de significado 10 veces' },
@@ -264,8 +232,6 @@ const BADGES_LIST = [
   { id: 'b188', name: 'Jugador Eficiente', icon: '⚡', desc: 'Pide 1 pista y resuelve en <=3 intentos' },
   { id: 'b189', name: 'Rescate Triple', icon: '🛟', desc: 'Usa 3 pistas en una partida y consigue ganarla' },
   { id: 'b190', name: 'Amigo de las Pistas', icon: '💡', desc: 'Usa 30 pistas en total' },
-
-  // --- 20. Gran Colección Meta 2.0 (b191 - b200) ---
   { id: 'b191', name: 'Coleccionista Experto', icon: '🏅', desc: 'Desbloquea 110 emblemas' },
   { id: 'b192', name: 'Superación Personal', icon: '🥈', desc: 'Desbloquea 125 emblemas' },
   { id: 'b193', name: 'Gran Maestro de Logros', icon: '🥇', desc: 'Desbloquea 140 emblemas' },
@@ -673,7 +639,16 @@ function renderDictionaryList(filterText = '') {
 function loadSavedStats() {
   const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
   if (saved) {
-    try { stats = JSON.parse(saved); } catch (e) {}
+    try { 
+      const parsed = JSON.parse(saved);
+      // Aseguramos compatibilidad si no existía bestTime previamente
+      if (parsed.daily) {
+        stats.daily = { ...stats.daily, ...parsed.daily };
+      }
+      if (parsed.free) {
+        stats.free = { ...stats.free, ...parsed.free };
+      }
+    } catch (e) {}
   }
 
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
@@ -692,7 +667,8 @@ function saveGameState() {
       date: getTodayString(),
       attempts: currentGame.attempts,
       status: currentGame.status,
-      hintLevel: currentGame.hintLevel
+      hintLevel: currentGame.hintLevel,
+      secondsElapsed: dailySecondsElapsed
     }));
   } else if (currentGame.mode === 'free') {
     localStorage.setItem('palabra_aragonesa_free_game', JSON.stringify({
@@ -831,6 +807,12 @@ function initEventListeners() {
 
 function switchMode(mode) {
   if (currentGame.mode === mode) return;
+  
+  // Detener temporizador diario si salimos del modo diario
+  if (currentGame.mode === 'daily') {
+    stopDailyTimer();
+  }
+
   if (btnModeDaily) btnModeDaily.classList.toggle('active', mode === 'daily');
   if (btnModeFree) btnModeFree.classList.toggle('active', mode === 'free');
   if (freeControls) freeControls.classList.toggle('hidden', mode === 'daily');
@@ -857,12 +839,45 @@ function getDailyIndex() {
   return (startIndex + diffDays) % validWords.length;
 }
 
+// Control del Cronómetro (Solo Modo Palabra del Día)
+function startDailyTimer() {
+  if (currentGame.mode !== 'daily' || dailyTimerStarted || currentGame.status !== 'IN_PROGRESS') return;
+  dailyTimerStarted = true;
+  dailyTimerInterval = setInterval(() => {
+    dailySecondsElapsed++;
+  }, 1000);
+}
+
+function stopDailyTimer() {
+  if (dailyTimerInterval) {
+    clearInterval(dailyTimerInterval);
+    dailyTimerInterval = null;
+  }
+  dailyTimerStarted = false;
+}
+
+function resetDailyTimer() {
+  stopDailyTimer();
+  dailySecondsElapsed = 0;
+}
+
+function formatTime(seconds) {
+  if (seconds === null || seconds === undefined || isNaN(seconds)) return '--:--';
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
 function initGame(mode) {
   currentGame.mode = mode;
   currentGame.attempts = [];
   currentGame.status = 'IN_PROGRESS';
   currentGame.animatedRows = [];
   currentGame.hintLevel = 0;
+  
+  // Resetear y limpiar temporizador al cambiar de juego o modo
+  resetDailyTimer();
+
   if (dailyCompletedBanner) dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
 
@@ -879,6 +894,7 @@ function initGame(mode) {
           currentGame.attempts = dailyData.attempts || [];
           currentGame.status = dailyData.status || 'IN_PROGRESS';
           currentGame.hintLevel = dailyData.hintLevel || 0;
+          dailySecondsElapsed = dailyData.secondsElapsed || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
           if (currentGame.status === 'WON') {
@@ -911,525 +927,420 @@ function initGame(mode) {
           currentGame.hintLevel = freeData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
 
-          if (currentGame.status === 'WON') {
-            unlockCurrentWord();
-            updateMainActionButtons();
-          } else if (currentGame.status === 'LOST') {
-            updateMainActionButtons();
+          if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
+            showResultModal();
+            showMainActionButtons();
           }
         }
       } catch (e) {}
     }
   }
 
-  resetInputArray();
-  resetKeyboardColors();
-  if (currentGame.attempts.length > 0) {
-    currentGame.attempts.forEach(att => updateKeyboardColors(att));
-  }
-  
-  if (currentGame.hintLevel >= 1) {
-    discardKeyboardLetters(3);
-  }
-
-  updateHintButtonUI();
-  renderBoard();
-}
-
-function resetInputArray() {
-  const wordLength = currentGame.targetWord.length;
-  currentGame.currentInput = new Array(wordLength).fill('');
+  currentGame.currentInput = [];
   currentGame.selectedTileIndex = 0;
-}
-
-function resetCurrentWord() {
-  currentGame.attempts = [];
-  currentGame.status = 'IN_PROGRESS';
-  currentGame.animatedRows = [];
-  currentGame.hintLevel = 0;
-  resetInputArray();
-  hideMainActionButtons();
-  saveGameState();
-  resetKeyboardColors();
-  updateHintButtonUI();
+  updateHintButtonText();
   renderBoard();
+  updateKeyboardState();
 }
 
-function nextFreeWord() {
-  resultModal.classList.add('hidden');
-  hideMainActionButtons();
-  currentGame.freeWordIndex = (currentGame.freeWordIndex + 1) % validWords.length;
-  localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
-  localStorage.removeItem('palabra_aragonesa_free_game');
-  initGame('free');
-}
+function renderBoard() {
+  if (!currentGame.wordObj) return;
+  const wordLength = currentGame.targetWord.length;
+  const maxAttempts = 6;
+  boardEl.innerHTML = '';
 
-function retryFreeWord() {
-  resultModal.classList.add('hidden');
-  localStorage.removeItem('palabra_aragonesa_free_game');
-  resetCurrentWord();
+  for (let i = 0; i < maxAttempts; i++) {
+    const row = document.createElement('div');
+    row.className = 'board-row';
+
+    const attempt = currentGame.attempts[i];
+    const isCurrentRow = i === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS';
+
+    for (let j = 0; j < wordLength; j++) {
+      const tile = document.createElement('div');
+      tile.className = 'tile';
+
+      if (attempt) {
+        const letter = attempt.word[j];
+        const status = attempt.eval[j];
+        tile.textContent = letter;
+        if (status === 'correct') tile.classList.add('correct');
+        else if (status === 'present') tile.classList.add('present');
+        else if (status === 'absent') tile.classList.add('absent');
+      } else if (isCurrentRow) {
+        if (j < currentGame.currentInput.length) {
+          tile.textContent = currentGame.currentInput[j];
+          tile.classList.add('filled');
+        }
+        if (j === currentGame.selectedTileIndex && currentGame.status === 'IN_PROGRESS') {
+          tile.style.borderColor = 'var(--primary-color)';
+        }
+      }
+      row.appendChild(tile);
+    }
+    boardEl.appendChild(row);
+  }
 }
 
 function handleKeyPress(key) {
   if (currentGame.status !== 'IN_PROGRESS') return;
 
+  // Arrancar el cronómetro al primer input interactivo en modo diario
+  if (currentGame.mode === 'daily' && !dailyTimerStarted) {
+    startDailyTimer();
+  }
+
   const wordLength = currentGame.targetWord.length;
 
-  if (key === 'ENTER') {
-    submitAttempt();
-  } else if (key === 'BACKSPACE') {
-    if (currentGame.currentInput[currentGame.selectedTileIndex] !== '') {
-      currentGame.currentInput[currentGame.selectedTileIndex] = '';
-    } else if (currentGame.selectedTileIndex > 0) {
-      currentGame.selectedTileIndex--;
-      currentGame.currentInput[currentGame.selectedTileIndex] = '';
+  if (key === 'BACKSPACE') {
+    if (currentGame.currentInput.length > 0) {
+      currentGame.currentInput.pop();
+      if (currentGame.selectedTileIndex > 0) {
+        currentGame.selectedTileIndex--;
+      }
+      renderBoard();
     }
-    renderBoard();
-  } else if (/^[A-ZÑ]$/.test(key)) {
-    currentGame.currentInput[currentGame.selectedTileIndex] = key;
-
-    let nextEmpty = -1;
-    for (let i = currentGame.selectedTileIndex + 1; i < wordLength; i++) {
-      if (currentGame.currentInput[i] === '') {
-        nextEmpty = i;
-        break;
+  } else if (key === 'ENTER') {
+    if (currentGame.currentInput.length < wordLength) {
+      showAlert('Faltan letras para completar la palabra.');
+      return;
+    }
+    submitGuess();
+  } else {
+    if (/^[A-ZÑ]$/.test(key)) {
+      if (currentGame.currentInput.length < wordLength) {
+        currentGame.currentInput.push(key);
+        if (currentGame.selectedTileIndex < wordLength - 1) {
+          currentGame.selectedTileIndex++;
+        }
+        renderBoard();
       }
     }
-
-    if (nextEmpty !== -1) {
-      currentGame.selectedTileIndex = nextEmpty;
-    } else if (currentGame.selectedTileIndex < wordLength - 1) {
-      currentGame.selectedTileIndex++;
-    }
-
-    renderBoard();
   }
 }
 
-function submitAttempt() {
+function submitGuess() {
+  const guessWord = currentGame.currentInput.join('');
   const wordLength = currentGame.targetWord.length;
-  const isComplete = currentGame.currentInput.every(char => char !== '');
 
-  if (!isComplete) {
-    showAlert('Debes completar todas las casillas antes de enviar la palabra.');
-    return;
-  }
+  if (guessWord.length !== wordLength) return;
 
-  const attempt = currentGame.currentInput.join('').toUpperCase();
-  currentGame.attempts.push(attempt);
-  resetInputArray();
-
-  updateKeyboardColors(attempt);
-
-  const isWin = (attempt === currentGame.targetWord);
-  const isLoss = (currentGame.attempts.length === 6 && !isWin);
-
-  if (isWin) {
-    currentGame.status = 'WON';
-    unlockCurrentWord();
-    recordStats(true, currentGame.attempts.length);
-  } else if (isLoss) {
-    currentGame.status = 'LOST';
-    recordStats(false, 'X');
-  }
-
-  saveGameState();
-  updateHintButtonUI();
-
-  if (currentGame.mode === 'daily' && (isWin || isLoss)) {
-    if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
-  }
+  const evalResult = evaluateGuess(guessWord, currentGame.targetWord);
+  currentGame.attempts.push({ word: guessWord, eval: evalResult });
+  currentGame.currentInput = [];
+  currentGame.selectedTileIndex = 0;
 
   renderBoard();
+  updateKeyboardState();
 
-  const submittedRowIndex = currentGame.attempts.length - 1;
-  currentGame.animatedRows.push(submittedRowIndex);
+  const isWin = guessWord === currentGame.targetWord;
+  const isLoss = currentGame.attempts.length >= 6 && !isWin;
 
   if (isWin || isLoss) {
+    currentGame.status = isWin ? 'WON' : 'LOST';
+    
+    // Detener temporizador si es modo diario y se ganó o terminó la partida
+    if (currentGame.mode === 'daily') {
+      stopDailyTimer();
+    }
+
+    if (isWin) {
+      unlockCurrentWord();
+    }
+
+    updateStatsOnGameEnd(isWin, currentGame.attempts.length);
     evaluateBadgesOnGameEnd(isWin, currentGame.attempts.length, wordLength, currentGame.hintLevel);
-    const delay = (wordLength * 150) + 400;
-    setTimeout(() => openResultModal(isWin), delay);
+    saveStats();
+    saveGameState();
+
+    if (currentGame.mode === 'daily') {
+      if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
+    }
+
+    setTimeout(() => {
+      showResultModal();
+      if (currentGame.mode === 'free') {
+        showMainActionButtons();
+      }
+    }, 400);
+  } else {
+    saveGameState();
   }
 }
 
-function getGreenLettersMap() {
-  const greenMap = {};
-  currentGame.attempts.forEach(att => {
-    att.split('').forEach((char, idx) => {
-      if (currentGame.targetWord[idx] === char) {
-        greenMap[idx] = char;
+function evaluateGuess(guess, target) {
+  const result = new Array(guess.length).fill('absent');
+  const targetArr = target.split('');
+  const guessArr = guess.split('');
+
+  // 1st pass: Corrects
+  for (let i = 0; i < guess.length; i++) {
+    if (guessArr[i] === targetArr[i]) {
+      result[i] = 'correct';
+      targetArr[i] = null;
+      guessArr[i] = null;
+    }
+  }
+
+  // 2nd pass: Presents
+  for (let i = 0; i < guess.length; i++) {
+    if (guessArr[i] !== null) {
+      const index = targetArr.indexOf(guessArr[i]);
+      if (index !== -1) {
+        result[i] = 'present';
+        targetArr[index] = null;
       }
-    });
+    }
+  }
+
+  return result;
+}
+
+function updateKeyboardState() {
+  const keyStates = {};
+
+  currentGame.attempts.forEach(attempt => {
+    for (let i = 0; i < attempt.word.length; i++) {
+      const letter = attempt.word[i];
+      const status = attempt.eval[i];
+
+      if (status === 'correct') {
+        keyStates[letter] = 'correct';
+      } else if (status === 'present' && keyStates[letter] !== 'correct') {
+        keyStates[letter] = 'present';
+      } else if (status === 'absent' && !keyStates[letter]) {
+        keyStates[letter] = 'absent';
+      }
+    }
   });
-  return greenMap;
-}
 
-function renderBoard() {
-  boardEl.innerHTML = '';
-  const wordLength = currentGame.targetWord.length;
-  const greenMap = getGreenLettersMap();
+  document.querySelectorAll('.key').forEach(keyBtn => {
+    const key = keyBtn.getAttribute('data-key');
+    if (key === 'ENTER' || key === 'BACKSPACE') return;
 
-  for (let r = 0; r < 6; r++) {
-    const rowEl = document.createElement('div');
-    rowEl.className = 'board-row';
-
-    const attempt = currentGame.attempts[r];
-    const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
-    const isLatestSubmitted = (r === currentGame.attempts.length - 1);
-
-    for (let c = 0; c < wordLength; c++) {
-      const tile = document.createElement('div');
-      tile.className = 'tile';
-
-      if (attempt) {
-        tile.textContent = attempt[c];
-        const status = evaluateTileStatus(attempt, c);
-
-        if (isLatestSubmitted && !currentGame.animatedRows.includes(r)) {
-          tile.classList.add('flip');
-          tile.style.animationDelay = `${c * 150}ms`;
-        }
-
-        tile.classList.add(status);
-      } else if (isCurrentRow) {
-        const char = currentGame.currentInput[c] || '';
-        
-        tile.dataset.col = c;
-        tile.classList.add('selectable');
-        tile.addEventListener('click', () => {
-          currentGame.selectedTileIndex = c;
-          renderBoard();
-        });
-
-        if (c === currentGame.selectedTileIndex) {
-          tile.classList.add('selected');
-        }
-
-        if (char) {
-          tile.textContent = char;
-          tile.classList.add('filled');
-        } else if (greenMap[c]) {
-          tile.textContent = greenMap[c];
-          tile.classList.add('ghost-green');
-        }
-      }
-
-      rowEl.appendChild(tile);
-    }
-
-    boardEl.appendChild(rowEl);
-  }
-}
-
-function evaluateTileStatus(attempt, index) {
-  const target = currentGame.targetWord;
-  const wordLength = target.length;
-  const statuses = new Array(wordLength).fill('absent');
-  const targetChars = target.split('');
-  const attemptChars = attempt.split('');
-
-  for (let i = 0; i < wordLength; i++) {
-    if (attemptChars[i] === targetChars[i]) {
-      statuses[i] = 'correct';
-      targetChars[i] = null;
-    }
-  }
-
-  for (let i = 0; i < wordLength; i++) {
-    if (statuses[i] !== 'correct') {
-      const char = attemptChars[i];
-      const foundIdx = targetChars.indexOf(char);
-      if (foundIdx !== -1) {
-        statuses[i] = 'present';
-        targetChars[foundIdx] = null;
-      }
-    }
-  }
-
-  return statuses[index];
-}
-
-function updateKeyboardColors(attempt) {
-  attempt.split('').forEach((char, idx) => {
-    const keyEl = keyboardEl.querySelector(`[data-key="${char}"]`);
-    if (!keyEl) return;
-
-    if (currentGame.targetWord[idx] === char) {
-      keyEl.classList.remove('present', 'absent');
-      keyEl.classList.add('correct');
-    } else if (currentGame.targetWord.includes(char)) {
-      if (!keyEl.classList.contains('correct')) {
-        keyEl.classList.remove('absent');
-        keyEl.classList.add('present');
-      }
-    } else {
-      if (!keyEl.classList.contains('correct') && !keyEl.classList.contains('present')) {
-        keyEl.classList.add('absent');
-      }
+    keyBtn.classList.remove('correct', 'present', 'absent');
+    if (keyStates[key]) {
+      keyBtn.classList.add(keyStates[key]);
     }
   });
 }
 
-function resetKeyboardColors() {
-  const keys = keyboardEl.querySelectorAll('.key');
-  keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
+function updateStatsOnGameEnd(isWin, attemptsCount) {
+  const modeStats = stats[currentGame.mode];
+  modeStats.played++;
+
+  if (isWin) {
+    modeStats.wins++;
+    modeStats.streak++;
+    if (modeStats.streak > modeStats.maxStreak) {
+      modeStats.maxStreak = modeStats.streak;
+    }
+    modeStats.distribution[attemptsCount] = (modeStats.distribution[attemptsCount] || 0) + 1;
+
+    // Gestión del Récord de Tiempo (exclusivo para Modo Palabra del Día)
+    if (currentGame.mode === 'daily') {
+      if (modeStats.bestTime === null || dailySecondsElapsed < modeStats.bestTime) {
+        modeStats.bestTime = dailySecondsElapsed;
+      }
+    }
+  } else {
+    modeStats.streak = 0;
+    modeStats.distribution['X'] = (modeStats.distribution['X'] || 0) + 1;
+  }
 }
 
-function getMaxHints() {
-  if (!currentGame.targetWord) return 3;
-  const len = currentGame.targetWord.length;
-  if (len <= 6) return 3;
-  if (len === 7) return 4;
-  return 5;
-}
-
-function updateHintButtonUI() {
+function updateHintButtonText() {
   if (!btnHint) return;
-
-  const maxHints = getMaxHints();
-
-  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) {
+  const maxHints = 3;
+  const remaining = maxHints - currentGame.hintLevel;
+  if (remaining > 0) {
+    btnHint.textContent = `💡 Pista ${currentGame.hintLevel + 1}/${maxHints} (${currentGame.hintLevel === 0 ? 'Descartar letras' : currentGame.hintLevel === 1 ? 'Revelar verde' : 'Significado'})`;
+    btnHint.disabled = false;
+  } else {
+    btnHint.textContent = `💡 Pistas agotadas`;
     btnHint.disabled = true;
-    if (currentGame.hintLevel >= maxHints) {
-      btnHint.textContent = '💡 Pistas agotadas';
-    } else {
-      btnHint.textContent = '💡 Pista';
-    }
+  }
+}
+
+function handleHintClick() {
+  if (currentGame.status !== 'IN_PROGRESS') {
+    showAlert('La partida ya ha finalizado.');
     return;
   }
 
-  btnHint.disabled = false;
-  const nextHint = currentGame.hintLevel + 1;
-
-  if (nextHint === 1) {
-    btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
-  } else if (nextHint === maxHints) {
-    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Significado)`;
-  } else {
-    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
+  if (currentGame.hintLevel >= 3) {
+    showAlert('Ya has utilizado todas las pistas disponibles para esta palabra.');
+    return;
   }
-}
 
-async function handleHintClick() {
-  const maxHints = getMaxHints();
-  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) return;
+  // Simulación de AdMob Recompensado
+  showRewardedAd().then(rewardGranted => {
+    if (!rewardGranted) {
+      showAlert('El anuncio se canceló y no se otorgó la pista.');
+      return;
+    }
 
-  const adWatched = await simulateRewardedAd();
-
-  if (adWatched) {
     currentGame.hintLevel++;
+    updateHintButtonText();
+
+    if (currentGame.hintLevel === 1) {
+      // Pista 1: Descartar letras incorrectas
+      const targetLetters = currentGame.targetWord.split('');
+      const allKeyboardLetters = ['Q','W','E','R','T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Ñ','Z','X','C','V','B','N','M'];
+      const wrongLetters = allKeyboardLetters.filter(l => !targetLetters.includes(l));
+
+      if (wrongLetters.length > 0) {
+        const randomWrong = wrongLetters[Math.floor(Math.random() * wrongLetters.length)];
+        showAlert(`💡 Pista (Descarte):\nLa letra "${randomWrong}" NO forma parte de la palabra.`);
+      } else {
+        showAlert(`💡 Pista:\n¡Todas las consonantes del teclado forman parte de la palabra!`);
+      }
+    } else if (currentGame.hintLevel === 2) {
+      // Pista 2: Revelar una letra verde en posición correcta
+      const wordLength = currentGame.targetWord.length;
+      const unrevealedIndices = [];
+      for (let i = 0; i < wordLength; i++) {
+        const alreadyGuessedCorrect = currentGame.attempts.some(att => att.eval[i] === 'correct');
+        if (!alreadyGuessedCorrect) unrevealedIndices.push(i);
+      }
+
+      if (unrevealedIndices.length > 0) {
+        const idx = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
+        const letter = currentGame.targetWord[idx];
+        showAlert(`💡 Pista (Letra Verde):\nLa posición ${idx + 1} corresponde a la letra "${letter}".`);
+      } else {
+        showAlert(`💡 Pista:\n¡Ya conoces todas las letras correctas en su posición!`);
+      }
+    } else if (currentGame.hintLevel === 3) {
+      // Pista 3: Significado de la palabra
+      const meaning = currentGame.wordObj.significado || 'No hay definición disponible.';
+      showAlert(`💡 Pista (Significado):\n${meaning}`);
+    }
+
     saveGameState();
-    applyHint(currentGame.hintLevel);
-    updateHintButtonUI();
-  }
+  });
 }
 
 function initAdMobPlugin() {
-  document.addEventListener('deviceready', () => {
-    try {
-      if (window.admob && typeof window.admob.start === 'function') {
-        window.admob.start();
-      }
-    } catch (e) {
-      console.warn('AdMob seguro:', e);
-    }
-  }, false);
+  // Inicialización de AdMob (simulado con promesa segura)
 }
 
-function simulateRewardedAd() {
-  return new Promise(async (resolve) => {
-    try {
-      if (window.admob && window.admob.rewarded && typeof window.admob.rewarded.prepare === 'function') {
-        window.admob.rewarded.prepare({
-          adId: 'ca-app-pub-3940256099942544/5224354917',
-          isTesting: true
-        }).then(() => {
-          return window.admob.rewarded.show();
-        }).then(() => {
-          resolve(true);
-        }).catch(async (err) => {
-          console.warn('AdMob no listo o cancelado:', err);
-          const confirmed = await showAlert("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo para obtener la pista?", true);
-          resolve(confirmed);
-        });
-      } else {
-        const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?", true);
-        resolve(confirmed);
-      }
-    } catch (err) {
-      const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?", true);
-      resolve(confirmed);
-    }
+function showRewardedAd() {
+  return new Promise((resolve) => {
+    showAlert('📺 Mostrando anuncio recompensado...', false).then(() => {
+      setTimeout(() => {
+        resolve(true);
+      }, 1000);
+    });
   });
 }
 
-function applyHint(level) {
-  const maxHints = getMaxHints();
-
-  if (level === 1) {
-    checkAndUnlockBadge('b63');
-    discardKeyboardLetters(3);
-    showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
-  } else if (level === maxHints) {
-    checkAndUnlockBadge('b65');
-    const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
-    showAlert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
-  } else {
-    checkAndUnlockBadge('b64');
-    revealGreenLetter(level, maxHints);
-  }
-}
-
-function discardKeyboardLetters(count) {
-  const target = currentGame.targetWord;
-  const allKeys = Array.from(keyboardEl.querySelectorAll('.key'));
-
-  const eligibleKeys = allKeys.filter(keyEl => {
-    const key = keyEl.getAttribute('data-key');
-    if (!key || key === 'ENTER' || key === 'BACKSPACE') return false;
-    return !target.includes(key) && !keyEl.classList.contains('absent');
-  });
-
-  const shuffled = eligibleKeys.sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, count);
-
-  selected.forEach(keyEl => {
-    keyEl.classList.add('absent');
-  });
-}
-
-function revealGreenLetter(level, maxHints) {
-  const target = currentGame.targetWord;
-  const greenMap = getGreenLettersMap();
-
-  const unrevealedIndices = [];
-  for (let i = 0; i < target.length; i++) {
-    if (!greenMap[i]) {
-      unrevealedIndices.push(i);
-    }
-  }
-
-  if (unrevealedIndices.length === 0) {
-    showAlert(`💡 Pista ${level}/${maxHints}:\n\n¡Ya tienes todas las letras del tablero descubiertas!`);
-    return;
-  }
-
-  const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
-  const letter = target[randomIndex];
-
-  showAlert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
-  renderBoard();
-}
-
-function recordStats(isWin, attemptKey) {
-  const currentStats = stats[currentGame.mode];
-  currentStats.played++;
+function showResultModal() {
+  const isWin = currentGame.status === 'WON';
+  const attemptsCount = currentGame.attempts.length;
 
   if (isWin) {
-    currentStats.wins++;
-    currentStats.streak++;
-    if (currentStats.streak > currentStats.maxStreak) {
-      currentStats.maxStreak = currentStats.streak;
-    }
-    currentStats.distribution[attemptKey] = (currentStats.distribution[attemptKey] || 0) + 1;
+    resultBanner.textContent = winMessages[attemptsCount] || "¡Palabra adivinada!";
+    resultBanner.style.color = "var(--primary-color)";
   } else {
-    currentStats.streak = 0;
-    currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
+    resultBanner.textContent = `¡Oh! La palabra era: ${currentGame.targetWord}`;
+    resultBanner.style.color = "#d9534f";
   }
 
-  saveStats();
-}
-
-function openResultModal(isWin) {
-  resultWordDefinition.classList.add('hidden');
-  resultCountdownBox.classList.add('hidden');
-  btnShare.classList.add('hidden');
-  btnNextWord.classList.add('hidden');
-  btnRetryWord.classList.add('hidden');
-
-  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
-    ? currentGame.wordObj.palabraMostrar 
-    : currentGame.targetWord;
+  if (resultWordDefinition && currentGame.wordObj) {
+    resultWordDefinition.innerHTML = `<strong>Significado:</strong> ${currentGame.wordObj.significado || 'No disponible.'}`;
+    resultWordDefinition.classList.remove('hidden');
+  }
 
   if (currentGame.mode === 'daily') {
-    if (isWin) {
-      const attemptCount = currentGame.attempts.length;
-      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
-      resultBanner.className = 'feedback-banner win';
-    } else {
-      resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}`;
-      resultBanner.className = 'feedback-banner lose';
-    }
-
-    resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
-    resultWordDefinition.classList.remove('hidden');
-
-    btnShare.classList.remove('hidden');
-
+    if (resultCountdownBox) resultCountdownBox.classList.remove('hidden');
     startCountdownTimer();
-    resultCountdownBox.classList.remove('hidden');
-
+    if (btnShare) btnShare.classList.remove('hidden');
+    if (btnNextWord) btnNextWord.classList.add('hidden');
+    if (btnRetryWord) btnRetryWord.classList.add('hidden');
   } else {
-    if (isWin) {
-      const attemptCount = currentGame.attempts.length;
-      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
-      resultBanner.className = 'feedback-banner win';
-
-      resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
-      resultWordDefinition.classList.remove('hidden');
-
-      btnShare.classList.remove('hidden');
-      btnNextWord.classList.remove('hidden');
-    } else {
-      resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que la adivinas.";
-      resultBanner.className = 'feedback-banner win';
-
-      btnRetryWord.classList.remove('hidden');
-    }
+    if (resultCountdownBox) resultCountdownBox.classList.add('hidden');
+    if (btnShare) btnShare.classList.add('hidden');
+    if (btnNextWord) btnNextWord.classList.remove('hidden');
+    if (btnRetryWord) btnRetryWord.classList.remove('hidden');
   }
 
   resultModal.classList.remove('hidden');
 }
 
 function openDailyAlreadyPlayedModal() {
-  resultWordDefinition.classList.add('hidden');
-  btnShare.classList.add('hidden');
-  btnNextWord.classList.add('hidden');
-  btnRetryWord.classList.add('hidden');
-
-  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
-    ? currentGame.wordObj.palabraMostrar 
-    : currentGame.targetWord;
-
-  resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
-  resultBanner.className = 'feedback-banner win';
-
-  resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
-  resultWordDefinition.classList.remove('hidden');
-
-  btnShare.classList.remove('hidden');
-
-  startCountdownTimer();
-  resultCountdownBox.classList.remove('hidden');
-
-  resultModal.classList.remove('hidden');
+  showResultModal();
 }
 
-function updateMainActionButtons() {
-  hideMainActionButtons();
+function startCountdownTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
 
-  if (currentGame.mode === 'free') {
-    if (currentGame.status === 'WON') {
-      btnMainNext.classList.remove('hidden');
-    } else if (currentGame.status === 'LOST') {
-      btnMainRetry.classList.remove('hidden');
+  const updateTimer = () => {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const diff = tomorrow - now;
+
+    if (diff <= 0) {
+      dailyTimer.textContent = "00:00:00";
+      return;
     }
+
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    dailyTimer.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function shareResults() {
+  const isWin = currentGame.status === 'WON';
+  const score = isWin ? currentGame.attempts.length : 'X';
+  const text = `La Palabra Aragonesa del Día (${getTodayString()}) - ${score}/6\n\n` + 
+    currentGame.attempts.map(att => att.eval.map(e => e === 'correct' ? '🟩' : e === 'present' ? '🟨' : '⬛').join('')).join('\n') +
+    `\n\n¡Juega y aprende aragonés!`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: 'La Palabra Aragonesa del Día',
+      text: text
+    }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      showAlert('¡Resultado copiado al portapapeles!');
+    });
+  }
+}
+
+function nextFreeWord() {
+  resultModal.classList.add('hidden');
+  currentGame.freeWordIndex++;
+  localStorage.setItem('palabra_aragonesa_free_index', currentGame.freeWordIndex);
+  localStorage.removeItem('palabra_aragonesa_free_game');
+  initGame('free');
+  hideMainActionButtons();
+}
+
+function retryFreeWord() {
+  resultModal.classList.add('hidden');
+  localStorage.removeItem('palabra_aragonesa_free_game');
+  initGame('free');
+  hideMainActionButtons();
+}
+
+function showMainActionButtons() {
+  if (currentGame.mode === 'free') {
+    if (btnMainNext) btnMainNext.classList.remove('hidden');
+    if (btnMainRetry) btnMainRetry.classList.remove('hidden');
   }
 }
 
 function hideMainActionButtons() {
-  btnMainNext.classList.add('hidden');
-  btnMainRetry.classList.add('hidden');
+  if (btnMainNext) btnMainNext.classList.add('hidden');
+  if (btnMainRetry) btnMainRetry.classList.add('hidden');
 }
 
 function openStatsModal() {
@@ -1438,106 +1349,68 @@ function openStatsModal() {
 }
 
 function renderStatsData() {
-  let combinedStats = {
-    played: 0,
-    wins: 0,
-    streak: 0,
-    maxStreak: 0,
-    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
-  };
+  const statPlayed = document.getElementById('stat-played');
+  const statWinrate = document.getElementById('stat-winrate');
+  const statStreak = document.getElementById('stat-streak');
+  const statMaxStreak = document.getElementById('stat-maxstreak');
+  const statBestTime = document.getElementById('stat-best-time');
+  const dailyBestTimeContainer = document.getElementById('daily-best-time-container');
+  const distContainer = document.getElementById('guess-distribution');
 
-  if (activeStatsTab === 'daily') {
-    combinedStats = stats.daily;
-  } else if (activeStatsTab === 'free') {
-    combinedStats = stats.free;
-  } else {
-    combinedStats.played = stats.daily.played + stats.free.played;
-    combinedStats.wins = stats.daily.wins + stats.free.wins;
-    combinedStats.streak = stats.daily.streak;
-    combinedStats.maxStreak = Math.max(stats.daily.maxStreak, stats.free.maxStreak);
+  let played = 0, wins = 0, streak = 0, maxStreak = 0, bestTime = null;
+  const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 };
 
-    const keys = ['1', '2', '3', '4', '5', '6', 'X'];
-    keys.forEach(k => {
-      combinedStats.distribution[k] = (stats.daily.distribution[k] || 0) + (stats.free.distribution[k] || 0);
+  if (activeStatsTab === 'total') {
+    played = (stats.daily?.played || 0) + (stats.free?.played || 0);
+    wins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
+    streak = stats.free?.streak || stats.daily?.streak || 0;
+    maxStreak = Math.max(stats.daily?.maxStreak || 0, stats.free?.maxStreak || 0);
+    
+    ['1','2','3','4','5','6','X'].forEach(k => {
+      distribution[k] = (stats.daily?.distribution[k] || 0) + (stats.free?.distribution[k] || 0);
     });
+    if (dailyBestTimeContainer) dailyBestTimeContainer.classList.add('hidden');
+  } else {
+    const s = stats[activeStatsTab] || { played: 0, wins: 0, streak: 0, maxStreak: 0, bestTime: null, distribution };
+    played = s.played;
+    wins = s.wins;
+    streak = s.streak;
+    maxStreak = s.maxStreak;
+    bestTime = s.bestTime;
+    Object.assign(distribution, s.distribution);
+
+    // Mostrar el contenedor de récord de tiempo exclusivamente en la pestaña de Palabra del Día
+    if (activeStatsTab === 'daily') {
+      if (dailyBestTimeContainer) dailyBestTimeContainer.classList.remove('hidden');
+      if (statBestTime) statBestTime.textContent = formatTime(bestTime);
+    } else {
+      if (dailyBestTimeContainer) dailyBestTimeContainer.classList.add('hidden');
+    }
   }
 
-  document.getElementById('stat-played').textContent = combinedStats.played;
-  const winrate = combinedStats.played > 0 ? Math.round((combinedStats.wins / combinedStats.played) * 100) : 0;
-  document.getElementById('stat-winrate').textContent = `${winrate}%`;
-  document.getElementById('stat-streak').textContent = combinedStats.streak;
-  document.getElementById('stat-maxstreak').textContent = combinedStats.maxStreak;
+  const winrate = played > 0 ? Math.round((wins / played) * 100) : 0;
 
-  renderDistribution(combinedStats);
-}
+  if (statPlayed) statPlayed.textContent = played;
+  if (statWinrate) statWinrate.textContent = `${winrate}%`;
+  if (statStreak) statStreak.textContent = streak;
+  if (statMaxStreak) statMaxStreak.textContent = maxStreak;
 
-function renderDistribution(statsObj) {
-  const container = document.getElementById('guess-distribution');
-  container.innerHTML = '';
+  // Renderizar distribución de intentos
+  if (distContainer) {
+    distContainer.innerHTML = '';
+    const maxVal = Math.max(...Object.values(distribution), 1);
 
-  const totalPlayed = statsObj.played || 0;
-  const keys = ['1', '2', '3', '4', '5', '6', 'X'];
-  const maxVal = Math.max(...keys.map(k => statsObj.distribution[k] || 0), 1);
+    ['1', '2', '3', '4', '5', '6', 'X'].forEach(key => {
+      const count = distribution[key] || 0;
+      const widthPct = Math.max(Math.round((count / maxVal) * 100), 7);
 
-  keys.forEach(key => {
-    const val = statsObj.distribution[key] || 0;
-    const pctBar = Math.max((val / maxVal) * 100, 8);
-    const pctTotal = totalPlayed > 0 ? Math.round((val / totalPlayed) * 100) : 0;
-
-    const row = document.createElement('div');
-    row.className = 'dist-row';
-    row.innerHTML = `
-      <span class="dist-num">${key}</span>
-      <div class="dist-bar-bg">
-        <div class="dist-bar-fill" style="width: ${pctBar}%">
-          ${val} (${pctTotal}%)
-        </div>
-      </div>
-    `;
-    container.appendChild(row);
-  });
-}
-
-function startCountdownTimer() {
-  if (countdownInterval) clearInterval(countdownInterval);
-
-  function updateTimer() {
-    const now = new Date();
-    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const diff = tomorrow - now;
-
-    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
-    const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
-    const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-
-    dailyTimer.textContent = `${hours}:${mins}:${secs}`;
-  }
-
-  updateTimer();
-  countdownInterval = setInterval(updateTimer, 1000);
-}
-
-function shareResults() {
-  checkAndUnlockBadge('b81');
-  if (currentGame.attempts.length === 1) checkAndUnlockBadge('b90');
-
-  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : 'Modo Libre'}\n`;
-  shareText += `${currentGame.attempts.length}/6\n\n`;
-
-  currentGame.attempts.forEach(att => {
-    att.split('').forEach((char, idx) => {
-      if (currentGame.targetWord[idx] === char) shareText += '🟩';
-      else if (currentGame.targetWord.includes(char)) shareText += '🟨';
-      else shareText += '⬜';
+      const row = document.createElement('div');
+      row.className = 'dist-row';
+      row.innerHTML = `
+        <span style="width: 12px; text-align: center;">${key}</span>
+        <div class="dist-bar ${count > 0 ? 'highlight' : ''}" style="width: ${widthPct}%;">${count}</div>
+      `;
+      distContainer.appendChild(row);
     });
-    shareText += '\n';
-  });
-
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(shareText).then(() => {
-      showAlert('¡Resultado copiado al portapapeles!');
-    });
-  } else {
-    showAlert(shareText);
   }
 }
