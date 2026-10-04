@@ -87,9 +87,13 @@
     </header>
 
     <main>
-      <!-- Indicador Modo Libre -->
+      <!-- Indicador Modo Libre e Información de Cronómetro Diario -->
       <div id="free-mode-controls" class="free-controls hidden">
         <span id="word-number-badge" class="word-badge">Palabra 1</span>
+      </div>
+
+      <div id="daily-game-info" class="daily-info-container">
+        <div id="daily-timer-display" class="daily-timer-badge">⏱️ <span id="timer-counter">00:00</span></div>
       </div>
 
       <!-- Aviso diario completado -->
@@ -186,10 +190,8 @@
       <h2>Cómo jugar</h2>
       <p>Adivina la palabra oculta (de 5 a 9 letras) en 6 intentos.</p>
       <p>Tras cada intento, las casillas cambiarán de color según la precisión de tu respuesta.</p>
-
       <hr class="tutorial-divider">
       <h3>Ejemplos</h3>
-
       <div class="tutorial-example">
         <div class="row">
           <div class="tile-sample correct">R</div>
@@ -201,7 +203,6 @@
         </div>
         <p>La letra <strong>R</strong> está en la palabra y en la posición correcta (Verde).</p>
       </div>
-
       <div class="tutorial-example">
         <div class="row">
           <div class="tile-sample">B</div>
@@ -212,7 +213,6 @@
         </div>
         <p>La letra <strong>O</strong> está en la palabra pero en posición incorrecta (Amarillo).</p>
       </div>
-
       <div class="tutorial-example">
         <div class="row">
           <div class="tile-sample">F</div>
@@ -223,16 +223,13 @@
         </div>
         <p>La letra <strong>E</strong> no se encuentra en la palabra (Gris).</p>
       </div>
-
       <hr class="tutorial-divider">
-
       <div class="dont-show-container">
         <label for="dont-show-help">
           <input type="checkbox" id="dont-show-help">
           No volver a mostrar al comenzar
         </label>
       </div>
-
       <button id="start-game-btn" class="action-btn">¡Entendido, a jugar!</button>
     </div>
   </div>
@@ -241,14 +238,11 @@
   <div id="result-modal" class="modal hidden">
     <div class="modal-content">
       <div id="result-banner" class="feedback-banner"></div>
-
       <div id="result-word-definition" class="definition-box hidden"></div>
-
       <div id="result-countdown-box" class="countdown-box hidden">
         <span>Próxima palabra diaria en:</span>
         <div id="daily-timer" class="timer-digits">00:00:00</div>
       </div>
-
       <div class="modal-actions">
         <button id="btn-share" class="action-btn-secondary hidden">📤 Compartir resultado</button>
         <button id="btn-next-word" class="action-btn hidden">Siguiente palabra ➡️</button>
@@ -262,15 +256,12 @@
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
       <button id="close-stats" class="close-btn">&times;</button>
-
       <h2>Estadísticas</h2>
-
       <div class="stats-tab-menu">
         <button class="stats-tab-btn active" data-tab="daily">Palabra del Día</button>
         <button class="stats-tab-btn" data-tab="free">Modo Libre</button>
         <button class="stats-tab-btn" data-tab="total">Total</button>
       </div>
-      
       <div class="stats-summary">
         <div class="stat-box">
           <span id="stat-played" class="stat-num">0</span>
@@ -289,16 +280,15 @@
           <span class="stat-label">Racha máx.</span>
         </div>
       </div>
-
-      <!-- Contenedor del Récord de Tiempo (exclusivo para Palabra del Día) -->
-      <div id="daily-best-time-container" class="best-time-box">
-        <span class="stat-label">⏱️ Récord de tiempo (Palabra del Día):</span>
-        <span id="stat-best-time" class="stat-num-time">--:--</span>
+      
+      <!-- Contenedor del Récord de Tiempo (Palabra del Día) -->
+      <div id="stat-time-record-container" class="stat-time-record-box">
+        <span class="stat-time-title">⚡ Récord de tiempo (Palabra del Día):</span>
+        <span id="stat-best-time" class="stat-time-value">--:--</span>
       </div>
 
       <h3>Distribución de intentos</h3>
       <div id="guess-distribution" class="distribution-container"></div>
-
       <div class="modal-actions">
         <button id="btn-modal-close-stats" class="action-btn-secondary">Cerrar</button>
       </div>
