@@ -158,9 +158,7 @@
       <button id="close-badges" class="close-btn">&times;</button>
       <h2>🏅 Emblemas y Logros</h2>
       <div id="badges-counter" class="dict-counter">Desbloqueados: 0 / 100</div>
-      <div id="badges-grid" class="badges-grid">
-        <!-- Generado dinámicamente -->
-      </div>
+      <div id="badges-grid" class="badges-grid"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-badges" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -174,9 +172,7 @@
       <h2>📖 Diccionario de Palabras</h2>
       <input type="text" id="dict-search-input" placeholder="Buscar palabra descubierta..." />
       <div id="dict-counter" class="dict-counter">Descubiertas: 0</div>
-      <div id="dictionary-list" class="dictionary-list">
-        <!-- Las tarjetas se cargarán dinámicamente -->
-      </div>
+      <div id="dictionary-list" class="dictionary-list"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-dict" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -292,6 +288,12 @@
           <span id="stat-maxstreak" class="stat-num">0</span>
           <span class="stat-label">Racha máx.</span>
         </div>
+      </div>
+
+      <!-- Contenedor del Récord de Tiempo (exclusivo para Palabra del Día) -->
+      <div id="daily-best-time-container" class="best-time-box">
+        <span class="stat-label">⏱️ Récord de tiempo (Palabra del Día):</span>
+        <span id="stat-best-time" class="stat-num-time">--:--</span>
       </div>
 
       <h3>Distribución de intentos</h3>
