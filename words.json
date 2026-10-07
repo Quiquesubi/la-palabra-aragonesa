@@ -7662,7 +7662,8 @@
    {
     "id": 1258,
     "palabra": "MOLONDRON",
-     "palabraMostrar": "MOLONDRÓN",
+
+     
     "longitud": 9,
     "significado": "significa torpe, lento..."
   },
@@ -7689,5 +7690,84 @@
     "palabra": "CHOLDRA",
     "longitud": 7,
     "significado": "es una juerga, jarana... También se llama así a una cuadrilla o pandilla"
+  },
+   {
+    "id": 1263,
+    "palabra": "ZAGUER",
+    "longitud": 6,
+    "significado": "quiere decir último o posterior. También significa postre."
+  },
+   {
+    "id": 1264,
+    "palabra": "ESPINGUET",
+    "longitud": 9,
+    "significado": "quiere decir imprudente, temerario, arriesgado... También se llama así a un precipicio."
+  },
+   {
+    "id": 1265,
+    "palabra": "VOLIGANA",
+    "longitud": 8,
+    "significado": "significa mariposa."
+  },
+   {
+    "id": 1266,
+    "palabra": "RAGONAR",
+    "longitud": 7,
+    "significado": "significa hablar o razonar."
+  },
+   {
+    "id": 1267,
+    "palabra": "COSCULLAS",
+    "longitud": 9,
+    "significado": "es una de las formas de llamar a las cosquillas."
+  },
+   {
+    "id": 1268,
+    "palabra": "PANISTRA",
+    "longitud": 8,
+    "significado": "quiere decir canasta o canasto."
+  },
+   {
+    "id": 1269,
+    "palabra": "RISCLO",
+    "longitud": 6,
+    "significado": "significa risco o terreno vertical."
+  },
+   {
+    "id": 1270,
+    "palabra": "TRALLO",
+    "longitud": 6,
+    "significado": "significa madero o tronco de un árbol. También se llama así a la compuerta de la acequia de riego."
+  },
+   {
+    "id": 1271,
+    "palabra": "POLITA",
+    "longitud": 6,
+    "significado": "quiere decir bonita."
+  },
+   {
+    "id": 1272,
+    "palabra": "CAMBRA",
+    "longitud": 6,
+    "significado": "quiere decir habitación, cuarto, cornisa... También se llama así a la cornisa de una montaña."
+   },
+   {
+    "id": 1273,
+    "palabra": "RECHIRAR",
+    "longitud": 8,
+    "significado": "quiere decir remover, registrar, revolver... También significa torcer o retorcer."
+  },
+   {
+    "id": 1274,
+    "palabra": "GRANOTA",
+    "longitud": 7,
+    "significado": "quiere decir rana."
+  },
+   {
+    "id": 1275,
+    "palabra": "PIRIN",
+    "palabraMostrar": "PIRÍN",
+    "longitud": 5,
+    "significado": "es como se llama al gallo. También es la voz que se utiliza para llamar al gallo. ."
   }
 ]
