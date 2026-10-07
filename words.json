@@ -7658,5 +7658,36 @@
     "palabra": "SACATACAS",
     "longitud": 9,
     "significado": "quiere decir quitamanchas o sacamanchas."
+  },
+   {
+    "id": 1258,
+    "palabra": "MOLONDRON",
+     "palabraMostrar": "MOLONDRÓN",
+    "longitud": 9,
+    "significado": "significa torpe, lento..."
+  },
+   {
+    "id": 1259,
+    "palabra": "FLORIR",
+    "longitud": 6,
+    "significado": "quiere decir florecer, florar... También significa fastidiar o perjudicar."
+  },
+   {
+    "id": 1260,
+    "palabra": "PANISTRA",
+    "longitud": 8,
+    "significado": "quiere decir canasta o canasto."
+  },
+   {
+    "id": 1261,
+    "palabra": "GALLETA",
+    "longitud": 7,
+    "significado": "significa POZAL, cubo..."
+  },
+   {
+    "id": 1262,
+    "palabra": "CHOLDRA",
+    "longitud": 7,
+    "significado": "es una juerga, jarana... También se llama así a una cuadrilla o pandilla"
   }
 ]
