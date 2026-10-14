@@ -46,7 +46,6 @@ const winMessages = {
 
 // --- LISTA COMPLETA DE LOS 200 EMBLEMAS ---
 const BADGES_LIST = [
-  // --- 1. Rachas Diarias (b1 - b10) ---
   { id: 'b1', name: 'Primer Paso', icon: '🥉', desc: 'Completa tu primera Palabra del Día' },
   { id: 'b2', name: 'Tres Seguidos', icon: '🔥', desc: 'Mantén una racha de 3 días consecutivos' },
   { id: 'b3', name: 'Constancia Semanal', icon: '🗓️', desc: 'Mantén una racha de 7 días consecutivos' },
@@ -57,8 +56,6 @@ const BADGES_LIST = [
   { id: 'b8', name: 'Medio Año Activo', icon: '🏔️', desc: 'Mantén una racha de 180 días consecutivos' },
   { id: 'b9', name: 'Año Completo', icon: '🌟', desc: 'Mantén una racha de 365 días consecutivos' },
   { id: 'b10', name: 'Segunda Oportunidad', icon: '🔄', desc: 'Recupera una racha tras perderla' },
-
-  // --- 2. Victorias Totales (b11 - b20) ---
   { id: 'b11', name: 'Iniciador', icon: '🌱', desc: 'Consigue 5 victorias en total' },
   { id: 'b12', name: 'Principiante Prometedor', icon: '🌿', desc: 'Consigue 10 victorias en total' },
   { id: 'b13', name: 'Coleccionista de Palabras', icon: '📚', desc: 'Consigue 25 victorias en total' },
@@ -69,8 +66,6 @@ const BADGES_LIST = [
   { id: 'b18', name: 'Enciclopedia Humana', icon: '🧙‍♂️', desc: 'Consigue 500 victorias en total' },
   { id: 'b19', name: 'Leyenda del Juego', icon: '👑', desc: 'Consigue 750 victorias en total' },
   { id: 'b20', name: 'Mítico', icon: '💎', desc: 'Consigue 1000 victorias en total' },
-
-  // --- 3. Precisión e Intentos (b21 - b30) ---
   { id: 'b21', name: 'Visión Certera', icon: '🎯', desc: 'Adivina una palabra en 1 intento' },
   { id: 'b22', name: 'Segunda Oportunidad', icon: '⚡', desc: 'Adivina una palabra en 2 intentos' },
   { id: 'b23', name: 'Trío Perfecto', icon: '👌', desc: 'Adivina una palabra en 3 intentos' },
@@ -81,8 +76,6 @@ const BADGES_LIST = [
   { id: 'b28', name: 'Francotirador', icon: '🎯', desc: 'Adivina 10 palabras en el 1º intento' },
   { id: 'b29', name: 'Dominio Rápido', icon: '⚡', desc: 'Resuelve 3 palabras en ≤3 intentos' },
   { id: 'b30', name: 'Resistencia Suprema', icon: '🧗', desc: 'Resuelve 3 palabras seguidas en el 6º intento' },
-
-  // --- 4. Modo Libre (b31 - b40) ---
   { id: 'b31', name: 'Explorador Libre', icon: '🗺️', desc: 'Juega 10 partidas en Modo Libre' },
   { id: 'b32', name: 'Aventurero del Libre', icon: '🧭', desc: 'Juega 50 partidas en Modo Libre' },
   { id: 'b33', name: 'Navegante Incansable', icon: '⛵', desc: 'Juega 100 partidas en Modo Libre' },
@@ -93,8 +86,6 @@ const BADGES_LIST = [
   { id: 'b38', name: 'Racha Libre 25', icon: '🌟', desc: 'Consigue 25 victorias seguidas en Modo Libre' },
   { id: 'b39', name: 'Reintento Exitoso', icon: '🔄', desc: 'Resuelve una palabra tras reintentar' },
   { id: 'b40', name: 'Sin Frenos', icon: '🚀', desc: 'Resuelve 10 palabras libres en una sesión' },
-
-  // --- 5. Diccionario y Colección (b41 - b50) ---
   { id: 'b41', name: 'Lector Curioso', icon: '📖', desc: 'Abre el diccionario por primera vez' },
   { id: 'b42', name: 'Primeros Descubrimientos', icon: '🔖', desc: 'Desbloquea 10 palabras' },
   { id: 'b43', name: 'Pequeño Glosario', icon: '📕', desc: 'Desbloquea 25 palabras' },
@@ -105,8 +96,6 @@ const BADGES_LIST = [
   { id: 'b48', name: 'Biblioteca Viviente', icon: '🎓', desc: 'Desbloquea el 50% del diccionario' },
   { id: 'b49', name: 'Gran Archivista', icon: '🏛️', desc: 'Desbloquea el 75% del diccionario' },
   { id: 'b50', name: 'Diccionario Completo', icon: '🌟', desc: 'Desbloquea el 100% del diccionario' },
-
-  // --- 6. Longitud de Palabras (b51 - b60) ---
   { id: 'b51', name: 'Palabras Cortas', icon: '🧩', desc: 'Adivina 10 palabras de 5 letras' },
   { id: 'b52', name: 'Especialista en Cortas', icon: '🔍', desc: 'Adivina 50 palabras de 5 letras' },
   { id: 'b53', name: 'Equilibrio Perfecto', icon: '⚖️', desc: 'Adivina 10 palabras de 6 letras' },
@@ -117,8 +106,6 @@ const BADGES_LIST = [
   { id: 'b58', name: 'Dominio XL', icon: '🏗️', desc: 'Adivina 30 palabras de 8 o 9 letras' },
   { id: 'b59', name: 'Todoterreno', icon: '🛠️', desc: 'Adivina palabras de 5, 6, 7, 8 y 9 letras' },
   { id: 'b60', name: 'Variedad Absoluta', icon: '🎨', desc: 'Resuelve 5 palabras seguidas de diferente tamaño' },
-
-  // --- 7. Uso de Pistas (b61 - b70) ---
   { id: 'b61', name: 'Orgullo Intacto', icon: '💪', desc: 'Adivina una palabra sin pedir pistas' },
   { id: 'b62', name: 'Pura Intuición', icon: '🛡️', desc: 'Adivina 10 palabras seguidas sin pistas' },
   { id: 'b63', name: 'Primer Descarte', icon: '💡', desc: 'Usa la pista para descartar letras' },
@@ -129,8 +116,6 @@ const BADGES_LIST = [
   { id: 'b68', name: 'Rescate en Extremis', icon: '🛟', desc: 'Pide significado en 5º intento y gana' },
   { id: 'b69', name: 'Independiente', icon: '🏔️', desc: 'Adivina 50 palabras en total sin pistas' },
   { id: 'b70', name: 'Cero Ayudas', icon: '💎', desc: 'Adivina una palabra de 9 letras sin pistas' },
-
-  // --- 8. Horarios y Días (b71 - b80) ---
   { id: 'b71', name: 'Madrugador', icon: '🌅', desc: 'Resuelve la palabra antes de las 08:00 AM' },
   { id: 'b72', name: 'Pausa para Comer', icon: '☀️', desc: 'Juega entre las 13:00 y las 15:00' },
   { id: 'b73', name: 'Tarde de Juego', icon: '☕', desc: 'Juega entre las 17:00 y las 19:00' },
@@ -141,8 +126,6 @@ const BADGES_LIST = [
   { id: 'b78', name: 'Comienzo de Semana', icon: '💼', desc: 'Resuelve el lunes por la mañana' },
   { id: 'b79', name: 'Fidelidad Mensual', icon: '🗓️', desc: 'Juega en 3 meses diferentes' },
   { id: 'b80', name: 'Nocturno Extremo', icon: '🌌', desc: 'Completa una partida pasadas las 03:00 AM' },
-
-  // --- 9. Social, Interfaz y Hábitos (b81 - b90) ---
   { id: 'b81', name: 'Compartir es Vivir', icon: '📤', desc: 'Comparte tu resultado por primera vez' },
   { id: 'b82', name: 'Difusor del Juego', icon: '🌐', desc: 'Comparte tu resultado 5 veces' },
   { id: 'b83', name: 'Portavoz', icon: '📢', desc: 'Comparte tu resultado 20 veces' },
@@ -153,8 +136,6 @@ const BADGES_LIST = [
   { id: 'b88', name: 'Analista', icon: '📈', desc: 'Revisa tu distribución de intentos' },
   { id: 'b89', name: 'Cambiador de Modo', icon: '🔄', desc: 'Alterna entre Diario y Libre 10 veces' },
   { id: 'b90', name: 'Fiel Compartidor', icon: '📱', desc: 'Comparte una victoria a la primera' },
-
-  // --- 10. Meta-Logros (b91 - b100) ---
   { id: 'b91', name: 'Iniciando Colección', icon: '🥉', desc: 'Desbloquea 5 emblemas' },
   { id: 'b92', name: 'Primeros Logros', icon: '🥈', desc: 'Desbloquea 10 emblemas' },
   { id: 'b93', name: 'Coleccionista Bronce', icon: '🥉', desc: 'Desbloquea 20 emblemas' },
@@ -165,8 +146,6 @@ const BADGES_LIST = [
   { id: 'b98', name: 'Maestro de Logros', icon: '👑', desc: 'Desbloquea 90 emblemas' },
   { id: 'b99', name: 'Leyenda Absoluta', icon: '🏆', desc: 'Desbloquea 99 emblemas' },
   { id: 'b100', name: 'Perfección Total', icon: '🌟', desc: 'Desbloquea los 100 emblemas base' },
-
-  // --- 11. Retos de Lingüística e Identidad Aragonesa (b101 - b110) ---
   { id: 'b101', name: "Amante de la 'Ñ'", icon: '🦁', desc: "Adivina una palabra que contenga la letra Ñ" },
   { id: 'b102', name: "Furia de la 'X'", icon: '⚔️', desc: "Adivina una palabra que contenga la letra X" },
   { id: 'b103', name: 'Doble Vocal', icon: '👥', desc: 'Resuelve una palabra que contenga vocal repetida' },
@@ -177,8 +156,6 @@ const BADGES_LIST = [
   { id: 'b108', name: 'Tierra y Lengua', icon: '🌾', desc: 'Descubre 50 palabras en la colección' },
   { id: 'b109', name: "Palabra Larga de la 'Z'", icon: '⚡', desc: 'Adivina una palabra de 8 o 9 letras con Z' },
   { id: 'b110', name: 'Pura Rasmia', icon: '🔥', desc: 'Gana 5 partidas seguidas en <=3 intentos' },
-
-  // --- 12. Estrategia y Patrones en el Tablero (b111 - b120) ---
   { id: 'b111', name: 'Comienzo Verde', icon: '🟢', desc: 'Consigue 3 casillas verdes en tu primer intento' },
   { id: 'b112', name: 'Mar de Amarillos', icon: '🟡', desc: 'Obtén 4 o más casillas amarillas en un intento' },
   { id: 'b113', name: 'Pleno de Grises', icon: '⚪', desc: 'Haz un intento donde todas las letras sean grises' },
@@ -189,8 +166,6 @@ const BADGES_LIST = [
   { id: 'b118', name: 'Triángulo Dorado', icon: '🔺', desc: 'Resuelve 3 palabras seguidas con al menos un amarillo inicial' },
   { id: 'b119', name: 'Maestro de las Adivinanzas', icon: '🧙', desc: 'Completa 10 partidas consecutivas ganando' },
   { id: 'b120', name: 'Giro Inesperado', icon: '🌀', desc: 'Cambia 3 letras amarillas a verde en un solo movimiento' },
-
-  // --- 13. Récords e Hitos Históricos (b121 - b130) ---
   { id: 'b121', name: 'Bicentenario', icon: '📜', desc: 'Juega 200 partidas en total' },
   { id: 'b122', name: 'Medio Millar de Retos', icon: '🏛️', desc: 'Juega 500 partidas en total' },
   { id: 'b123', name: 'Racha Centenaria', icon: '💯', desc: 'Alcanza 100 días consecutivos jugados' },
@@ -201,8 +176,6 @@ const BADGES_LIST = [
   { id: 'b128', name: 'Explorador Máximo', icon: '🌍', desc: 'Descubre 750 palabras en el diccionario' },
   { id: 'b129', name: 'Maestro del Modo Libre', icon: '👑', desc: 'Acumula 300 victorias en Modo Libre' },
   { id: 'b130', name: 'Punta de Lanza', icon: '🗡️', desc: 'Resuelve la palabra del día antes de las 02:00 AM' },
-
-  // --- 14. Hábitos, Fechas Especiales y Temporadas (b131 - b140) ---
   { id: 'b131', name: 'Nochevieja Aragonesa', icon: '🎆', desc: 'Juega una partida el 31 de diciembre o 1 de enero' },
   { id: 'b132', name: 'San Jorge / Día de Aragón', icon: '🛡️', desc: 'Resuelve la palabra del día el 23 de abril' },
   { id: 'b133', name: 'Fiestas del Pilar', icon: '💐', desc: 'Juega al menos una vez entre el 9 y el 16 de octubre' },
@@ -213,8 +186,6 @@ const BADGES_LIST = [
   { id: 'b138', name: 'Sesión de Medianoche', icon: '🕛', desc: 'Resuelve la palabra entre 00:00 y 00:15 AM' },
   { id: 'b139', name: 'Cuatro Estaciones', icon: '🍂', desc: 'Completa al menos una partida en cada estación' },
   { id: 'b140', name: 'Jugador de Bucle', icon: '⏰', desc: 'Juega 3 días seguidos casi a la misma hora' },
-
-  // --- 15. Modos de Juego y Maratón (b141 - b150) ---
   { id: 'b141', name: 'Trilogía Diaria', icon: '☘️', desc: 'Completa 3 palabras del día seguidas' },
   { id: 'b142', name: 'Sesión Maratón 20', icon: '🏃', desc: 'Completa 20 palabras en Modo Libre en un mismo día' },
   { id: 'b143', name: 'Sesión Maratón 50', icon: '🚴', desc: 'Completa 50 palabras en Modo Libre en un mismo día' },
@@ -225,8 +196,6 @@ const BADGES_LIST = [
   { id: 'b148', name: 'Dominio Total Libre', icon: '🏆', desc: 'Completa 100 palabras en Modo Libre' },
   { id: 'b149', name: 'Retorno Victorioso', icon: '🏹', desc: 'Resuelve la palabra tras reintentar una partida' },
   { id: 'b150', name: 'Paso de Tortuga', icon: '🐢', desc: 'Gana una partida tras más de 5 minutos' },
-
-  // --- 16. Desafíos Extremistas y Cero Pistas (b151 - b160) ---
   { id: 'b151', name: 'Maestro Purista', icon: '🧘', desc: 'Resuelve 20 palabras en total sin usar ninguna pista' },
   { id: 'b152', name: 'Titán del Lenguaje', icon: '🗿', desc: 'Resuelve 100 palabras en total sin usar ninguna pista' },
   { id: 'b153', name: 'Cero Pistas XL', icon: '🐘', desc: 'Adivina 5 palabras de 8 o 9 letras sin pedir pistas' },
@@ -237,8 +206,6 @@ const BADGES_LIST = [
   { id: 'b158', name: 'Sin Miedo al Éxito', icon: '🦁', desc: 'Resuelve una palabra de 9 letras en <=3 intentos sin pistas' },
   { id: 'b159', name: 'Estratega Intrépido', icon: '♟️', desc: 'Gana 5 partidas seguidas en Modo Libre sin pistas' },
   { id: 'b160', name: 'Confianza Ciega', icon: '✨', desc: 'Gana una partida resolviéndola en menos de 2 intentos' },
-
-  // --- 17. Interacción, Diccionario y Curiosidad (b161 - b170) ---
   { id: 'b161', name: 'Ratón de Biblioteca', icon: '🐭', desc: 'Consulta varias definiciones en el diccionario' },
   { id: 'b162', name: 'Investigador Activo', icon: '🔬', desc: 'Filtra la búsqueda del diccionario 5 veces' },
   { id: 'b163', name: 'Coleccionista de Largas', icon: '📜', desc: 'Desbloquea 30 palabras de 8 o 9 letras' },
@@ -249,8 +216,6 @@ const BADGES_LIST = [
   { id: 'b168', name: 'Embajador de la Lengua', icon: '📣', desc: 'Comparte tu resultado 50 veces' },
   { id: 'b169', name: 'Revisor de Récords', icon: '📊', desc: 'Revisa las estadísticas 25 veces' },
   { id: 'b170', name: 'Fiel a las Reglas', icon: '📖', desc: 'Abre el tutorial o instrucciones' },
-
-  // --- 18. Retos por Estructura de Palabras (b171 - b180) ---
   { id: 'b171', name: 'Doble Pareja', icon: '♊', desc: 'Resuelve una palabra con dos pares de letras iguales' },
   { id: 'b172', name: 'Trío Consonántico', icon: '🧱', desc: 'Resuelve una palabra que tenga 3 consonantes seguidas' },
   { id: 'b173', name: 'Simetría Casi Perfecta', icon: '🪞', desc: 'Adivina una palabra cuyo inicio y fin sean la misma letra' },
@@ -261,8 +226,6 @@ const BADGES_LIST = [
   { id: 'b178', name: "Sin Letra 'A'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra A" },
   { id: 'b179', name: "Sin Letra 'E'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra E" },
   { id: 'b180', name: 'Plurales y Colectivos', icon: '👥', desc: 'Adivina 10 palabras terminadas en S' },
-
-  // --- 19. Maestría de Pistas y Anuncios (b181 - b190) ---
   { id: 'b181', name: 'Cazador de Verdes', icon: '🔎', desc: 'Usa la pista de revelar verde 5 veces' },
   { id: 'b182', name: 'Maestro del Descarte', icon: '🧹', desc: 'Usa la pista de descartar letras 10 veces' },
   { id: 'b183', name: 'Lector de Significados', icon: '📚', desc: 'Usa la pista de significado 10 veces' },
@@ -273,8 +236,6 @@ const BADGES_LIST = [
   { id: 'b188', name: 'Jugador Eficiente', icon: '⚡', desc: 'Pide 1 pista y resuelve en <=3 intentos' },
   { id: 'b189', name: 'Rescate Triple', icon: '🛟', desc: 'Usa 3 pistas en una partida y consigue ganarla' },
   { id: 'b190', name: 'Amigo de las Pistas', icon: '💡', desc: 'Usa 30 pistas en total' },
-
-  // --- 20. Gran Colección Meta 2.0 (b191 - b200) ---
   { id: 'b191', name: 'Coleccionista Experto', icon: '🏅', desc: 'Desbloquea 110 emblemas' },
   { id: 'b192', name: 'Superación Personal', icon: '🥈', desc: 'Desbloquea 125 emblemas' },
   { id: 'b193', name: 'Gran Maestro de Logros', icon: '🥇', desc: 'Desbloquea 140 emblemas' },
@@ -901,7 +862,7 @@ function getDailyIndex() {
   return (startIndex + diffDays) % validWords.length;
 }
 
-// --- GESTIÓN DEL TEMPORIZADOR DEL MODO CONTRARRELOJ ---
+// --- GESTIÓN DEL TEMPORIZADOR DEL MODO CONTRARRELOJ (2 Minutos / 120s) ---
 function startTimeAttackTimer() {
   stopTimeAttackTimer();
   timeAttackState.isActive = true;
@@ -914,7 +875,7 @@ function startTimeAttackTimer() {
       stopTimeAttackTimer();
       timeAttackState.isActive = false;
       currentGame.status = 'LOST';
-      recordTimeAttackEnd(false);
+      recordTimeAttackEnd();
       openTimeAttackResultModal();
     }
   }, 1000);
@@ -1140,7 +1101,6 @@ function submitAttempt() {
       // Bonificación de 15 segundos extra por acierto
       timeAttackState.timeLeft += 15;
       updateTimeAttackUI();
-      recordStats(true, currentGame.attempts.length);
     } else {
       recordStats(true, currentGame.attempts.length);
     }
@@ -1485,14 +1445,10 @@ function recordStats(isWin, attemptKey) {
   saveStats();
 }
 
-function recordTimeAttackEnd(isWin) {
+function recordTimeAttackEnd() {
   const taStats = stats.timeattack;
-  taStats.played++;
   if (timeAttackState.score > taStats.bestScore) {
     taStats.bestScore = timeAttackState.score;
-  }
-  if (timeAttackState.score > 0) {
-    taStats.wins++;
   }
   saveStats();
 }
@@ -1545,17 +1501,22 @@ function openResultModal(isWin) {
     }
   }
 
-  resultModal.classList.remove('hidden');
+  resultModal.classList.add('hidden');
 }
 
 function openTimeAttackResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
-  btnShare.classList.add('hidden');
+  btnShare.classList.remove('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
-  resultBanner.textContent = `⚡ ¡Tiempo agotado!\nHas conseguido resolver ${timeAttackState.score} palabra(s) en Modo Contrarreloj.`;
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
+    ? currentGame.wordObj.palabraMostrar 
+    : currentGame.targetWord;
+
+  // Mensaje que muestra aciertos, ánimo y la palabra que no pudo adivinar
+  resultBanner.innerHTML = `⚡ ¡Tiempo agotado!<br><br>Has conseguido acertar <strong>${timeAttackState.score}</strong> palabra(s).<br>La palabra que estabas intentando adivinar era: <strong>${textoMostrar}</strong>.<br><br>¡Muy bien jugado! Sigue practicando para superar tu récord y mejorar tu vocabulario aragonés. 💪`;
   resultBanner.className = 'feedback-banner lose';
 
   btnRetryWord.textContent = "🔄 Jugar otra vez";
@@ -1609,6 +1570,32 @@ function openStatsModal() {
 }
 
 function renderStatsData() {
+  const summaryBox = document.querySelector('.stats-summary');
+  const distributionTitle = document.querySelector('#stats-modal h3');
+  const distributionContainer = document.getElementById('guess-distribution');
+  
+  const taRecordContainer = document.getElementById('stat-timeattack-record-container');
+  const taBestEl = document.getElementById('stat-timeattack-best');
+
+  if (activeStatsTab === 'timeattack') {
+    if (summaryBox) summaryBox.style.display = 'none';
+    if (distributionTitle) distributionTitle.style.display = 'none';
+    if (distributionContainer) distributionContainer.style.display = 'none';
+
+    if (taRecordContainer) {
+      taRecordContainer.classList.remove('hidden');
+      if (taBestEl) {
+        taBestEl.textContent = stats.timeattack.bestScore || 0;
+      }
+    }
+    return;
+  }
+
+  if (summaryBox) summaryBox.style.display = 'flex';
+  if (distributionTitle) distributionTitle.style.display = 'block';
+  if (distributionContainer) distributionContainer.style.display = 'block';
+  if (taRecordContainer) taRecordContainer.classList.add('hidden');
+
   let combinedStats = {
     played: 0,
     wins: 0,
@@ -1617,23 +1604,13 @@ function renderStatsData() {
     distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
   };
 
-  const taRecordContainer = document.getElementById('stat-timeattack-record-container');
-  const taBestEl = document.getElementById('stat-timeattack-best');
-
   if (activeStatsTab === 'daily') {
     combinedStats = stats.daily;
-    if (taRecordContainer) taRecordContainer.classList.add('hidden');
   } else if (activeStatsTab === 'free') {
     combinedStats = stats.free;
-    if (taRecordContainer) taRecordContainer.classList.add('hidden');
-  } else if (activeStatsTab === 'timeattack') {
-    combinedStats = stats.timeattack;
-    if (taRecordContainer) taRecordContainer.classList.remove('hidden');
-    if (taBestEl) taBestEl.textContent = stats.timeattack.bestScore || 0;
   } else {
-    if (taRecordContainer) taRecordContainer.classList.add('hidden');
-    combinedStats.played = stats.daily.played + stats.free.played + stats.timeattack.played;
-    combinedStats.wins = stats.daily.wins + stats.free.wins + stats.timeattack.wins;
+    combinedStats.played = stats.daily.played + stats.free.played;
+    combinedStats.wins = stats.daily.wins + stats.free.wins;
     combinedStats.streak = stats.daily.streak;
     combinedStats.maxStreak = Math.max(stats.daily.maxStreak, stats.free.maxStreak);
 
@@ -1654,6 +1631,7 @@ function renderStatsData() {
 
 function renderDistribution(statsObj) {
   const container = document.getElementById('guess-distribution');
+  if (!container) return;
   container.innerHTML = '';
 
   const totalPlayed = statsObj.played || 0;
@@ -1705,7 +1683,7 @@ function shareResults() {
   let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : 'Modo Contrarreloj ⚡'}\n`;
   
   if (currentGame.mode === 'timeattack') {
-    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos!\n\n`;
+    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos en el Modo Contrarreloj! ⚡\n`;
   } else {
     shareText += `${currentGame.attempts.length}/6\n\n`;
     currentGame.attempts.forEach(att => {
