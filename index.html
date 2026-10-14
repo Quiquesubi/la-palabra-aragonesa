@@ -80,9 +80,11 @@
         </div>
       </div>
 
+      <!-- Selector de Modos ampliado con Contrarreloj -->
       <div class="mode-selector">
         <button id="btn-mode-daily" class="mode-btn active">Palabra aragonesa del día</button>
         <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
+        <button id="btn-mode-timeattack" class="mode-btn">⚡ Contrarreloj</button>
       </div>
     </header>
 
@@ -90,6 +92,12 @@
       <!-- Indicador Modo Libre -->
       <div id="free-mode-controls" class="free-controls hidden">
         <span id="word-number-badge" class="word-badge">Palabra 1</span>
+      </div>
+
+      <!-- Controles / Indicadores del Modo Contrarreloj -->
+      <div id="timeattack-controls" class="free-controls hidden">
+        <span id="timeattack-timer-badge" class="word-badge">⏱️ 01:30</span>
+        <span id="timeattack-score-badge" class="word-badge">🔥 Palabras: 0</span>
       </div>
 
       <!-- Aviso diario completado -->
@@ -272,6 +280,7 @@
       <div class="stats-tab-menu">
         <button class="stats-tab-btn active" data-tab="daily">Palabra del Día</button>
         <button class="stats-tab-btn" data-tab="free">Modo Libre</button>
+        <button class="stats-tab-btn" data-tab="timeattack">Contrarreloj</button>
         <button class="stats-tab-btn" data-tab="total">Total</button>
       </div>
       
@@ -292,6 +301,12 @@
           <span id="stat-maxstreak" class="stat-num">0</span>
           <span class="stat-label">Racha máx.</span>
         </div>
+      </div>
+
+      <!-- Apartado para mostrar el récord de palabras en Contrarreloj -->
+      <div id="stat-timeattack-record-container" class="stat-time-record-box hidden">
+        <span class="stat-time-title">⚡ Récord Contrarreloj (Palabras):</span>
+        <span id="stat-timeattack-best" class="stat-time-value">0</span>
       </div>
 
       <h3>Distribución de intentos</h3>
