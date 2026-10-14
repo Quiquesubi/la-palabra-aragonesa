@@ -13,10 +13,10 @@ let currentGame = {
   hintLevel: 0 
 };
 
-// Variables específicas para el Modo Contrarreloj
+// Variables específicas para el Modo Contrarreloj (2 minutos / 120 segundos iniciales)
 let timeAttackState = {
-  timeLeft: 90, // 1 minuto y 30 segundos (90 segundos)
-  score: 0,     // Palabras acertadas en la sesión
+  timeLeft: 120, 
+  score: 0,     
   timerInterval: null,
   isActive: false
 };
@@ -791,7 +791,6 @@ function initEventListeners() {
   btnCloseResultModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     updateMainActionButtons();
-    // Si venimos de que el contrarreloj terminó, reiniciar al cerrar modal
     if (currentGame.mode === 'timeattack' && !timeAttackState.isActive) {
       initGame('timeattack');
     }
@@ -868,7 +867,6 @@ function initEventListeners() {
 function switchMode(mode) {
   if (currentGame.mode === mode) return;
 
-  // Si salimos del modo contrarreloj, detener su temporizador
   if (currentGame.mode === 'timeattack') {
     stopTimeAttackTimer();
   }
@@ -913,7 +911,6 @@ function startTimeAttackTimer() {
       timeAttackState.timeLeft--;
       updateTimeAttackUI();
     } else {
-      // Fin del tiempo en Contrarreloj
       stopTimeAttackTimer();
       timeAttackState.isActive = false;
       currentGame.status = 'LOST';
@@ -941,10 +938,10 @@ function updateTimeAttackUI() {
 }
 
 function loadRandomTimeAttackWord() {
-  // Filtrar palabras de entre 5 y 7 letras inclusive
+  // Filtrar palabras exclusivamente de 5 y 6 letras
   const pool = validWords.filter(w => {
     const len = w.palabra.trim().length;
-    return len >= 5 && len <= 7;
+    return len >= 5 && len <= 6;
   });
 
   if (pool.length === 0) {
@@ -964,7 +961,6 @@ function initGame(mode) {
   if (dailyCompletedBanner) dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
 
-  // Control de visibilidad de los elementos auxiliares de cabecera
   if (freeControls) freeControls.classList.toggle('hidden', mode !== 'free');
   if (timeAttackControls) timeAttackControls.classList.toggle('hidden', mode !== 'timeattack');
 
@@ -1025,8 +1021,8 @@ function initGame(mode) {
       } catch (e) {}
     }
   } else if (mode === 'timeattack') {
-    // Inicializar Contrarreloj: 90 segundos y puntuación a 0
-    timeAttackState.timeLeft = 90;
+    // Inicializar Contrarreloj: 120 segundos (2 minutos) y puntuación a 0
+    timeAttackState.timeLeft = 120;
     timeAttackState.score = 0;
     updateTimeAttackUI();
     loadRandomTimeAttackWord();
@@ -1150,7 +1146,6 @@ function submitAttempt() {
     }
   } else if (isLoss) {
     if (currentGame.mode === 'timeattack') {
-      // Si se agotan los 6 intentos en una palabra de contrarreloj, no se pierde el modo, simplemente sale un aviso y se carga otra palabra automáticamente tras un breve instante
       renderBoard();
       const submittedRowIndex = currentGame.attempts.length - 1;
       currentGame.animatedRows.push(submittedRowIndex);
@@ -1183,7 +1178,6 @@ function submitAttempt() {
   currentGame.animatedRows.push(submittedRowIndex);
 
   if (currentGame.mode === 'timeattack' && isWin) {
-    // Carga instantánea de la siguiente palabra en modo contrarreloj al acertar
     setTimeout(() => {
       loadRandomTimeAttackWord();
       resetCurrentWord();
@@ -1471,7 +1465,7 @@ function revealGreenLetter(level, maxHints) {
 }
 
 function recordStats(isWin, attemptKey) {
-  if (currentGame.mode === 'timeattack') return; // Se gestiona al finalizar la sesión del cronómetro
+  if (currentGame.mode === 'timeattack') return;
 
   const currentStats = stats[currentGame.mode];
   currentStats.played++;
@@ -1559,7 +1553,7 @@ function openTimeAttackResultModal() {
   resultCountdownBox.classList.add('hidden');
   btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
-  btnRetryWord.classList.remove('hidden'); // Botón para reintentar / jugar otra vez
+  btnRetryWord.classList.remove('hidden');
 
   resultBanner.textContent = `⚡ ¡Tiempo agotado!\nHas conseguido resolver ${timeAttackState.score} palabra(s) en Modo Contrarreloj.`;
   resultBanner.className = 'feedback-banner lose';
@@ -1637,7 +1631,6 @@ function renderStatsData() {
     if (taRecordContainer) taRecordContainer.classList.remove('hidden');
     if (taBestEl) taBestEl.textContent = stats.timeattack.bestScore || 0;
   } else {
-    // Total
     if (taRecordContainer) taRecordContainer.classList.add('hidden');
     combinedStats.played = stats.daily.played + stats.free.played + stats.timeattack.played;
     combinedStats.wins = stats.daily.wins + stats.free.wins + stats.timeattack.wins;
@@ -1712,7 +1705,7 @@ function shareResults() {
   let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : 'Modo Contrarreloj ⚡'}\n`;
   
   if (currentGame.mode === 'timeattack') {
-    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 90 segundos!\n\n`;
+    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos!\n\n`;
   } else {
     shareText += `${currentGame.attempts.length}/6\n\n`;
     currentGame.attempts.forEach(att => {
