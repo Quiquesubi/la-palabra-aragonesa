@@ -1,7 +1,7 @@
 let validWords = [];
 
 let currentGame = {
-  mode: 'daily',
+  mode: 'daily', // 'daily', 'free', 'timeattack'
   wordObj: null,
   targetWord: '',
   attempts: [],
@@ -13,10 +13,19 @@ let currentGame = {
   hintLevel: 0 
 };
 
-// Estadísticas separadas por modo
+// Variables específicas para el Modo Contrarreloj
+let timeAttackState = {
+  timeLeft: 90, // 1 minuto y 30 segundos (90 segundos)
+  score: 0,     // Palabras acertadas en la sesión
+  timerInterval: null,
+  isActive: false
+};
+
+// Estadísticas separadas por modo (incluyendo timeattack)
 let stats = {
   daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
-  free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
+  free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
+  timeattack: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
 
 // Lista global de palabras descubiertas para el Diccionario
@@ -302,8 +311,8 @@ function checkAndUnlockBadge(badgeId) {
 }
 
 function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintsUsedCount) {
-  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
-  const totalPlayed = (stats.daily?.played || 0) + (stats.free?.played || 0);
+  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0) + (stats.timeattack?.wins || 0);
+  const totalPlayed = (stats.daily?.played || 0) + (stats.free?.played || 0) + (stats.timeattack?.played || 0);
   const dailyStreak = stats.daily?.streak || 0;
 
   if (totalPlayed >= 1) checkAndUnlockBadge('b1');
@@ -451,7 +460,13 @@ const btnModalCloseStats = document.getElementById('btn-modal-close-stats');
 
 const btnModeDaily = document.getElementById('btn-mode-daily');
 const btnModeFree = document.getElementById('btn-mode-free');
+const btnModeTimeAttack = document.getElementById('btn-mode-timeattack');
+
 const freeControls = document.getElementById('free-mode-controls');
+const timeAttackControls = document.getElementById('timeattack-controls');
+const timeAttackTimerBadge = document.getElementById('timeattack-timer-badge');
+const timeAttackScoreBadge = document.getElementById('timeattack-score-badge');
+
 const wordBadge = document.getElementById('word-number-badge');
 const dailyCompletedBanner = document.getElementById('daily-completed-banner');
 
@@ -776,6 +791,10 @@ function initEventListeners() {
   btnCloseResultModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     updateMainActionButtons();
+    // Si venimos de que el contrarreloj terminó, reiniciar al cerrar modal
+    if (currentGame.mode === 'timeattack' && !timeAttackState.isActive) {
+      initGame('timeattack');
+    }
   });
 
   btnStats.addEventListener('click', () => {
@@ -796,9 +815,26 @@ function initEventListeners() {
 
   if (btnModeDaily) btnModeDaily.addEventListener('click', () => switchMode('daily'));
   if (btnModeFree) btnModeFree.addEventListener('click', () => switchMode('free'));
+  if (btnModeTimeAttack) btnModeTimeAttack.addEventListener('click', () => switchMode('timeattack'));
 
-  btnNextWord.addEventListener('click', nextFreeWord);
-  btnRetryWord.addEventListener('click', retryFreeWord);
+  btnNextWord.addEventListener('click', () => {
+    if (currentGame.mode === 'timeattack') {
+      resultModal.classList.add('hidden');
+      loadRandomTimeAttackWord();
+      resetCurrentWord();
+    } else {
+      nextFreeWord();
+    }
+  });
+  
+  btnRetryWord.addEventListener('click', () => {
+    if (currentGame.mode === 'timeattack') {
+      resultModal.classList.add('hidden');
+      initGame('timeattack');
+    } else {
+      retryFreeWord();
+    }
+  });
 
   btnMainNext.addEventListener('click', nextFreeWord);
   btnMainRetry.addEventListener('click', retryFreeWord);
@@ -831,9 +867,19 @@ function initEventListeners() {
 
 function switchMode(mode) {
   if (currentGame.mode === mode) return;
+
+  // Si salimos del modo contrarreloj, detener su temporizador
+  if (currentGame.mode === 'timeattack') {
+    stopTimeAttackTimer();
+  }
+
   if (btnModeDaily) btnModeDaily.classList.toggle('active', mode === 'daily');
   if (btnModeFree) btnModeFree.classList.toggle('active', mode === 'free');
-  if (freeControls) freeControls.classList.toggle('hidden', mode === 'daily');
+  if (btnModeTimeAttack) btnModeTimeAttack.classList.toggle('active', mode === 'timeattack');
+
+  if (freeControls) freeControls.classList.toggle('hidden', mode !== 'free');
+  if (timeAttackControls) timeAttackControls.classList.toggle('hidden', mode !== 'timeattack');
+
   initGame(mode);
 }
 
@@ -857,6 +903,58 @@ function getDailyIndex() {
   return (startIndex + diffDays) % validWords.length;
 }
 
+// --- GESTIÓN DEL TEMPORIZADOR DEL MODO CONTRARRELOJ ---
+function startTimeAttackTimer() {
+  stopTimeAttackTimer();
+  timeAttackState.isActive = true;
+  
+  timeAttackState.timerInterval = setInterval(() => {
+    if (timeAttackState.timeLeft > 0) {
+      timeAttackState.timeLeft--;
+      updateTimeAttackUI();
+    } else {
+      // Fin del tiempo en Contrarreloj
+      stopTimeAttackTimer();
+      timeAttackState.isActive = false;
+      currentGame.status = 'LOST';
+      recordTimeAttackEnd(false);
+      openTimeAttackResultModal();
+    }
+  }, 1000);
+}
+
+function stopTimeAttackTimer() {
+  if (timeAttackState.timerInterval) {
+    clearInterval(timeAttackState.timerInterval);
+    timeAttackState.timerInterval = null;
+  }
+}
+
+function updateTimeAttackUI() {
+  if (!timeAttackTimerBadge) return;
+  const mins = Math.floor(timeAttackState.timeLeft / 60).toString().padStart(2, '0');
+  const secs = (timeAttackState.timeLeft % 60).toString().padStart(2, '0');
+  timeAttackTimerBadge.textContent = `⏱️ ${mins}:${secs}`;
+  if (timeAttackScoreBadge) {
+    timeAttackScoreBadge.textContent = `🔥 Palabras: ${timeAttackState.score}`;
+  }
+}
+
+function loadRandomTimeAttackWord() {
+  // Filtrar palabras de entre 5 y 7 letras inclusive
+  const pool = validWords.filter(w => {
+    const len = w.palabra.trim().length;
+    return len >= 5 && len <= 7;
+  });
+
+  if (pool.length === 0) {
+    currentGame.wordObj = validWords[Math.floor(Math.random() * validWords.length)];
+  } else {
+    currentGame.wordObj = pool[Math.floor(Math.random() * pool.length)];
+  }
+  currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
+}
+
 function initGame(mode) {
   currentGame.mode = mode;
   currentGame.attempts = [];
@@ -865,6 +963,12 @@ function initGame(mode) {
   currentGame.hintLevel = 0;
   if (dailyCompletedBanner) dailyCompletedBanner.classList.add('hidden');
   hideMainActionButtons();
+
+  // Control de visibilidad de los elementos auxiliares de cabecera
+  if (freeControls) freeControls.classList.toggle('hidden', mode !== 'free');
+  if (timeAttackControls) timeAttackControls.classList.toggle('hidden', mode !== 'timeattack');
+
+  stopTimeAttackTimer();
 
   if (mode === 'daily') {
     const dailyIdx = getDailyIndex();
@@ -892,7 +996,7 @@ function initGame(mode) {
         }
       } catch (e) {}
     }
-  } else {
+  } else if (mode === 'free') {
     if (currentGame.freeWordIndex >= validWords.length) {
       currentGame.freeWordIndex = 0;
     }
@@ -920,6 +1024,13 @@ function initGame(mode) {
         }
       } catch (e) {}
     }
+  } else if (mode === 'timeattack') {
+    // Inicializar Contrarreloj: 90 segundos y puntuación a 0
+    timeAttackState.timeLeft = 90;
+    timeAttackState.score = 0;
+    updateTimeAttackUI();
+    loadRandomTimeAttackWord();
+    startTimeAttackTimer();
   }
 
   resetInputArray();
@@ -1027,10 +1138,36 @@ function submitAttempt() {
   if (isWin) {
     currentGame.status = 'WON';
     unlockCurrentWord();
-    recordStats(true, currentGame.attempts.length);
+    
+    if (currentGame.mode === 'timeattack') {
+      timeAttackState.score++;
+      // Bonificación de 15 segundos extra por acierto
+      timeAttackState.timeLeft += 15;
+      updateTimeAttackUI();
+      recordStats(true, currentGame.attempts.length);
+    } else {
+      recordStats(true, currentGame.attempts.length);
+    }
   } else if (isLoss) {
-    currentGame.status = 'LOST';
-    recordStats(false, 'X');
+    if (currentGame.mode === 'timeattack') {
+      // Si se agotan los 6 intentos en una palabra de contrarreloj, no se pierde el modo, simplemente sale un aviso y se carga otra palabra automáticamente tras un breve instante
+      renderBoard();
+      const submittedRowIndex = currentGame.attempts.length - 1;
+      currentGame.animatedRows.push(submittedRowIndex);
+
+      setTimeout(() => {
+        showAlert(`¡Intentos agotados! La palabra era: ${currentGame.targetWord}. ¡Sigue con la siguiente!`);
+        resetCurrentWord();
+        loadRandomTimeAttackWord();
+        resetKeyboardColors();
+        updateHintButtonUI();
+        renderBoard();
+      }, 500);
+      return;
+    } else {
+      currentGame.status = 'LOST';
+      recordStats(false, 'X');
+    }
   }
 
   saveGameState();
@@ -1044,6 +1181,18 @@ function submitAttempt() {
 
   const submittedRowIndex = currentGame.attempts.length - 1;
   currentGame.animatedRows.push(submittedRowIndex);
+
+  if (currentGame.mode === 'timeattack' && isWin) {
+    // Carga instantánea de la siguiente palabra en modo contrarreloj al acertar
+    setTimeout(() => {
+      loadRandomTimeAttackWord();
+      resetCurrentWord();
+      resetKeyboardColors();
+      updateHintButtonUI();
+      renderBoard();
+    }, 700);
+    return;
+  }
 
   if (isWin || isLoss) {
     evaluateBadgesOnGameEnd(isWin, currentGame.attempts.length, wordLength, currentGame.hintLevel);
@@ -1322,6 +1471,8 @@ function revealGreenLetter(level, maxHints) {
 }
 
 function recordStats(isWin, attemptKey) {
+  if (currentGame.mode === 'timeattack') return; // Se gestiona al finalizar la sesión del cronómetro
+
   const currentStats = stats[currentGame.mode];
   currentStats.played++;
 
@@ -1337,6 +1488,18 @@ function recordStats(isWin, attemptKey) {
     currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
   }
 
+  saveStats();
+}
+
+function recordTimeAttackEnd(isWin) {
+  const taStats = stats.timeattack;
+  taStats.played++;
+  if (timeAttackState.score > taStats.bestScore) {
+    taStats.bestScore = timeAttackState.score;
+  }
+  if (timeAttackState.score > 0) {
+    taStats.wins++;
+  }
   saveStats();
 }
 
@@ -1391,6 +1554,20 @@ function openResultModal(isWin) {
   resultModal.classList.remove('hidden');
 }
 
+function openTimeAttackResultModal() {
+  resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.remove('hidden'); // Botón para reintentar / jugar otra vez
+
+  resultBanner.textContent = `⚡ ¡Tiempo agotado!\nHas conseguido resolver ${timeAttackState.score} palabra(s) en Modo Contrarreloj.`;
+  resultBanner.className = 'feedback-banner lose';
+
+  btnRetryWord.textContent = "🔄 Jugar otra vez";
+  resultModal.classList.remove('hidden');
+}
+
 function openDailyAlreadyPlayedModal() {
   resultWordDefinition.classList.add('hidden');
   btnShare.classList.add('hidden');
@@ -1412,7 +1589,7 @@ function openDailyAlreadyPlayedModal() {
   startCountdownTimer();
   resultCountdownBox.classList.remove('hidden');
 
-  resultModal.classList.remove('hidden');
+  resultModal.classList.add('hidden');
 }
 
 function updateMainActionButtons() {
@@ -1446,13 +1623,24 @@ function renderStatsData() {
     distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
   };
 
+  const taRecordContainer = document.getElementById('stat-timeattack-record-container');
+  const taBestEl = document.getElementById('stat-timeattack-best');
+
   if (activeStatsTab === 'daily') {
     combinedStats = stats.daily;
+    if (taRecordContainer) taRecordContainer.classList.add('hidden');
   } else if (activeStatsTab === 'free') {
     combinedStats = stats.free;
+    if (taRecordContainer) taRecordContainer.classList.add('hidden');
+  } else if (activeStatsTab === 'timeattack') {
+    combinedStats = stats.timeattack;
+    if (taRecordContainer) taRecordContainer.classList.remove('hidden');
+    if (taBestEl) taBestEl.textContent = stats.timeattack.bestScore || 0;
   } else {
-    combinedStats.played = stats.daily.played + stats.free.played;
-    combinedStats.wins = stats.daily.wins + stats.free.wins;
+    // Total
+    if (taRecordContainer) taRecordContainer.classList.add('hidden');
+    combinedStats.played = stats.daily.played + stats.free.played + stats.timeattack.played;
+    combinedStats.wins = stats.daily.wins + stats.free.wins + stats.timeattack.wins;
     combinedStats.streak = stats.daily.streak;
     combinedStats.maxStreak = Math.max(stats.daily.maxStreak, stats.free.maxStreak);
 
@@ -1521,17 +1709,21 @@ function shareResults() {
   checkAndUnlockBadge('b81');
   if (currentGame.attempts.length === 1) checkAndUnlockBadge('b90');
 
-  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : 'Modo Libre'}\n`;
-  shareText += `${currentGame.attempts.length}/6\n\n`;
-
-  currentGame.attempts.forEach(att => {
-    att.split('').forEach((char, idx) => {
-      if (currentGame.targetWord[idx] === char) shareText += '🟩';
-      else if (currentGame.targetWord.includes(char)) shareText += '🟨';
-      else shareText += '⬜';
+  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : 'Modo Contrarreloj ⚡'}\n`;
+  
+  if (currentGame.mode === 'timeattack') {
+    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 90 segundos!\n\n`;
+  } else {
+    shareText += `${currentGame.attempts.length}/6\n\n`;
+    currentGame.attempts.forEach(att => {
+      att.split('').forEach((char, idx) => {
+        if (currentGame.targetWord[idx] === char) shareText += '🟩';
+        else if (currentGame.targetWord.includes(char)) shareText += '🟨';
+        else shareText += '⬜';
+      });
+      shareText += '\n';
     });
-    shareText += '\n';
-  });
+  }
 
   if (navigator.clipboard) {
     navigator.clipboard.writeText(shareText).then(() => {
