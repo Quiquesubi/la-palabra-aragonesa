@@ -617,7 +617,6 @@ function checkFirstVisitTutorial() {
   }
 }
 
-// Comprueba y muestra la introducción específica de un modo si es su primera vez
 function checkModeIntroduction(mode) {
   const key = `palabra_aragonesa_intro_${mode}`;
   if (!localStorage.getItem(key)) {
@@ -906,7 +905,6 @@ function initGame(mode) {
   stopTimeAttackTimer();
   stopDefinitionsTimer();
 
-  // Comprobar si hay que mostrar la intro del modo
   checkModeIntroduction(mode);
 
   if (mode === 'daily') {
@@ -1164,6 +1162,30 @@ function submitAttempt() {
     updateMainActionButtons();
     const delay = (wordLength * 150) + 400;
     setTimeout(() => openResultModal(isWin), delay);
+  }
+}
+
+// Función que faltaba y solucionaba el bloqueo de las ventanas emergentes
+function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintLevel) {
+  loadUnlockedBadges();
+  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
+  
+  if (isWin) {
+    if (totalWins >= 5) checkAndUnlockBadge('b11');
+    if (totalWins >= 10) checkAndUnlockBadge('b12');
+    if (totalWins >= 25) checkAndUnlockBadge('b13');
+    
+    if (attemptsCount === 1) {
+      checkAndUnlockBadge('b21');
+    }
+    
+    if (currentGame.mode === 'free') {
+      checkAndUnlockBadge('b31');
+    }
+    
+    if (hintLevel === 0) {
+      checkAndUnlockBadge('b61');
+    }
   }
 }
 
@@ -1432,7 +1454,6 @@ function openResultModal(isWin) {
   resultModal.classList.remove('hidden');
 }
 
-// Mensajes dinámicos y motivacionales según aciertos en Contrarreloj
 function openTimeAttackResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
@@ -1463,7 +1484,6 @@ function openTimeAttackResultModal() {
   resultModal.classList.remove('hidden');
 }
 
-// Mensajes dinámicos y motivacionales según aciertos en Definiciones
 function openDefinitionsResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
