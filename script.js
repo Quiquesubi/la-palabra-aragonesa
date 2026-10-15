@@ -29,7 +29,7 @@ let definitionsState = {
   isActive: false
 };
 
-// Estadísticas separadas por modo (incluyendo timeattack y definitions)
+// Estadísticas separadas por modo
 let stats = {
   daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
   free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
@@ -70,87 +70,7 @@ const BADGES_LIST = [
   { id: 'b17', name: 'Maestro de las Palabras', icon: '🏛️', desc: 'Consigue 350 victorias en total' },
   { id: 'b18', name: 'Enciclopedia Humana', icon: '🧙‍♂️', desc: 'Consigue 500 victorias en total' },
   { id: 'b19', name: 'Leyenda del Juego', icon: '👑', desc: 'Consigue 750 victorias en total' },
-  { id: 'b20', name: 'Mítico', icon: '💎', desc: 'Consigue 1000 victorias en total' },
-  { id: 'b21', name: 'Visión Certera', icon: '🎯', desc: 'Adivina una palabra en 1 intento' },
-  { id: 'b22', name: 'Segunda Oportunidad', icon: '⚡', desc: 'Adivina una palabra en 2 intentos' },
-  { id: 'b23', name: 'Trío Perfecto', icon: '👌', desc: 'Adivina una palabra en 3 intentos' },
-  { id: 'b24', name: 'A Mitad de Camino', icon: '👍', desc: 'Adivina una palabra en 4 intentos' },
-  { id: 'b25', name: 'Al Límite', icon: '😊', desc: 'Adivina una palabra en 5 intentos' },
-  { id: 'b26', name: 'Salvado por los Pelos', icon: '😅', desc: 'Adivina una palabra en el 6º intento' },
-  { id: 'b27', name: 'Perfeccionista', icon: '🏹', desc: 'Adivina 5 palabras en el 1º intento' },
-  { id: 'b28', name: 'Francotirador', icon: '🎯', desc: 'Adivina 10 palabras en el 1º intento' },
-  { id: 'b29', name: 'Dominio Rápido', icon: '⚡', desc: 'Resuelve 3 palabras en ≤3 intentos' },
-  { id: 'b30', name: 'Resistencia Suprema', icon: '🧗', desc: 'Resuelve 3 palabras seguidas en el 6º intento' },
-  { id: 'b31', name: 'Explorador Libre', icon: '🗺️', desc: 'Juega 10 partidas en Modo Libre' },
-  { id: 'b32', name: 'Aventurero del Libre', icon: '🧭', desc: 'Juega 50 partidas en Modo Libre' },
-  { id: 'b33', name: 'Navegante Incansable', icon: '⛵', desc: 'Juega 100 partidas en Modo Libre' },
-  { id: 'b34', name: 'Maratón de Palabras', icon: '🏃', desc: 'Juega 250 partidas en Modo Libre' },
-  { id: 'b35', name: 'Devorador de Partidas', icon: '🎮', desc: 'Juega 500 partidas en Modo Libre' },
-  { id: 'b36', name: 'Racha Libre 5', icon: '⚡', desc: 'Consigue 5 victorias seguidas en Modo Libre' },
-  { id: 'b37', name: 'Racha Libre 10', icon: '🔥', desc: 'Consigue 10 victorias seguidas en Modo Libre' },
-  { id: 'b38', name: 'Racha Libre 25', icon: '🌟', desc: 'Consigue 25 victorias seguidas en Modo Libre' },
-  { id: 'b39', name: 'Reintento Exitoso', icon: '🔄', desc: 'Resuelve una palabra tras reintentar' },
-  { id: 'b40', name: 'Sin Frenos', icon: '🚀', desc: 'Resuelve 10 palabras libres en una sesión' },
-  { id: 'b41', name: 'Lector Curioso', icon: '📖', desc: 'Abre el diccionario por primera vez' },
-  { id: 'b42', name: 'Primeros Descubrimientos', icon: '🔖', desc: 'Desbloquea 10 palabras' },
-  { id: 'b43', name: 'Pequeño Glosario', icon: '📕', desc: 'Desbloquea 25 palabras' },
-  { id: 'b44', name: 'Gran Glosario', icon: '📗', desc: 'Desbloquea 50 palabras' },
-  { id: 'b45', name: 'Gran Colección', icon: '📘', desc: 'Desbloquea 100 palabras' },
-  { id: 'b46', name: 'Tesauro Completo', icon: '📙', desc: 'Desbloquea 200 palabras' },
-  { id: 'b47', name: 'Erudito del Lenguaje', icon: '🏰', desc: 'Desbloquea 350 palabras' },
-  { id: 'b48', name: 'Biblioteca Viviente', icon: '🎓', desc: 'Desbloquea el 50% del diccionario' },
-  { id: 'b49', name: 'Gran Archivista', icon: '🏛️', desc: 'Desbloquea el 75% del diccionario' },
-  { id: 'b50', name: 'Diccionario Completo', icon: '🌟', desc: 'Desbloquea el 100% del diccionario' },
-  { id: 'b51', name: 'Palabras Cortas', icon: '🧩', desc: 'Adivina 10 palabras de 5 letras' },
-  { id: 'b52', name: 'Especialista en Cortas', icon: '🔍', desc: 'Adivina 50 palabras de 5 letras' },
-  { id: 'b53', name: 'Equilibrio Perfecto', icon: '⚖️', desc: 'Adivina 10 palabras de 6 letras' },
-  { id: 'b54', name: 'Maestro de 6 Letras', icon: '📐', desc: 'Adivina 50 palabras de 6 letras' },
-  { id: 'b55', name: 'Desafío Mediano', icon: '📏', desc: 'Adivina 10 palabras de 7 letras' },
-  { id: 'b56', name: 'Gran Longitud', icon: '🧵', desc: 'Adivina 10 palabras de 8 letras' },
-  { id: 'b57', name: 'El Reto Máximo', icon: '🏢', desc: 'Adivina 10 palabras de 9 letras' },
-  { id: 'b58', name: 'Dominio XL', icon: '🏗️', desc: 'Adivina 30 palabras de 8 o 9 letras' },
-  { id: 'b59', name: 'Todoterreno', icon: '🛠️', desc: 'Adivina palabras de 5, 6, 7, 8 y 9 letras' },
-  { id: 'b60', name: 'Variedad Absoluta', icon: '🎨', desc: 'Resuelve 5 palabras seguidas de diferente tamaño' },
-  { id: 'b61', name: 'Orgullo Intacto', icon: '💪', desc: 'Adivina una palabra sin pedir pistas' },
-  { id: 'b62', name: 'Pura Intuición', icon: '🛡️', desc: 'Adivina 10 palabras seguidas sin pistas' },
-  { id: 'b63', name: 'Primer Descarte', icon: '💡', desc: 'Usa la pista para descartar letras' },
-  { id: 'b64', name: 'Buscador de Verdes', icon: '🟩', desc: 'Usa la pista para revelar letra verde' },
-  { id: 'b65', name: 'Lector de Definiciones', icon: '📖', desc: 'Usa la pista de significado' },
-  { id: 'b66', name: 'Apoyo Publicitario', icon: '🎬', desc: 'Usa todas las pistas en una partida' },
-  { id: 'b67', name: 'Estratega de Pistas', icon: '🧠', desc: 'Descarta letras y adivina en ese intento' },
-  { id: 'b68', name: 'Rescate en Extremis', icon: '🛟', desc: 'Pide significado en 5º intento y gana' },
-  { id: 'b69', name: 'Independiente', icon: '🏔️', desc: 'Adivina 50 palabras en total sin pistas' },
-  { id: 'b70', name: 'Cero Ayudas', icon: '💎', desc: 'Adivina una palabra de 9 letras sin pistas' },
-  { id: 'b71', name: 'Madrugador', icon: '🌅', desc: 'Resuelve la palabra antes de las 08:00 AM' },
-  { id: 'b72', name: 'Pausa para Comer', icon: '☀️', desc: 'Juega entre las 13:00 y las 15:00' },
-  { id: 'b73', name: 'Tarde de Juego', icon: '☕', desc: 'Juega entre las 17:00 y las 19:00' },
-  { id: 'b74', name: 'Noctámbulo', icon: '🌙', desc: 'Resuelve la palabra entre 22:00 y 02:00' },
-  { id: 'b75', name: 'Jugador de Finde', icon: '🎡', desc: 'Juega un sábado y un domingo' },
-  { id: 'b76', name: 'Sábado Triunfante', icon: '🥳', desc: 'Adivina la palabra en sábado' },
-  { id: 'b77', name: 'Domingo Tranquilo', icon: '☕', desc: 'Adivina la palabra en domingo' },
-  { id: 'b78', name: 'Comienzo de Semana', icon: '💼', desc: 'Resuelve el lunes por la mañana' },
-  { id: 'b79', name: 'Fidelidad Mensual', icon: '🗓️', desc: 'Juega en 3 meses diferentes' },
-  { id: 'b80', name: 'Nocturno Extremo', icon: '🌌', desc: 'Completa una partida pasadas las 03:00 AM' },
-  { id: 'b81', name: 'Compartir es Vivir', icon: '📤', desc: 'Comparte tu resultado por primera vez' },
-  { id: 'b82', name: 'Difusor del Juego', icon: '🌐', desc: 'Comparte tu resultado 5 veces' },
-  { id: 'b83', name: 'Portavoz', icon: '📢', desc: 'Comparte tu resultado 20 veces' },
-  { id: 'b84', name: 'Buscador', icon: '🔍', desc: 'Usa la búsqueda del diccionario 5 veces' },
-  { id: 'b85', name: 'Lectura Detallada', icon: '📜', desc: 'Baja hasta el final del diccionario' },
-  { id: 'b86', name: 'Estadista', icon: '📊', desc: 'Abre estadísticas 10 veces' },
-  { id: 'b87', name: 'Repaso de Reglas', icon: '❓', desc: 'Consulta las instrucciones de juego' },
-  { id: 'b88', name: 'Analista', icon: '📈', desc: 'Revisa tu distribución de intentos' },
-  { id: 'b89', name: 'Cambiador de Modo', icon: '🔄', desc: 'Alterna entre Diario y Libre 10 veces' },
-  { id: 'b90', name: 'Fiel Compartidor', icon: '📱', desc: 'Comparte una victoria a la primera' },
-  { id: 'b91', name: 'Iniciando Colección', icon: '🥉', desc: 'Desbloquea 5 emblemas' },
-  { id: 'b92', name: 'Primeros Logros', icon: '🥈', desc: 'Desbloquea 10 emblemas' },
-  { id: 'b93', name: 'Coleccionista Bronce', icon: '🥉', desc: 'Desbloquea 20 emblemas' },
-  { id: 'b94', name: 'Coleccionista Plata', icon: '🥈', desc: 'Desbloquea 35 emblemas' },
-  { id: 'b95', name: 'Medio Camino', icon: '🏅', desc: 'Desbloquea 50 emblemas' },
-  { id: 'b96', name: 'Coleccionista Oro', icon: '🥇', desc: 'Desbloquea 65 emblemas' },
-  { id: 'b97', name: 'Casi Perfecto', icon: '💎', desc: 'Desbloquea 80 emblemas' },
-  { id: 'b98', name: 'Maestro de Logros', icon: '👑', desc: 'Desbloquea 90 emblemas' },
-  { id: 'b99', name: 'Leyenda Absoluta', icon: '🏆', desc: 'Desbloquea 99 emblemas' },
-  { id: 'b100', name: 'Perfección Total', icon: '🌟', desc: 'Desbloquea los 100 emblemas base' }
+  { id: 'b20', name: 'Mítico', icon: '💎', desc: 'Consigue 1000 victorias en total' }
 ];
 
 let unlockedBadges = [];
@@ -176,50 +96,6 @@ function checkAndUnlockBadge(badgeId) {
   }
 }
 
-function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintsUsedCount) {
-  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0) + (stats.timeattack?.wins || 0) + (stats.definitions?.wins || 0);
-  const totalPlayed = (stats.daily?.played || 0) + (stats.free?.played || 0) + (stats.timeattack?.played || 0) + (stats.definitions?.played || 0);
-  const dailyStreak = stats.daily?.streak || 0;
-
-  if (totalPlayed >= 1) checkAndUnlockBadge('b1');
-  if (dailyStreak >= 3) checkAndUnlockBadge('b2');
-  if (dailyStreak >= 7) checkAndUnlockBadge('b3');
-  if (dailyStreak >= 14) checkAndUnlockBadge('b4');
-  if (dailyStreak >= 30) checkAndUnlockBadge('b5');
-  if (dailyStreak >= 60) checkAndUnlockBadge('b6');
-  if (dailyStreak >= 90) checkAndUnlockBadge('b7');
-  if (dailyStreak >= 180) checkAndUnlockBadge('b8');
-  if (dailyStreak >= 365) checkAndUnlockBadge('b9');
-
-  if (totalWins >= 5) checkAndUnlockBadge('b11');
-  if (totalWins >= 10) checkAndUnlockBadge('b12');
-  if (totalWins >= 25) checkAndUnlockBadge('b13');
-  if (totalWins >= 50) checkAndUnlockBadge('b14');
-  if (totalWins >= 100) checkAndUnlockBadge('b15');
-  if (totalWins >= 200) checkAndUnlockBadge('b16');
-  if (totalWins >= 350) checkAndUnlockBadge('b17');
-  if (totalWins >= 500) checkAndUnlockBadge('b18');
-  if (totalWins >= 750) checkAndUnlockBadge('b19');
-  if (totalWins >= 1000) checkAndUnlockBadge('b20');
-
-  if (isWin) {
-    if (attemptsCount === 1) checkAndUnlockBadge('b21');
-    if (attemptsCount === 2) checkAndUnlockBadge('b22');
-    if (attemptsCount === 3) checkAndUnlockBadge('b23');
-    if (attemptsCount === 4) checkAndUnlockBadge('b24');
-    if (attemptsCount === 5) checkAndUnlockBadge('b25');
-    if (attemptsCount === 6) checkAndUnlockBadge('b26');
-
-    if (wordLength === 5) checkAndUnlockBadge('b51');
-    if (wordLength === 6) checkAndUnlockBadge('b53');
-    if (wordLength === 7) checkAndUnlockBadge('b55');
-    if (wordLength === 8) checkAndUnlockBadge('b56');
-    if (wordLength === 9) checkAndUnlockBadge('b57');
-
-    if (hintsUsedCount === 0) checkAndUnlockBadge('b61');
-  }
-}
-
 function renderBadgesGrid() {
   loadUnlockedBadges();
   const container = document.getElementById('badges-grid');
@@ -233,7 +109,6 @@ function renderBadgesGrid() {
     const isUnlocked = unlockedBadges.includes(b.id);
     const card = document.createElement('div');
     card.className = `badge-card ${isUnlocked ? 'unlocked' : 'locked'}`;
-
     card.innerHTML = `
       <div class="badge-icon">${b.icon}</div>
       <div class="badge-title">${b.name}</div>
@@ -268,6 +143,13 @@ const helpModal = document.getElementById('help-modal');
 const closeHelp = document.getElementById('close-help');
 const startGameBtn = document.getElementById('start-game-btn');
 const dontShowHelp = document.getElementById('dont-show-help');
+
+// Elementos Modal Introducción por Modo
+const modeIntroModal = document.getElementById('mode-intro-modal');
+const modeIntroTitle = document.getElementById('mode-intro-title');
+const modeIntroText = document.getElementById('mode-intro-text');
+const dontShowModeIntro = document.getElementById('dont-show-mode-intro');
+const modeIntroOkBtn = document.getElementById('mode-intro-ok-btn');
 
 const resultModal = document.getElementById('result-modal');
 const btnCloseResultModal = document.getElementById('btn-close-result-modal');
@@ -323,29 +205,16 @@ function showAlert(message, isConfirm = false) {
   return new Promise((resolve) => {
     customAlertMessage.innerText = message;
     customAlertModal.classList.remove('hidden');
+    if (isConfirm) customAlertCancelBtn.classList.remove('hidden');
+    else customAlertCancelBtn.classList.add('hidden');
 
-    if (isConfirm) {
-      customAlertCancelBtn.classList.remove('hidden');
-    } else {
-      customAlertCancelBtn.classList.add('hidden');
-    }
-
-    const onOk = () => {
-      cleanup();
-      resolve(true);
-    };
-
-    const onCancel = () => {
-      cleanup();
-      resolve(false);
-    };
-
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
     const cleanup = () => {
       customAlertModal.classList.add('hidden');
       customAlertOkBtn.removeEventListener('click', onOk);
       customAlertCancelBtn.removeEventListener('click', onCancel);
     };
-
     customAlertOkBtn.addEventListener('click', onOk);
     customAlertCancelBtn.addEventListener('click', onCancel);
   });
@@ -361,7 +230,7 @@ function setupDailyReminderNotification() {
     } else if (Notification.permission === 'granted') {
       scheduleLocalNotification(registration);
     }
-  }).catch(err => console.error('Error al registrar Service Worker:', err));
+  }).catch(err => console.error('Error SW:', err));
 }
 
 function scheduleLocalNotification(registration) {
@@ -422,7 +291,6 @@ function loadUnlockedWords() {
 function unlockCurrentWord() {
   if (!currentGame.wordObj) return;
   loadUnlockedWords();
-
   const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
   const existsIndex = unlockedWords.findIndex(item => item.id === wordId || item.palabra.toUpperCase().trim() === currentGame.wordObj.palabra.toUpperCase().trim());
 
@@ -460,7 +328,6 @@ function renderDictionaryList(filterText = '') {
     card.className = 'dict-card';
     const originalObj = validWords.find(w => (w.id && w.id === item.id) || w.palabra.toUpperCase().trim() === item.palabra.toUpperCase().trim());
     const textoMostrar = (originalObj && originalObj.palabraMostrar) || item.palabraMostrar || item.palabra;
-
     card.innerHTML = `
       <div class="dict-card-header"><span class="dict-word">${textoMostrar}</span></div>
       <div class="dict-definition">${item.significado}</div>
@@ -517,6 +384,40 @@ function loadWordsJSON() {
 function checkFirstVisitTutorial() {
   if (!localStorage.getItem('palabra_aragonesa_hide_help')) {
     helpModal.classList.remove('hidden');
+  }
+}
+
+// Comprueba y muestra la introducción específica de un modo si es su primera vez
+function checkModeIntroduction(mode) {
+  const key = `palabra_aragonesa_intro_${mode}`;
+  if (!localStorage.getItem(key)) {
+    let title = '';
+    let desc = '';
+    if (mode === 'daily') {
+      title = '📅 Palabra del Día';
+      desc = '¡Bienvenido al reto diario oficial! Cada día encontrarás una nueva palabra aragonesa para adivinar en 6 intentos. Todos los jugadores de la comunidad juegan la misma palabra. ¡Acepta el desafío y mantén tu racha!';
+    } else if (mode === 'free') {
+      title = '🗺️ Modo Libre';
+      desc = 'Practica sin límites de tiempo ni restricciones diarias. Descubre palabras de la lengua aragonesa a tu propio ritmo, avanza a la siguiente o reintenta las que se te resistan.';
+    } else if (mode === 'timeattack') {
+      title = '⚡ Modo Contrarreloj';
+      desc = 'Dispones de 2 minutos iniciales para adivinar tantas palabras de 5 y 6 letras como te sea posible. ¡Cada acierto te premia con 15 segundos extra en el crono!';
+    } else if (mode === 'definitions') {
+      title = '📜 Modo Definiciones';
+      desc = 'Pon a prueba tu vocabulario cultural: dispones de 90 segundos para adivinar palabras guiándote exclusivamente por su definición. ¡Cada acierto te otorga +10 segundos!';
+    }
+
+    modeIntroTitle.textContent = title;
+    modeIntroText.textContent = desc;
+    dontShowModeIntro.checked = false;
+    modeIntroModal.classList.remove('hidden');
+
+    modeIntroOkBtn.onclick = () => {
+      if (dontShowModeIntro.checked) {
+        localStorage.setItem(key, 'true');
+      }
+      modeIntroModal.classList.add('hidden');
+    };
   }
 }
 
@@ -621,7 +522,8 @@ function initEventListeners() {
         !resultModal.classList.contains('hidden') ||
         !dictionaryModal.classList.contains('hidden') ||
         !badgesModal.classList.contains('hidden') ||
-        !customAlertModal.classList.contains('hidden')) return;
+        !customAlertModal.classList.contains('hidden') ||
+        !modeIntroModal.classList.contains('hidden')) return;
 
     if (e.key === 'Enter') handleKeyPress('ENTER');
     else if (e.key === 'Backspace') handleKeyPress('BACKSPACE');
@@ -768,6 +670,9 @@ function initGame(mode) {
 
   stopTimeAttackTimer();
   stopDefinitionsTimer();
+
+  // Comprobar si hay que mostrar la intro del modo
+  checkModeIntroduction(mode);
 
   if (mode === 'daily') {
     const dailyIdx = getDailyIndex();
@@ -1136,9 +1041,7 @@ async function handleHintClick() {
 
 function initAdMobPlugin() {
   document.addEventListener('deviceready', () => {
-    try {
-      if (window.admob && typeof window.admob.start === 'function') window.admob.start();
-    } catch (e) {}
+    try { if (window.admob && typeof window.admob.start === 'function') window.admob.start(); } catch (e) {}
   }, false);
 }
 
@@ -1152,15 +1055,12 @@ function simulateRewardedAd() {
 function applyHint(level) {
   const maxHints = getMaxHints();
   if (level === 1) {
-    checkAndUnlockBadge('b63');
     discardKeyboardLetters(3);
     showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado.`);
   } else if (level === maxHints) {
-    checkAndUnlockBadge('b65');
     const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición.';
     showAlert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
   } else {
-    checkAndUnlockBadge('b64');
     revealGreenLetter(level, maxHints);
   }
 }
@@ -1256,6 +1156,7 @@ function openResultModal(isWin) {
   resultModal.classList.remove('hidden');
 }
 
+// Mensajes dinámicos y motivacionales según aciertos en Contrarreloj
 function openTimeAttackResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
@@ -1263,15 +1164,28 @@ function openTimeAttackResultModal() {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
+  const score = timeAttackState.score;
   const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
-  // Utiliza la clase .lose con la nueva estética amigable (verde suave) en lugar de rojo
-  resultBanner.innerHTML = `⚡ ¡Tiempo agotado!<br><br>Has conseguido acertar <strong>${timeAttackState.score}</strong> palabra(s).<br>La palabra era: <strong>${textoMostrar}</strong>.<br><br>¡Muy bien jugado! 💪`;
+
+  let dynamicMsg = "";
+  if (score === 0) {
+    dynamicMsg = "¡Vaya, no te dio tiempo a completar ninguna! No te preocupes, la práctica hace al maestro. ¡Inténtalo de nuevo y seguro que superas el cero! 🎯💪";
+  } else if (score >= 1 && score <= 3) {
+    dynamicMsg = `¡Buen trabajo! Has conseguido <strong>${score}</strong> palabra(s). Tienes buena base, pero con un poquito más de agilidad seguro que bates tu récord la próxima vez. ¡A por todas! 🚀🔥`;
+  } else if (score >= 4 && score <= 7) {
+    dynamicMsg = `¡Excelente ritmo! Has acertado <strong>${score}</strong> palabras. Demuestras una gran agilidad mental con el vocabulario aragonés. ¡Estás muy cerca de la élite, sigue así! ⭐🏅`;
+  } else {
+    dynamicMsg = `¡Impresionante! ¡Una auténtica barbaridad! Has logrado resolver <strong>${score}</strong> palabras en tiempo récord. ¡Eres una leyenda viva de la contrarreloj aragonesa! 👑⚡🔥`;
+  }
+
+  resultBanner.innerHTML = `⚡ ¡Tiempo agotado (Contrarreloj)!<br><br>${dynamicMsg}<br><br>La última palabra era: <strong>${textoMostrar}</strong>.`;
   resultBanner.className = 'feedback-banner lose';
 
   btnRetryWord.textContent = "🔄 Jugar otra vez";
   resultModal.classList.remove('hidden');
 }
 
+// Mensajes dinámicos y motivacionales según aciertos en Definiciones
 function openDefinitionsResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
@@ -1279,9 +1193,21 @@ function openDefinitionsResultModal() {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
+  const score = definitionsState.score;
   const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
-  // Utiliza la clase .lose con la estética amigable
-  resultBanner.innerHTML = `📜 ¡Tiempo agotado (90s)!<br><br>Has acertado <strong>${definitionsState.score}</strong> palabra(s) por definición.<br>La última palabra era: <strong>${textoMostrar}</strong>.<br><br>¡Excelente entrenamiento mental! 💪`;
+
+  let dynamicMsg = "";
+  if (score === 0) {
+    dynamicMsg = "¡Las definiciones rápidas son difíciles! No te desanimes, lee con atención las pistas de significado y lánzate a por tu primera palabra. ¡Tú puedes con la siguiente! 📖💪";
+  } else if (score >= 1 && score <= 2) {
+    dynamicMsg = `¡Bien hecho! Has acertado <strong>${score}</strong> palabra(s) por definición. Conoces el significado cultural, ¡sigue entrenando para duplicar tu marca en el siguiente intento! 💡📈`;
+  } else if (score >= 3 && score <= 5) {
+    dynamicMsg = `¡Gran nivel cultural! Has conseguido <strong>${score}</strong> aciertos interpretando definiciones. ¡Demuestras un dominio envidiable del tesoro léxico aragonés! Sigue superándote. 🌟👏`;
+  } else {
+    dynamicMsg = `¡Erudito absoluto! ¡<strong>${score}</strong> palabras acertadas por definición en 90 segundos! Es un resultado extraordinario. ¡Tu vocabulario es impecable, sigue rompiendo récords! 🏛️💎👑`;
+  }
+
+  resultBanner.innerHTML = `📜 ¡Tiempo agotado (Definiciones)!<br><br>${dynamicMsg}<br><br>La última palabra era: <strong>${textoMostrar}</strong>.`;
   resultBanner.className = 'feedback-banner lose';
 
   btnRetryWord.textContent = "🔄 Jugar otra vez";
@@ -1431,10 +1357,7 @@ function startCountdownTimer() {
 }
 
 function shareResults() {
-  checkAndUnlockBadge('b81');
-  if (currentGame.attempts.length === 1) checkAndUnlockBadge('b90');
-
-  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : currentGame.mode === 'timeattack' ? 'Modo Contrarreloj ⚡' : 'Modo Definiciones 📜'}\n`;
+  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? '📅 Palabra del Día' : currentGame.mode === 'free' ? '🗺️ Modo Libre' : currentGame.mode === 'timeattack' ? '⚡ Contrarreloj' : '📜 Definiciones'}\n`;
   
   if (currentGame.mode === 'timeattack') {
     shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos en el Modo Contrarreloj! ⚡\n`;
