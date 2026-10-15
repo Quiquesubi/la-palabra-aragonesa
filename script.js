@@ -374,7 +374,6 @@ const closeHelp = document.getElementById('close-help');
 const startGameBtn = document.getElementById('start-game-btn');
 const dontShowHelp = document.getElementById('dont-show-help');
 
-// Elementos Modal Introducción por Modo
 const modeIntroModal = document.getElementById('mode-intro-modal');
 const modeIntroTitle = document.getElementById('mode-intro-title');
 const modeIntroText = document.getElementById('mode-intro-text');
@@ -1165,7 +1164,6 @@ function submitAttempt() {
   }
 }
 
-// Función que faltaba y solucionaba el bloqueo de las ventanas emergentes
 function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintLevel) {
   loadUnlockedBadges();
   const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
@@ -1444,10 +1442,10 @@ function openResultModal(isWin) {
       btnShare.classList.remove('hidden');
       btnNextWord.classList.remove('hidden');
     } else {
-      resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}. Si la reintentas seguro que la adivinas.`;
+      // Mensaje de ánimo motivacional sin revelar la solución y ocultando la definición
+      resultBanner.textContent = `¡Vaya! Te has quedado sin intentos. ¡No te rindas, vuelve a intentarlo y demuestra lo que sabes! 💪🔄`;
       resultBanner.className = 'feedback-banner lose';
-      resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
-      resultWordDefinition.classList.remove('hidden');
+      resultWordDefinition.classList.add('hidden');
       btnRetryWord.classList.remove('hidden');
     }
   }
