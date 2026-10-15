@@ -80,10 +80,10 @@
         </div>
       </div>
 
-      <!-- Selector de Modos ampliado con Contrarreloj y Definiciones -->
+      <!-- Selector de Modos unificado con emojis -->
       <div class="mode-selector">
-        <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
-        <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
+        <button id="btn-mode-daily" class="mode-btn active">📅 Palabra del Día</button>
+        <button id="btn-mode-free" class="mode-btn">🗺️ Modo Libre</button>
         <button id="btn-mode-timeattack" class="mode-btn">⚡ Contrarreloj</button>
         <button id="btn-mode-definitions" class="mode-btn">📜 Definiciones</button>
       </div>
@@ -199,16 +199,24 @@
     </div>
   </div>
 
-  <!-- Modal Instrucciones -->
+  <!-- Modal Instrucciones Ampliado (Incluye explicación de todos los modos) -->
   <div id="help-modal" class="modal hidden">
     <div class="modal-content tutorial-content">
       <button id="close-help" class="close-btn">&times;</button>
       <h2>Cómo jugar</h2>
-      <p>Adivina la palabra oculta (de 5 a 9 letras) en 6 intentos.</p>
-      <p>Tras cada intento, las casillas cambiarán de color según la precisión de tu respuesta.</p>
+      <p>Adivina la palabra oculta (de 5 a 9 letras) en 6 intentos. Tras cada intento, las casillas cambiarán de color.</p>
 
       <hr class="tutorial-divider">
-      <h3>Ejemplos</h3>
+      <h3>Modos de Juego</h3>
+      <div style="text-align: left; font-size: 0.9rem; color: #475569; line-height: 1.4; margin-bottom: 12px;">
+        <p>📅 <strong>Palabra del Día:</strong> Un reto diario compartido por todos los jugadores. Una única palabra nueva cada 24 horas.</p>
+        <p>🗺️ <strong>Modo Libre:</strong> Juega de forma ilimitada a tu ritmo, pasando a la siguiente palabra o reintentándola cuando quieras.</p>
+        <p>⚡ <strong>Contrarreloj:</strong> Tienes 2 minutos para adivinar tantas palabras de 5 y 6 letras como puedas. ¡Cada acierto te da +15 segundos extra!</p>
+        <p>📜 <strong>Definiciones:</strong> Cuentas con 90 segundos para adivinar palabras guiándote únicamente por su definición en aragonés. Cada acierto suma +10 segundos.</p>
+      </div>
+
+      <hr class="tutorial-divider">
+      <h3>Ejemplos de Colores</h3>
 
       <div class="tutorial-example">
         <div class="row">
@@ -254,6 +262,23 @@
       </div>
 
       <button id="start-game-btn" class="action-btn">¡Entendido, a jugar!</button>
+    </div>
+  </div>
+
+  <!-- Modal de Introducción Específica por Modo -->
+  <div id="mode-intro-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="mode-intro-title">Título del Modo</h2>
+      <p id="mode-intro-text" style="text-align: left; font-size: 0.95rem; color: #475569; line-height: 1.5; margin: 16px 0;"></p>
+      <div class="dont-show-container">
+        <label for="dont-show-mode-intro">
+          <input type="checkbox" id="dont-show-mode-intro">
+          No volver a mostrar esta explicación para este modo
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="mode-intro-ok-btn" class="action-btn">¡Empezar a jugar!</button>
+      </div>
     </div>
   </div>
 
