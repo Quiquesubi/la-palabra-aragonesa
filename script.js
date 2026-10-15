@@ -1,7 +1,7 @@
 let validWords = [];
 
 let currentGame = {
-  mode: 'daily', // 'daily', 'free', 'timeattack'
+  mode: 'daily', // 'daily', 'free', 'timeattack', 'definitions'
   wordObj: null,
   targetWord: '',
   attempts: [],
@@ -13,7 +13,7 @@ let currentGame = {
   hintLevel: 0 
 };
 
-// Variables específicas para el Modo Contrarreloj (2 minutos / 120 segundos iniciales)
+// Variables específicas para el Modo Contrarreloj (120 segundos iniciales)
 let timeAttackState = {
   timeLeft: 120, 
   score: 0,     
@@ -21,20 +21,26 @@ let timeAttackState = {
   isActive: false
 };
 
-// Estadísticas separadas por modo (incluyendo timeattack)
+// Variables específicas para el Modo Definiciones (90 segundos iniciales)
+let definitionsState = {
+  timeLeft: 90, 
+  score: 0,     
+  timerInterval: null,
+  isActive: false
+};
+
+// Estadísticas separadas por modo (incluyendo timeattack y definitions)
 let stats = {
   daily: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
   free: { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
-  timeattack: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
+  timeattack: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } },
+  definitions: { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } }
 };
 
-// Lista global de palabras descubiertas para el Diccionario
 let unlockedWords = [];
-
 let activeStatsTab = 'daily';
 let countdownInterval = null;
 
-// Mensajes según el número de intento al adivinar
 const winMessages = {
   1: "¡Increíble! ¡Adivinada a la primera! 🎯",
   2: "¡Espectacular! ¡En solo dos intentos! ⭐",
@@ -44,7 +50,6 @@ const winMessages = {
   6: "¡Uff! ¡Adivinada en el último intento! 😅"
 };
 
-// --- LISTA COMPLETA DE LOS 200 EMBLEMAS ---
 const BADGES_LIST = [
   { id: 'b1', name: 'Primer Paso', icon: '🥉', desc: 'Completa tu primera Palabra del Día' },
   { id: 'b2', name: 'Tres Seguidos', icon: '🔥', desc: 'Mantén una racha de 3 días consecutivos' },
@@ -145,107 +150,7 @@ const BADGES_LIST = [
   { id: 'b97', name: 'Casi Perfecto', icon: '💎', desc: 'Desbloquea 80 emblemas' },
   { id: 'b98', name: 'Maestro de Logros', icon: '👑', desc: 'Desbloquea 90 emblemas' },
   { id: 'b99', name: 'Leyenda Absoluta', icon: '🏆', desc: 'Desbloquea 99 emblemas' },
-  { id: 'b100', name: 'Perfección Total', icon: '🌟', desc: 'Desbloquea los 100 emblemas base' },
-  { id: 'b101', name: "Amante de la 'Ñ'", icon: '🦁', desc: "Adivina una palabra que contenga la letra Ñ" },
-  { id: 'b102', name: "Furia de la 'X'", icon: '⚔️', desc: "Adivina una palabra que contenga la letra X" },
-  { id: 'b103', name: 'Doble Vocal', icon: '👥', desc: 'Resuelve una palabra que contenga vocal repetida' },
-  { id: 'b104', name: 'Sin Rara Avis', icon: '🧹', desc: 'Resuelve una palabra que solo contenga A, E, I, O, U, L, R, S' },
-  { id: 'b105', name: 'Espíritu del Pirineo', icon: '🏔️', desc: 'Completa 15 palabras del día en agosto' },
-  { id: 'b106', name: 'Trío de Vocales', icon: '🎵', desc: 'Resuelve una palabra con al menos 3 vocales distintas' },
-  { id: 'b107', name: 'Consonante Fuerte', icon: '🛡️', desc: 'Resuelve una palabra con 5 o más consonantes' },
-  { id: 'b108', name: 'Tierra y Lengua', icon: '🌾', desc: 'Descubre 50 palabras en la colección' },
-  { id: 'b109', name: "Palabra Larga de la 'Z'", icon: '⚡', desc: 'Adivina una palabra de 8 o 9 letras con Z' },
-  { id: 'b110', name: 'Pura Rasmia', icon: '🔥', desc: 'Gana 5 partidas seguidas en <=3 intentos' },
-  { id: 'b111', name: 'Comienzo Verde', icon: '🟢', desc: 'Consigue 3 casillas verdes en tu primer intento' },
-  { id: 'b112', name: 'Mar de Amarillos', icon: '🟡', desc: 'Obtén 4 o más casillas amarillas en un intento' },
-  { id: 'b113', name: 'Pleno de Grises', icon: '⚪', desc: 'Haz un intento donde todas las letras sean grises' },
-  { id: 'b114', name: 'Escalera Perfecta', icon: '📈', desc: 'Aumenta el número de letras verdes en cada intento' },
-  { id: 'b115', name: 'Efecto Rebote', icon: '🔄', desc: 'Pasa de 0 aciertos en el intento 1 a ganar en el intento 2' },
-  { id: 'b116', name: 'Limpieza Teclado', icon: '🧹', desc: 'Descarta 12 letras del teclado en una sola partida' },
-  { id: 'b117', name: 'Verde en la Sombra', icon: '🕵️', desc: 'Mantén una casilla verde desde el intento 1 hasta resolver' },
-  { id: 'b118', name: 'Triángulo Dorado', icon: '🔺', desc: 'Resuelve 3 palabras seguidas con al menos un amarillo inicial' },
-  { id: 'b119', name: 'Maestro de las Adivinanzas', icon: '🧙', desc: 'Completa 10 partidas consecutivas ganando' },
-  { id: 'b120', name: 'Giro Inesperado', icon: '🌀', desc: 'Cambia 3 letras amarillas a verde en un solo movimiento' },
-  { id: 'b121', name: 'Bicentenario', icon: '📜', desc: 'Juega 200 partidas en total' },
-  { id: 'b122', name: 'Medio Millar de Retos', icon: '🏛️', desc: 'Juega 500 partidas en total' },
-  { id: 'b123', name: 'Racha Centenaria', icon: '💯', desc: 'Alcanza 100 días consecutivos jugados' },
-  { id: 'b124', name: 'Mitad de Año Ininterrumpido', icon: '🏔️', desc: 'Alcanza 182 días consecutivos jugados' },
-  { id: 'b125', name: 'Inquebrantable', icon: '🛡️', desc: 'Mantén un % de victorias >95% tras 50 partidas' },
-  { id: 'b126', name: 'Resistencia de Hierro', icon: '⛓️', desc: 'Adivina en el 6º intento 10 veces' },
-  { id: 'b127', name: 'Coleccionista Absoluto', icon: '💎', desc: 'Descubre 500 palabras en el diccionario' },
-  { id: 'b128', name: 'Explorador Máximo', icon: '🌍', desc: 'Descubre 750 palabras en el diccionario' },
-  { id: 'b129', name: 'Maestro del Modo Libre', icon: '👑', desc: 'Acumula 300 victorias en Modo Libre' },
-  { id: 'b130', name: 'Punta de Lanza', icon: '🗡️', desc: 'Resuelve la palabra del día antes de las 02:00 AM' },
-  { id: 'b131', name: 'Nochevieja Aragonesa', icon: '🎆', desc: 'Juega una partida el 31 de diciembre o 1 de enero' },
-  { id: 'b132', name: 'San Jorge / Día de Aragón', icon: '🛡️', desc: 'Resuelve la palabra del día el 23 de abril' },
-  { id: 'b133', name: 'Fiestas del Pilar', icon: '💐', desc: 'Juega al menos una vez entre el 9 y el 16 de octubre' },
-  { id: 'b134', name: 'Calor de Verano', icon: '🏖️', desc: 'Resuelve 30 palabras durante julio y agosto' },
-  { id: 'b135', name: 'Frío del Norte', icon: '❄️', desc: 'Juega en los meses de enero o febrero' },
-  { id: 'b136', name: 'Constancia de Fin de Semana', icon: '🎡', desc: 'Juega un fin de semana completo' },
-  { id: 'b137', name: 'Café Matutino', icon: '☕', desc: 'Resuelve la palabra entre las 06:00 y las 08:00 AM' },
-  { id: 'b138', name: 'Sesión de Medianoche', icon: '🕛', desc: 'Resuelve la palabra entre 00:00 y 00:15 AM' },
-  { id: 'b139', name: 'Cuatro Estaciones', icon: '🍂', desc: 'Completa al menos una partida en cada estación' },
-  { id: 'b140', name: 'Jugador de Bucle', icon: '⏰', desc: 'Juega 3 días seguidos casi a la misma hora' },
-  { id: 'b141', name: 'Trilogía Diaria', icon: '☘️', desc: 'Completa 3 palabras del día seguidas' },
-  { id: 'b142', name: 'Sesión Maratón 20', icon: '🏃', desc: 'Completa 20 palabras en Modo Libre en un mismo día' },
-  { id: 'b143', name: 'Sesión Maratón 50', icon: '🚴', desc: 'Completa 50 palabras en Modo Libre en un mismo día' },
-  { id: 'b144', name: 'Frenesí de Palabras', icon: '⚡', desc: 'Adivina 5 palabras en Modo Libre' },
-  { id: 'b145', name: 'Velocista', icon: '⏱️', desc: 'Resuelve una palabra en menos de 45 segundos' },
-  { id: 'b146', name: 'Modo Imparable', icon: '🚀', desc: 'Gana 15 partidas consecutivas en Modo Libre' },
-  { id: 'b147', name: 'Alternancia Diaria', icon: '🔀', desc: 'Juega Diario y Libre el mismo día' },
-  { id: 'b148', name: 'Dominio Total Libre', icon: '🏆', desc: 'Completa 100 palabras en Modo Libre' },
-  { id: 'b149', name: 'Retorno Victorioso', icon: '🏹', desc: 'Resuelve la palabra tras reintentar una partida' },
-  { id: 'b150', name: 'Paso de Tortuga', icon: '🐢', desc: 'Gana una partida tras más de 5 minutos' },
-  { id: 'b151', name: 'Maestro Purista', icon: '🧘', desc: 'Resuelve 20 palabras en total sin usar ninguna pista' },
-  { id: 'b152', name: 'Titán del Lenguaje', icon: '🗿', desc: 'Resuelve 100 palabras en total sin usar ninguna pista' },
-  { id: 'b153', name: 'Cero Pistas XL', icon: '🐘', desc: 'Adivina 5 palabras de 8 o 9 letras sin pedir pistas' },
-  { id: 'b154', name: 'Muro Indestructible', icon: '🏰', desc: 'Completa una racha de 10 victorias sin utilizar pistas' },
-  { id: 'b155', name: 'A Ciegas', icon: '🙈', desc: 'Resuelve la palabra sin tener ninguna casilla verde previa' },
-  { id: 'b156', name: 'Apostador Fiel', icon: '🎲', desc: 'Repite la primera palabra durante 5 partidas seguidas' },
-  { id: 'b157', name: 'Mente Fría', icon: '🧊', desc: 'Adivina la palabra en el 6º intento sin haber usado pistas' },
-  { id: 'b158', name: 'Sin Miedo al Éxito', icon: '🦁', desc: 'Resuelve una palabra de 9 letras en <=3 intentos sin pistas' },
-  { id: 'b159', name: 'Estratega Intrépido', icon: '♟️', desc: 'Gana 5 partidas seguidas en Modo Libre sin pistas' },
-  { id: 'b160', name: 'Confianza Ciega', icon: '✨', desc: 'Gana una partida resolviéndola en menos de 2 intentos' },
-  { id: 'b161', name: 'Ratón de Biblioteca', icon: '🐭', desc: 'Consulta varias definiciones en el diccionario' },
-  { id: 'b162', name: 'Investigador Activo', icon: '🔬', desc: 'Filtra la búsqueda del diccionario 5 veces' },
-  { id: 'b163', name: 'Coleccionista de Largas', icon: '📜', desc: 'Desbloquea 30 palabras de 8 o 9 letras' },
-  { id: 'b164', name: 'Explorador de Cortas', icon: '🔍', desc: 'Desbloquea 50 palabras de 5 letras' },
-  { id: 'b165', name: 'Estudioso del Pasado', icon: '🕰️', desc: 'Revisa las reglas o ayuda del juego' },
-  { id: 'b166', name: 'Orgullo Social', icon: '📸', desc: 'Comparte 10 victorias' },
-  { id: 'b167', name: 'Red Social', icon: '💬', desc: 'Comparte 30 resultados en total' },
-  { id: 'b168', name: 'Embajador de la Lengua', icon: '📣', desc: 'Comparte tu resultado 50 veces' },
-  { id: 'b169', name: 'Revisor de Récords', icon: '📊', desc: 'Revisa las estadísticas 25 veces' },
-  { id: 'b170', name: 'Fiel a las Reglas', icon: '📖', desc: 'Abre el tutorial o instrucciones' },
-  { id: 'b171', name: 'Doble Pareja', icon: '♊', desc: 'Resuelve una palabra con deux pares de letras iguales' },
-  { id: 'b172', name: 'Trío Consonántico', icon: '🧱', desc: 'Resuelve una palabra que tenga 3 consonantes seguidas' },
-  { id: 'b173', name: 'Simetría Casi Perfecta', icon: '🪞', desc: 'Adivina una palabra cuyo inicio y fin sean la misma letra' },
-  { id: 'b174', name: 'Inicio Vocal', icon: '🅰️', desc: 'Adivina 10 palabras que empiecen por vocal' },
-  { id: 'b175', name: 'Inicio Consonante', icon: '🅱️', desc: 'Adivina 20 palabras que empiecen por consonante' },
-  { id: 'b176', name: 'Final en Vocal', icon: '🟢', desc: 'Adivina 15 palabras que terminen en vocal' },
-  { id: 'b177', name: 'Final en Consonante', icon: '🔵', desc: 'Adivina 15 palabras que terminen en consonante' },
-  { id: 'b178', name: "Sin Letra 'A'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra A" },
-  { id: 'b179', name: "Sin Letra 'E'", icon: '🚫', desc: "Resuelve una palabra que no contenga la letra E" },
-  { id: 'b180', name: 'Plurales y Colectivos', icon: '👥', desc: 'Adivina 10 palabras terminadas en S' },
-  { id: 'b181', name: 'Cazador de Verdes', icon: '🔎', desc: 'Usa la pista de revelar verde 5 veces' },
-  { id: 'b182', name: 'Maestro del Descarte', icon: '🧹', desc: 'Usa la pista de descartar letras 10 veces' },
-  { id: 'b183', name: 'Lector de Significados', icon: '📚', desc: 'Usa la pista de significado 10 veces' },
-  { id: 'b184', name: 'Salvado por el Significado', icon: '💡', desc: 'Usa la pista de significado y acierta la palabra' },
-  { id: 'b185', name: 'Pista Decisiva', icon: '🎯', desc: 'Usa una pista verde y acierta inmediatamente' },
-  { id: 'b186', name: 'Apoyo Continuo', icon: '🎬', desc: 'Mira o usa 20 pistas acumuladas' },
-  { id: 'b187', name: 'Estratega Cauteloso', icon: '🛡️', desc: 'Usa la pista de descarte en el primer intento' },
-  { id: 'b188', name: 'Jugador Eficiente', icon: '⚡', desc: 'Pide 1 pista y resuelve en <=3 intentos' },
-  { id: 'b189', name: 'Rescate Triple', icon: '🛟', desc: 'Usa 3 pistas en una partida y consigue ganarla' },
-  { id: 'b190', name: 'Amigo de las Pistas', icon: '💡', desc: 'Usa 30 pistas en total' },
-  { id: 'b191', name: 'Coleccionista Experto', icon: '🏅', desc: 'Desbloquea 110 emblemas' },
-  { id: 'b192', name: 'Superación Personal', icon: '🥈', desc: 'Desbloquea 125 emblemas' },
-  { id: 'b193', name: 'Gran Maestro de Logros', icon: '🥇', desc: 'Desbloquea 140 emblemas' },
-  { id: 'b194', name: 'Élite de los Emblemas', icon: '💎', desc: 'Desbloquea 155 emblemas' },
-  { id: 'b195', name: 'Héroe de la Lengua', icon: '🛡️', desc: 'Desbloquea 170 emblemas' },
-  { id: 'b196', name: 'Casi Mítico', icon: '🌟', desc: 'Desbloquea 180 emblemas' },
-  { id: 'b197', name: 'Colección Legendaria', icon: '👑', desc: 'Desbloquea 190 emblemas' },
-  { id: 'b198', name: 'Perfeccionista Supremo', icon: '🏆', desc: 'Desbloquea 195 emblemas' },
-  { id: 'b199', name: 'Titán Insuperable', icon: '⚡', desc: 'Desbloquea 199 emblemas' },
-  { id: 'b200', name: 'Panteón Aragonés', icon: '🌌', desc: 'Desbloquea los 200 emblemas del juego' }
+  { id: 'b100', name: 'Perfección Total', icon: '🌟', desc: 'Desbloquea los 100 emblemas base' }
 ];
 
 let unlockedBadges = [];
@@ -272,8 +177,8 @@ function checkAndUnlockBadge(badgeId) {
 }
 
 function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintsUsedCount) {
-  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0) + (stats.timeattack?.wins || 0);
-  const totalPlayed = (stats.daily?.played || 0) + (stats.free?.played || 0) + (stats.timeattack?.played || 0);
+  const totalWins = (stats.daily?.wins || 0) + (stats.free?.wins || 0) + (stats.timeattack?.wins || 0) + (stats.definitions?.wins || 0);
+  const totalPlayed = (stats.daily?.played || 0) + (stats.free?.played || 0) + (stats.timeattack?.played || 0) + (stats.definitions?.played || 0);
   const dailyStreak = stats.daily?.streak || 0;
 
   if (totalPlayed >= 1) checkAndUnlockBadge('b1');
@@ -312,44 +217,7 @@ function evaluateBadgesOnGameEnd(isWin, attemptsCount, wordLength, hintsUsedCoun
     if (wordLength === 9) checkAndUnlockBadge('b57');
 
     if (hintsUsedCount === 0) checkAndUnlockBadge('b61');
-
-    if (unlockedWords.length >= 10) checkAndUnlockBadge('b42');
-    if (unlockedWords.length >= 25) checkAndUnlockBadge('b43');
-    if (unlockedWords.length >= 50) checkAndUnlockBadge('b44');
-    if (unlockedWords.length >= 100) checkAndUnlockBadge('b45');
-    if (unlockedWords.length >= 200) checkAndUnlockBadge('b46');
-    if (unlockedWords.length >= 350) checkAndUnlockBadge('b47');
   }
-
-  const currentHour = new Date().getHours();
-  if (currentHour < 8) checkAndUnlockBadge('b71');
-  if (currentHour >= 13 && currentHour <= 15) checkAndUnlockBadge('b72');
-  if (currentHour >= 17 && currentHour <= 19) checkAndUnlockBadge('b73');
-  if (currentHour >= 22 || currentHour <= 2) checkAndUnlockBadge('b74');
-  if (currentHour >= 3 && currentHour < 6) checkAndUnlockBadge('b80');
-
-  const unlockedCount = unlockedBadges.length;
-  if (unlockedCount >= 5) checkAndUnlockBadge('b91');
-  if (unlockedCount >= 10) checkAndUnlockBadge('b92');
-  if (unlockedCount >= 20) checkAndUnlockBadge('b93');
-  if (unlockedCount >= 35) checkAndUnlockBadge('b94');
-  if (unlockedCount >= 50) checkAndUnlockBadge('b95');
-  if (unlockedCount >= 65) checkAndUnlockBadge('b96');
-  if (unlockedCount >= 80) checkAndUnlockBadge('b97');
-  if (unlockedCount >= 90) checkAndUnlockBadge('b98');
-  if (unlockedCount >= 99) checkAndUnlockBadge('b99');
-  if (unlockedCount >= 100) checkAndUnlockBadge('b100');
-
-  if (unlockedCount >= 110) checkAndUnlockBadge('b191');
-  if (unlockedCount >= 125) checkAndUnlockBadge('b192');
-  if (unlockedCount >= 140) checkAndUnlockBadge('b193');
-  if (unlockedCount >= 155) checkAndUnlockBadge('b194');
-  if (unlockedCount >= 170) checkAndUnlockBadge('b195');
-  if (unlockedCount >= 180) checkAndUnlockBadge('b196');
-  if (unlockedCount >= 190) checkAndUnlockBadge('b197');
-  if (unlockedCount >= 195) checkAndUnlockBadge('b198');
-  if (unlockedCount >= 199) checkAndUnlockBadge('b199');
-  if (unlockedCount >= 200) checkAndUnlockBadge('b200');
 }
 
 function renderBadgesGrid() {
@@ -422,11 +290,18 @@ const btnModalCloseStats = document.getElementById('btn-modal-close-stats');
 const btnModeDaily = document.getElementById('btn-mode-daily');
 const btnModeFree = document.getElementById('btn-mode-free');
 const btnModeTimeAttack = document.getElementById('btn-mode-timeattack');
+const btnModeDefinitions = document.getElementById('btn-mode-definitions');
 
 const freeControls = document.getElementById('free-mode-controls');
 const timeAttackControls = document.getElementById('timeattack-controls');
 const timeAttackTimerBadge = document.getElementById('timeattack-timer-badge');
 const timeAttackScoreBadge = document.getElementById('timeattack-score-badge');
+
+const definitionsControls = document.getElementById('definitions-controls');
+const definitionsTimerBadge = document.getElementById('definitions-timer-badge');
+const definitionsScoreBadge = document.getElementById('definitions-score-badge');
+const definitionsBoxPanel = document.getElementById('definitions-box-panel');
+const definitionsTextSpan = document.getElementById('definitions-text-span');
 
 const wordBadge = document.getElementById('word-number-badge');
 const dailyCompletedBanner = document.getElementById('daily-completed-banner');
@@ -478,13 +353,10 @@ function showAlert(message, isConfirm = false) {
 
 function setupDailyReminderNotification() {
   if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
-
   navigator.serviceWorker.register('sw.js').then(registration => {
     if (Notification.permission === 'default') {
       Notification.requestPermission().then(permission => {
-        if (permission === 'granted') {
-          scheduleLocalNotification(registration);
-        }
+        if (permission === 'granted') scheduleLocalNotification(registration);
       });
     } else if (Notification.permission === 'granted') {
       scheduleLocalNotification(registration);
@@ -495,25 +367,18 @@ function setupDailyReminderNotification() {
 function scheduleLocalNotification(registration) {
   const savedDaily = localStorage.getItem('palabra_aragonesa_daily_game');
   let playedToday = false;
-
   if (savedDaily) {
     try {
       const data = JSON.parse(savedDaily);
-      if (data.date === getTodayString() && data.status !== 'IN_PROGRESS') {
-        playedToday = true;
-      }
+      if (data.date === getTodayString() && data.status !== 'IN_PROGRESS') playedToday = true;
     } catch (e) {}
   }
-
   if (playedToday) return;
 
   const now = new Date();
   const reminderTime = new Date();
   reminderTime.setHours(20, 0, 0, 0);
-
-  if (now > reminderTime) {
-    reminderTime.setDate(reminderTime.getDate() + 1);
-  }
+  if (now > reminderTime) reminderTime.setDate(reminderTime.getDate() + 1);
 
   if ('showTrigger' in Notification.prototype) {
     registration.showNotification("La Palabra Aragonesa del Día", {
@@ -522,44 +387,22 @@ function scheduleLocalNotification(registration) {
       tag: "daily-reminder",
       showTrigger: new TimestampTrigger(reminderTime.getTime())
     });
-  } else {
-    const delay = reminderTime.getTime() - now.getTime();
-    if (navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        action: 'schedule_notification',
-        delay: delay
-      });
-    }
   }
 }
 
 function loadUnlockedWords() {
   const saved = localStorage.getItem('palabra_aragonesa_unlocked_words');
-  if (saved) {
-    try { 
-      unlockedWords = JSON.parse(saved); 
-    } catch (e) {
-      unlockedWords = [];
-    }
-  } else {
-    unlockedWords = [];
-  }
+  unlockedWords = saved ? JSON.parse(saved) : [];
 
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
   if (savedFreeIndex !== null && validWords && validWords.length > 0) {
     const currentIndex = parseInt(savedFreeIndex, 10) || 0;
-    
     let hasNewImport = false;
     for (let i = 0; i < currentIndex; i++) {
       const wObj = validWords[i];
       if (!wObj) continue;
-
       const wordId = wObj.id || wObj.palabra;
-      const exists = unlockedWords.some(item => 
-        item.id === wordId || 
-        item.palabra.toUpperCase().trim() === wObj.palabra.toUpperCase().trim()
-      );
-
+      const exists = unlockedWords.some(item => item.id === wordId || item.palabra.toUpperCase().trim() === wObj.palabra.toUpperCase().trim());
       if (!exists) {
         unlockedWords.push({
           id: wordId,
@@ -570,7 +413,6 @@ function loadUnlockedWords() {
         hasNewImport = true;
       }
     }
-
     if (hasNewImport) {
       localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
     }
@@ -579,7 +421,6 @@ function loadUnlockedWords() {
 
 function unlockCurrentWord() {
   if (!currentGame.wordObj) return;
-
   loadUnlockedWords();
 
   const wordId = currentGame.wordObj.id || currentGame.wordObj.palabra;
@@ -595,51 +436,33 @@ function unlockCurrentWord() {
   } else {
     unlockedWords[existsIndex].palabraMostrar = currentGame.wordObj.palabraMostrar || currentGame.wordObj.palabra;
   }
-  
   localStorage.setItem('palabra_aragonesa_unlocked_words', JSON.stringify(unlockedWords));
 }
 
 function renderDictionaryList(filterText = '') {
   loadUnlockedWords();
-
   dictionaryList.innerHTML = '';
   dictCounter.textContent = `Descubiertas: ${unlockedWords.length} / ${validWords.length}`;
 
   const filtered = unlockedWords.filter(item => {
     const originalObj = validWords.find(w => (w.id && w.id === item.id) || w.palabra.toUpperCase().trim() === item.palabra.toUpperCase().trim());
     const displayWord = (originalObj && originalObj.palabraMostrar) || item.palabraMostrar || item.palabra;
-    
-    return displayWord.toLowerCase().includes(filterText.toLowerCase()) ||
-           item.significado.toLowerCase().includes(filterText.toLowerCase());
+    return displayWord.toLowerCase().includes(filterText.toLowerCase()) || item.significado.toLowerCase().includes(filterText.toLowerCase());
   });
 
   if (filtered.length === 0) {
-    dictionaryList.innerHTML = `<div class="dict-empty-msg">${
-      unlockedWords.length === 0 
-        ? 'Aún no has descubierto ninguna palabra. ¡Gana una partida para añadir tu primera palabra!' 
-        : 'No se encontraron palabras con ese filtro.'
-    }</div>`;
+    dictionaryList.innerHTML = `<div class="dict-empty-msg">${unlockedWords.length === 0 ? 'Aún no has descubierto ninguna palabra.' : 'No se encontraron palabras.'}</div>`;
     return;
   }
 
-  filtered.sort((a, b) => {
-    const origA = validWords.find(w => (w.id && w.id === a.id) || w.palabra.toUpperCase().trim() === a.palabra.toUpperCase().trim());
-    const origB = validWords.find(w => (w.id && w.id === b.id) || w.palabra.toUpperCase().trim() === b.palabra.toUpperCase().trim());
-
-    const wordA = (origA && origA.palabraMostrar) || a.palabraMostrar || a.palabra;
-    const wordB = (origB && origB.palabraMostrar) || b.palabraMostrar || b.palabra;
-    return wordA.localeCompare(wordB);
-  }).forEach(item => {
+  filtered.forEach(item => {
     const card = document.createElement('div');
     card.className = 'dict-card';
-    
     const originalObj = validWords.find(w => (w.id && w.id === item.id) || w.palabra.toUpperCase().trim() === item.palabra.toUpperCase().trim());
     const textoMostrar = (originalObj && originalObj.palabraMostrar) || item.palabraMostrar || item.palabra;
 
     card.innerHTML = `
-      <div class="dict-card-header">
-        <span class="dict-word">${textoMostrar}</span>
-      </div>
+      <div class="dict-card-header"><span class="dict-word">${textoMostrar}</span></div>
       <div class="dict-definition">${item.significado}</div>
     `;
     dictionaryList.appendChild(card);
@@ -653,17 +476,13 @@ function loadSavedStats() {
       const parsed = JSON.parse(saved);
       if (parsed) {
         stats = { ...stats, ...parsed };
-        if (parsed.timeattack) {
-          stats.timeattack = { ...stats.timeattack, ...parsed.timeattack };
-        }
+        if (parsed.timeattack) stats.timeattack = { ...stats.timeattack, ...parsed.timeattack };
+        if (parsed.definitions) stats.definitions = { ...stats.definitions, ...parsed.definitions };
       }
     } catch (e) {}
   }
-
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
-  if (savedFreeIndex !== null) {
-    currentGame.freeWordIndex = parseInt(savedFreeIndex, 10) || 0;
-  }
+  if (savedFreeIndex !== null) currentGame.freeWordIndex = parseInt(savedFreeIndex, 10) || 0;
 }
 
 function saveStats() {
@@ -673,17 +492,11 @@ function saveStats() {
 function saveGameState() {
   if (currentGame.mode === 'daily') {
     localStorage.setItem('palabra_aragonesa_daily_game', JSON.stringify({
-      date: getTodayString(),
-      attempts: currentGame.attempts,
-      status: currentGame.status,
-      hintLevel: currentGame.hintLevel
+      date: getTodayString(), attempts: currentGame.attempts, status: currentGame.status, hintLevel: currentGame.hintLevel
     }));
   } else if (currentGame.mode === 'free') {
     localStorage.setItem('palabra_aragonesa_free_game', JSON.stringify({
-      wordIndex: currentGame.freeWordIndex,
-      attempts: currentGame.attempts,
-      status: currentGame.status,
-      hintLevel: currentGame.hintLevel
+      wordIndex: currentGame.freeWordIndex, attempts: currentGame.attempts, status: currentGame.status, hintLevel: currentGame.hintLevel
     }));
   }
 }
@@ -693,24 +506,16 @@ function loadWordsJSON() {
     .then(res => res.json())
     .then(data => {
       validWords = data.filter(item => item.palabra && item.palabra.trim().length >= 5 && item.palabra.trim().length <= 9);
-
-      if (validWords.length === 0) {
-        showAlert('No se encontraron palabras válidas en words.json.');
-        return;
-      }
-
+      if (validWords.length === 0) return;
       loadUnlockedWords();
       checkFirstVisitTutorial();
       initGame('daily');
     })
-    .catch(err => {
-      console.error('Error al cargar words.json:', err);
-    });
+    .catch(err => console.error('Error al cargar words.json:', err));
 }
 
 function checkFirstVisitTutorial() {
-  const hideHelp = localStorage.getItem('palabra_aragonesa_hide_help');
-  if (!hideHelp) {
+  if (!localStorage.getItem('palabra_aragonesa_hide_help')) {
     helpModal.classList.remove('hidden');
   }
 }
@@ -719,19 +524,13 @@ function initEventListeners() {
   btnHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
   closeHelp.addEventListener('click', () => helpModal.classList.add('hidden'));
   startGameBtn.addEventListener('click', () => {
-    if (dontShowHelp.checked) {
-      localStorage.setItem('palabra_aragonesa_hide_help', 'true');
-    }
+    if (dontShowHelp.checked) localStorage.setItem('palabra_aragonesa_hide_help', 'true');
     helpModal.classList.add('hidden');
   });
 
   if (btnBadges) {
-    btnBadges.addEventListener('click', () => {
-      renderBadgesGrid();
-      badgesModal.classList.remove('hidden');
-    });
+    btnBadges.addEventListener('click', () => { renderBadgesGrid(); badgesModal.classList.remove('hidden'); });
   }
-
   if (closeBadges) closeBadges.addEventListener('click', () => badgesModal.classList.add('hidden'));
   if (btnModalCloseBadges) btnModalCloseBadges.addEventListener('click', () => badgesModal.classList.add('hidden'));
 
@@ -743,32 +542,26 @@ function initEventListeners() {
       dictionaryModal.classList.remove('hidden');
     });
   }
-
   if (closeDictionary) closeDictionary.addEventListener('click', () => dictionaryModal.classList.add('hidden'));
   if (btnModalCloseDict) btnModalCloseDict.addEventListener('click', () => dictionaryModal.classList.add('hidden'));
 
   if (dictSearchInput) {
-    dictSearchInput.addEventListener('input', (e) => {
-      renderDictionaryList(e.target.value);
-    });
+    dictSearchInput.addEventListener('input', (e) => renderDictionaryList(e.target.value));
   }
 
-  if (btnHint) {
-    btnHint.addEventListener('click', handleHintClick);
-  }
+  if (btnHint) btnHint.addEventListener('click', handleHintClick);
 
   btnCloseResultModal.addEventListener('click', () => {
     resultModal.classList.add('hidden');
     updateMainActionButtons();
     if (currentGame.mode === 'timeattack' && !timeAttackState.isActive) {
       initGame('timeattack');
+    } else if (currentGame.mode === 'definitions' && !definitionsState.isActive) {
+      initGame('definitions');
     }
   });
 
-  btnStats.addEventListener('click', () => {
-    checkAndUnlockBadge('b86');
-    openStatsModal();
-  });
+  btnStats.addEventListener('click', () => { checkAndUnlockBadge('b86'); openStatsModal(); });
   closeStats.addEventListener('click', () => statsModal.classList.add('hidden'));
   btnModalCloseStats.addEventListener('click', () => statsModal.classList.add('hidden'));
 
@@ -784,11 +577,16 @@ function initEventListeners() {
   if (btnModeDaily) btnModeDaily.addEventListener('click', () => switchMode('daily'));
   if (btnModeFree) btnModeFree.addEventListener('click', () => switchMode('free'));
   if (btnModeTimeAttack) btnModeTimeAttack.addEventListener('click', () => switchMode('timeattack'));
+  if (btnModeDefinitions) btnModeDefinitions.addEventListener('click', () => switchMode('definitions'));
 
   btnNextWord.addEventListener('click', () => {
     if (currentGame.mode === 'timeattack') {
       resultModal.classList.add('hidden');
       loadRandomTimeAttackWord();
+      resetCurrentWord();
+    } else if (currentGame.mode === 'definitions') {
+      resultModal.classList.add('hidden');
+      loadRandomDefinitionsWord();
       resetCurrentWord();
     } else {
       nextFreeWord();
@@ -799,6 +597,9 @@ function initEventListeners() {
     if (currentGame.mode === 'timeattack') {
       resultModal.classList.add('hidden');
       initGame('timeattack');
+    } else if (currentGame.mode === 'definitions') {
+      resultModal.classList.add('hidden');
+      initGame('definitions');
     } else {
       retryFreeWord();
     }
@@ -806,14 +607,12 @@ function initEventListeners() {
 
   btnMainNext.addEventListener('click', nextFreeWord);
   btnMainRetry.addEventListener('click', retryFreeWord);
-
   btnShare.addEventListener('click', shareResults);
 
   keyboardEl.addEventListener('click', (e) => {
     const target = e.target.closest('.key');
     if (!target) return;
-    const key = target.getAttribute('data-key');
-    handleKeyPress(key);
+    handleKeyPress(target.getAttribute('data-key'));
   });
 
   document.addEventListener('keydown', (e) => {
@@ -836,16 +635,18 @@ function initEventListeners() {
 function switchMode(mode) {
   if (currentGame.mode === mode) return;
 
-  if (currentGame.mode === 'timeattack') {
-    stopTimeAttackTimer();
-  }
+  if (currentGame.mode === 'timeattack') stopTimeAttackTimer();
+  if (currentGame.mode === 'definitions') stopDefinitionsTimer();
 
   if (btnModeDaily) btnModeDaily.classList.toggle('active', mode === 'daily');
   if (btnModeFree) btnModeFree.classList.toggle('active', mode === 'free');
   if (btnModeTimeAttack) btnModeTimeAttack.classList.toggle('active', mode === 'timeattack');
+  if (btnModeDefinitions) btnModeDefinitions.classList.toggle('active', mode === 'definitions');
 
   if (freeControls) freeControls.classList.toggle('hidden', mode !== 'free');
   if (timeAttackControls) timeAttackControls.classList.toggle('hidden', mode !== 'timeattack');
+  if (definitionsControls) definitionsControls.classList.toggle('hidden', mode !== 'definitions');
+  if (definitionsBoxPanel) definitionsBoxPanel.classList.toggle('hidden', mode !== 'definitions');
 
   initGame(mode);
 }
@@ -859,22 +660,18 @@ function getDailyIndex() {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startDate = new Date(2026, 7, 13);
-
   const diffTime = today - startDate;
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
   const targetId = 1201;
   const baseIndex = validWords.findIndex(w => w.id === targetId);
   const startIndex = baseIndex !== -1 ? baseIndex : 1200;
-
   return (startIndex + diffDays) % validWords.length;
 }
 
-// --- GESTIÓN DEL TEMPORIZADOR DEL MODO CONTRARRELOJ (2 Minutos / 120s) ---
+// --- TEMPORIZADOR MODO CONTRARRELOJ (120s) ---
 function startTimeAttackTimer() {
   stopTimeAttackTimer();
   timeAttackState.isActive = true;
-  
   timeAttackState.timerInterval = setInterval(() => {
     if (timeAttackState.timeLeft > 0) {
       timeAttackState.timeLeft--;
@@ -884,7 +681,7 @@ function startTimeAttackTimer() {
       timeAttackState.isActive = false;
       currentGame.status = 'LOST';
       recordTimeAttackEnd();
-      openTimeAttackResultModal(); // Se abre correctamente la ventana emergente al acabar el tiempo
+      openTimeAttackResultModal();
     }
   }, 1000);
 }
@@ -901,24 +698,58 @@ function updateTimeAttackUI() {
   const mins = Math.floor(timeAttackState.timeLeft / 60).toString().padStart(2, '0');
   const secs = (timeAttackState.timeLeft % 60).toString().padStart(2, '0');
   timeAttackTimerBadge.textContent = `⏱️ ${mins}:${secs}`;
-  if (timeAttackScoreBadge) {
-    timeAttackScoreBadge.textContent = `🔥 Palabras: ${timeAttackState.score}`;
-  }
+  if (timeAttackScoreBadge) timeAttackScoreBadge.textContent = `🔥 Palabras: ${timeAttackState.score}`;
 }
 
 function loadRandomTimeAttackWord() {
-  // Filtrar palabras exclusivamente de 5 y 6 letras
   const pool = validWords.filter(w => {
     const len = w.palabra.trim().length;
     return len >= 5 && len <= 6;
   });
-
-  if (pool.length === 0) {
-    currentGame.wordObj = validWords[Math.floor(Math.random() * validWords.length)];
-  } else {
-    currentGame.wordObj = pool[Math.floor(Math.random() * pool.length)];
-  }
+  currentGame.wordObj = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : validWords[0];
   currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
+}
+
+// --- TEMPORIZADOR MODO DEFINICIONES (90s) ---
+function startDefinitionsTimer() {
+  stopDefinitionsTimer();
+  definitionsState.isActive = true;
+  definitionsState.timerInterval = setInterval(() => {
+    if (definitionsState.timeLeft > 0) {
+      definitionsState.timeLeft--;
+      updateDefinitionsUI();
+    } else {
+      stopDefinitionsTimer();
+      definitionsState.isActive = false;
+      currentGame.status = 'LOST';
+      recordDefinitionsEnd();
+      openDefinitionsResultModal();
+    }
+  }, 1000);
+}
+
+function stopDefinitionsTimer() {
+  if (definitionsState.timerInterval) {
+    clearInterval(definitionsState.timerInterval);
+    definitionsState.timerInterval = null;
+  }
+}
+
+function updateDefinitionsUI() {
+  if (!definitionsTimerBadge) return;
+  const mins = Math.floor(definitionsState.timeLeft / 60).toString().padStart(2, '0');
+  const secs = (definitionsState.timeLeft % 60).toString().padStart(2, '0');
+  definitionsTimerBadge.textContent = `⏱️ ${mins}:${secs}`;
+  if (definitionsScoreBadge) definitionsScoreBadge.textContent = `🔥 Palabras: ${definitionsState.score}`;
+}
+
+function loadRandomDefinitionsWord() {
+  const pool = validWords.filter(w => w.significado && w.significado.trim().length > 0);
+  currentGame.wordObj = pool.length > 0 ? pool[Math.floor(Math.random() * pool.length)] : validWords[0];
+  currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
+  if (definitionsTextSpan && currentGame.wordObj) {
+    definitionsTextSpan.textContent = currentGame.wordObj.significado;
+  }
 }
 
 function initGame(mode) {
@@ -932,8 +763,11 @@ function initGame(mode) {
 
   if (freeControls) freeControls.classList.toggle('hidden', mode !== 'free');
   if (timeAttackControls) timeAttackControls.classList.toggle('hidden', mode !== 'timeattack');
+  if (definitionsControls) definitionsControls.classList.toggle('hidden', mode !== 'definitions');
+  if (definitionsBoxPanel) definitionsBoxPanel.classList.toggle('hidden', mode !== 'definitions');
 
   stopTimeAttackTimer();
+  stopDefinitionsTimer();
 
   if (mode === 'daily') {
     const dailyIdx = getDailyIndex();
@@ -949,11 +783,7 @@ function initGame(mode) {
           currentGame.status = dailyData.status || 'IN_PROGRESS';
           currentGame.hintLevel = dailyData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
-
-          if (currentGame.status === 'WON') {
-            unlockCurrentWord();
-          }
-
+          if (currentGame.status === 'WON') unlockCurrentWord();
           if (currentGame.status === 'WON' || currentGame.status === 'LOST') {
             if (dailyCompletedBanner) dailyCompletedBanner.classList.remove('hidden');
             openDailyAlreadyPlayedModal();
@@ -962,9 +792,7 @@ function initGame(mode) {
       } catch (e) {}
     }
   } else if (mode === 'free') {
-    if (currentGame.freeWordIndex >= validWords.length) {
-      currentGame.freeWordIndex = 0;
-    }
+    if (currentGame.freeWordIndex >= validWords.length) currentGame.freeWordIndex = 0;
     currentGame.wordObj = validWords[currentGame.freeWordIndex];
     currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
     const displayNum = currentGame.wordObj.id || (currentGame.freeWordIndex + 1);
@@ -979,34 +807,29 @@ function initGame(mode) {
           currentGame.status = freeData.status || 'IN_PROGRESS';
           currentGame.hintLevel = freeData.hintLevel || 0;
           currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
-
-          if (currentGame.status === 'WON') {
-            unlockCurrentWord();
-            updateMainActionButtons();
-          } else if (currentGame.status === 'LOST') {
-            updateMainActionButtons();
-          }
+          if (currentGame.status === 'WON') { unlockCurrentWord(); updateMainActionButtons(); }
+          else if (currentGame.status === 'LOST') updateMainActionButtons();
         }
       } catch (e) {}
     }
   } else if (mode === 'timeattack') {
-    // Inicializar Contrarreloj: 120 segundos (2 minutos) y puntuación a 0
     timeAttackState.timeLeft = 120;
     timeAttackState.score = 0;
     updateTimeAttackUI();
     loadRandomTimeAttackWord();
     startTimeAttackTimer();
+  } else if (mode === 'definitions') {
+    definitionsState.timeLeft = 90;
+    definitionsState.score = 0;
+    updateDefinitionsUI();
+    loadRandomDefinitionsWord();
+    startDefinitionsTimer();
   }
 
   resetInputArray();
   resetKeyboardColors();
-  if (currentGame.attempts.length > 0) {
-    currentGame.attempts.forEach(att => updateKeyboardColors(att));
-  }
-  
-  if (currentGame.hintLevel >= 1) {
-    discardKeyboardLetters(3);
-  }
+  if (currentGame.attempts.length > 0) currentGame.attempts.forEach(att => updateKeyboardColors(att));
+  if (currentGame.hintLevel >= 1) discardKeyboardLetters(3);
 
   updateHintButtonUI();
   renderBoard();
@@ -1048,7 +871,6 @@ function retryFreeWord() {
 
 function handleKeyPress(key) {
   if (currentGame.status !== 'IN_PROGRESS') return;
-
   const wordLength = currentGame.targetWord.length;
 
   if (key === 'ENTER') {
@@ -1063,21 +885,12 @@ function handleKeyPress(key) {
     renderBoard();
   } else if (/^[A-ZÑ]$/.test(key)) {
     currentGame.currentInput[currentGame.selectedTileIndex] = key;
-
     let nextEmpty = -1;
     for (let i = currentGame.selectedTileIndex + 1; i < wordLength; i++) {
-      if (currentGame.currentInput[i] === '') {
-        nextEmpty = i;
-        break;
-      }
+      if (currentGame.currentInput[i] === '') { nextEmpty = i; break; }
     }
-
-    if (nextEmpty !== -1) {
-      currentGame.selectedTileIndex = nextEmpty;
-    } else if (currentGame.selectedTileIndex < wordLength - 1) {
-      currentGame.selectedTileIndex++;
-    }
-
+    if (nextEmpty !== -1) currentGame.selectedTileIndex = nextEmpty;
+    else if (currentGame.selectedTileIndex < wordLength - 1) currentGame.selectedTileIndex++;
     renderBoard();
   }
 }
@@ -1094,7 +907,6 @@ function submitAttempt() {
   const attempt = currentGame.currentInput.join('').toUpperCase();
   currentGame.attempts.push(attempt);
   resetInputArray();
-
   updateKeyboardColors(attempt);
 
   const isWin = (attempt === currentGame.targetWord);
@@ -1106,22 +918,43 @@ function submitAttempt() {
     
     if (currentGame.mode === 'timeattack') {
       timeAttackState.score++;
-      // Bonificación de 15 segundos extra por acierto
       timeAttackState.timeLeft += 15;
       updateTimeAttackUI();
+    } else if (currentGame.mode === 'definitions') {
+      definitionsState.score++;
+      definitionsState.timeLeft += 10;
+      updateDefinitionsUI();
+      setTimeout(() => {
+        loadRandomDefinitionsWord();
+        resetCurrentWord();
+        resetKeyboardColors();
+        updateHintButtonUI();
+        renderBoard();
+      }, 500);
+      return;
     } else {
       recordStats(true, currentGame.attempts.length);
     }
   } else if (isLoss) {
     if (currentGame.mode === 'timeattack') {
       renderBoard();
-      const submittedRowIndex = currentGame.attempts.length - 1;
-      currentGame.animatedRows.push(submittedRowIndex);
-
+      currentGame.animatedRows.push(currentGame.attempts.length - 1);
       setTimeout(() => {
-        showAlert(`¡Intentos agotados! La palabra era: ${currentGame.targetWord}. ¡Sigue con la siguiente!`);
+        showAlert(`¡Intentos agotados! La palabra era: ${currentGame.targetWord}.`);
         resetCurrentWord();
         loadRandomTimeAttackWord();
+        resetKeyboardColors();
+        updateHintButtonUI();
+        renderBoard();
+      }, 500);
+      return;
+    } else if (currentGame.mode === 'definitions') {
+      renderBoard();
+      currentGame.animatedRows.push(currentGame.attempts.length - 1);
+      setTimeout(() => {
+        showAlert(`¡Intentos agotados! La palabra era: ${currentGame.targetWord}.`);
+        resetCurrentWord();
+        loadRandomDefinitionsWord();
         resetKeyboardColors();
         updateHintButtonUI();
         renderBoard();
@@ -1141,9 +974,7 @@ function submitAttempt() {
   }
 
   renderBoard();
-
-  const submittedRowIndex = currentGame.attempts.length - 1;
-  currentGame.animatedRows.push(submittedRowIndex);
+  currentGame.animatedRows.push(currentGame.attempts.length - 1);
 
   if (currentGame.mode === 'timeattack' && isWin) {
     setTimeout(() => {
@@ -1167,9 +998,7 @@ function getGreenLettersMap() {
   const greenMap = {};
   currentGame.attempts.forEach(att => {
     att.split('').forEach((char, idx) => {
-      if (currentGame.targetWord[idx] === char) {
-        greenMap[idx] = char;
-      }
+      if (currentGame.targetWord[idx] === char) greenMap[idx] = char;
     });
   });
   return greenMap;
@@ -1183,7 +1012,6 @@ function renderBoard() {
   for (let r = 0; r < 6; r++) {
     const rowEl = document.createElement('div');
     rowEl.className = 'board-row';
-
     const attempt = currentGame.attempts[r];
     const isCurrentRow = (r === currentGame.attempts.length && currentGame.status === 'IN_PROGRESS');
     const isLatestSubmitted = (r === currentGame.attempts.length - 1);
@@ -1195,27 +1023,17 @@ function renderBoard() {
       if (attempt) {
         tile.textContent = attempt[c];
         const status = evaluateTileStatus(attempt, c);
-
         if (isLatestSubmitted && !currentGame.animatedRows.includes(r)) {
           tile.classList.add('flip');
           tile.style.animationDelay = `${c * 150}ms`;
         }
-
         tile.classList.add(status);
       } else if (isCurrentRow) {
         const char = currentGame.currentInput[c] || '';
-        
         tile.dataset.col = c;
         tile.classList.add('selectable');
-        tile.addEventListener('click', () => {
-          currentGame.selectedTileIndex = c;
-          renderBoard();
-        });
-
-        if (c === currentGame.selectedTileIndex) {
-          tile.classList.add('selected');
-        }
-
+        tile.addEventListener('click', () => { currentGame.selectedTileIndex = c; renderBoard(); });
+        if (c === currentGame.selectedTileIndex) tile.classList.add('selected');
         if (char) {
           tile.textContent = char;
           tile.classList.add('filled');
@@ -1224,10 +1042,8 @@ function renderBoard() {
           tile.classList.add('ghost-green');
         }
       }
-
       rowEl.appendChild(tile);
     }
-
     boardEl.appendChild(rowEl);
   }
 }
@@ -1256,7 +1072,6 @@ function evaluateTileStatus(attempt, index) {
       }
     }
   }
-
   return statuses[index];
 }
 
@@ -1264,7 +1079,6 @@ function updateKeyboardColors(attempt) {
   attempt.split('').forEach((char, idx) => {
     const keyEl = keyboardEl.querySelector(`[data-key="${char}"]`);
     if (!keyEl) return;
-
     if (currentGame.targetWord[idx] === char) {
       keyEl.classList.remove('present', 'absent');
       keyEl.classList.add('correct');
@@ -1282,8 +1096,7 @@ function updateKeyboardColors(attempt) {
 }
 
 function resetKeyboardColors() {
-  const keys = keyboardEl.querySelectorAll('.key');
-  keys.forEach(k => k.classList.remove('correct', 'present', 'absent'));
+  keyboardEl.querySelectorAll('.key').forEach(k => k.classList.remove('correct', 'present', 'absent'));
 }
 
 function getMaxHints() {
@@ -1296,37 +1109,23 @@ function getMaxHints() {
 
 function updateHintButtonUI() {
   if (!btnHint) return;
-
   const maxHints = getMaxHints();
-
   if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) {
     btnHint.disabled = true;
-    if (currentGame.hintLevel >= maxHints) {
-      btnHint.textContent = '💡 Pistas agotadas';
-    } else {
-      btnHint.textContent = '💡 Pista';
-    }
+    btnHint.textContent = currentGame.hintLevel >= maxHints ? '💡 Pistas agotadas' : '💡 Pista';
     return;
   }
-
   btnHint.disabled = false;
   const nextHint = currentGame.hintLevel + 1;
-
-  if (nextHint === 1) {
-    btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
-  } else if (nextHint === maxHints) {
-    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Significado)`;
-  } else {
-    btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
-  }
+  if (nextHint === 1) btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
+  else if (nextHint === maxHints) btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Significado)`;
+  else btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
 }
 
 async function handleHintClick() {
   const maxHints = getMaxHints();
   if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) return;
-
   const adWatched = await simulateRewardedAd();
-
   if (adWatched) {
     currentGame.hintLevel++;
     saveGameState();
@@ -1338,52 +1137,27 @@ async function handleHintClick() {
 function initAdMobPlugin() {
   document.addEventListener('deviceready', () => {
     try {
-      if (window.admob && typeof window.admob.start === 'function') {
-        window.admob.start();
-      }
-    } catch (e) {
-      console.warn('AdMob seguro:', e);
-    }
+      if (window.admob && typeof window.admob.start === 'function') window.admob.start();
+    } catch (e) {}
   }, false);
 }
 
 function simulateRewardedAd() {
   return new Promise(async (resolve) => {
-    try {
-      if (window.admob && window.admob.rewarded && typeof window.admob.rewarded.prepare === 'function') {
-        window.admob.rewarded.prepare({
-          adId: 'ca-app-pub-3940256099942544/5224354917',
-          isTesting: true
-        }).then(() => {
-          return window.admob.rewarded.show();
-        }).then(() => {
-          resolve(true);
-        }).catch(async (err) => {
-          console.warn('AdMob no listo o cancelado:', err);
-          const confirmed = await showAlert("🎬 [Simulación de Anuncio]\n\n¿Completar vídeo para obtener la pista?", true);
-          resolve(confirmed);
-        });
-      } else {
-        const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\nVisualizando vídeo publicitario de prueba...\n¿Completar vídeo para obtener la pista?", true);
-        resolve(confirmed);
-      }
-    } catch (err) {
-      const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?", true);
-      resolve(confirmed);
-    }
+    const confirmed = await showAlert("🎬 [Anuncio de prueba]\n\n¿Completar vídeo para obtener la pista?", true);
+    resolve(confirmed);
   });
 }
 
 function applyHint(level) {
   const maxHints = getMaxHints();
-
   if (level === 1) {
     checkAndUnlockBadge('b63');
     discardKeyboardLetters(3);
-    showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado que NO forman parte de la palabra.`);
+    showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado.`);
   } else if (level === maxHints) {
     checkAndUnlockBadge('b65');
-    const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición disponible.';
+    const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición.';
     showAlert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
   } else {
     checkAndUnlockBadge('b64');
@@ -1393,78 +1167,56 @@ function applyHint(level) {
 
 function discardKeyboardLetters(count) {
   const target = currentGame.targetWord;
-  const allKeys = Array.from(keyboardEl.querySelectorAll('.key'));
-
-  const eligibleKeys = allKeys.filter(keyEl => {
+  const eligibleKeys = Array.from(keyboardEl.querySelectorAll('.key')).filter(keyEl => {
     const key = keyEl.getAttribute('data-key');
-    if (!key || key === 'ENTER' || key === 'BACKSPACE') return false;
-    return !target.includes(key) && !keyEl.classList.contains('absent');
+    return key && key !== 'ENTER' && key !== 'BACKSPACE' && !target.includes(key) && !keyEl.classList.contains('absent');
   });
-
-  const shuffled = eligibleKeys.sort(() => 0.5 - Math.random());
-  const selected = shuffled.slice(0, count);
-
-  selected.forEach(keyEl => {
-    keyEl.classList.add('absent');
-  });
+  eligibleKeys.sort(() => 0.5 - Math.random()).slice(0, count).forEach(k => k.classList.add('absent'));
 }
 
 function revealGreenLetter(level, maxHints) {
   const target = currentGame.targetWord;
   const greenMap = getGreenLettersMap();
-
-  const unrevealedIndices = [];
+  const unrevealed = [];
   for (let i = 0; i < target.length; i++) {
-    if (!greenMap[i]) {
-      unrevealedIndices.push(i);
-    }
+    if (!greenMap[i]) unrevealed.push(i);
   }
-
-  if (unrevealedIndices.length === 0) {
-    showAlert(`💡 Pista ${level}/${maxHints}:\n\n¡Ya tienes todas las letras del tablero descubiertas!`);
-    return;
-  }
-
-  const randomIndex = unrevealedIndices[Math.floor(Math.random() * unrevealedIndices.length)];
-  const letter = target[randomIndex];
-
-  showAlert(`💡 Pista ${level}/${maxHints} (Letra verde):\n\nLa letra en la posición ${randomIndex + 1} es la "${letter}".`);
+  if (unrevealed.length === 0) return;
+  const randomIndex = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+  showAlert(`💡 Pista ${level}/${maxHints}:\n\nLa letra en la posición ${randomIndex + 1} es la "${target[randomIndex]}".`);
   renderBoard();
 }
 
 function recordStats(isWin, attemptKey) {
-  if (currentGame.mode === 'timeattack') return;
-
+  if (currentGame.mode === 'timeattack' || currentGame.mode === 'definitions') return;
   const currentStats = stats[currentGame.mode];
   currentStats.played++;
-
   if (isWin) {
     currentStats.wins++;
     currentStats.streak++;
-    if (currentStats.streak > currentStats.maxStreak) {
-      currentStats.maxStreak = currentStats.streak;
-    }
+    if (currentStats.streak > currentStats.maxStreak) currentStats.maxStreak = currentStats.streak;
     currentStats.distribution[attemptKey] = (currentStats.distribution[attemptKey] || 0) + 1;
   } else {
     currentStats.streak = 0;
     currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
   }
-
   saveStats();
 }
 
 function recordTimeAttackEnd() {
-  if (!stats.timeattack) {
-    stats.timeattack = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
-  }
-  if (timeAttackState.score > (stats.timeattack.bestScore || 0)) {
-    stats.timeattack.bestScore = timeAttackState.score;
-  }
+  if (!stats.timeattack) stats.timeattack = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
+  if (timeAttackState.score > (stats.timeattack.bestScore || 0)) stats.timeattack.bestScore = timeAttackState.score;
+  saveStats();
+}
+
+function recordDefinitionsEnd() {
+  if (!stats.definitions) stats.definitions = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
+  if (definitionsState.score > (stats.definitions.bestScore || 0)) stats.definitions.bestScore = definitionsState.score;
   saveStats();
 }
 
 function openResultModal(isWin) {
-  if (currentGame.mode === 'timeattack') return; // Evita interferir con el modal específico de contrarreloj
+  if (currentGame.mode === 'timeattack' || currentGame.mode === 'definitions') return;
 
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
@@ -1472,47 +1224,35 @@ function openResultModal(isWin) {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
 
-  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
-    ? currentGame.wordObj.palabraMostrar 
-    : currentGame.targetWord;
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
 
   if (currentGame.mode === 'daily') {
     if (isWin) {
-      const attemptCount = currentGame.attempts.length;
-      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
+      resultBanner.textContent = winMessages[currentGame.attempts.length] || "¡Felicidades!";
       resultBanner.className = 'feedback-banner win';
     } else {
       resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}`;
       resultBanner.className = 'feedback-banner lose';
     }
-
     resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
     resultWordDefinition.classList.remove('hidden');
-
     btnShare.classList.remove('hidden');
-
     startCountdownTimer();
     resultCountdownBox.classList.remove('hidden');
-
   } else {
     if (isWin) {
-      const attemptCount = currentGame.attempts.length;
-      resultBanner.textContent = winMessages[attemptCount] || "¡Felicidades! Has adivinado la palabra.";
+      resultBanner.textContent = winMessages[currentGame.attempts.length] || "¡Felicidades!";
       resultBanner.className = 'feedback-banner win';
-
       resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
       resultWordDefinition.classList.remove('hidden');
-
       btnShare.classList.remove('hidden');
       btnNextWord.classList.remove('hidden');
     } else {
       resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que la adivinas.";
       resultBanner.className = 'feedback-banner win';
-
       btnRetryWord.classList.remove('hidden');
     }
   }
-
   resultModal.classList.remove('hidden');
 }
 
@@ -1523,16 +1263,29 @@ function openTimeAttackResultModal() {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
-  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
-    ? currentGame.wordObj.palabraMostrar 
-    : currentGame.targetWord;
-
-  // Muestra el número de aciertos, mensaje de ánimo y la palabra pendiente de adivinar
-  resultBanner.innerHTML = `⚡ ¡Tiempo agotado!<br><br>Has conseguido acertar <strong>${timeAttackState.score}</strong> palabra(s).<br>La palabra que estabas intentando adivinar era: <strong>${textoMostrar}</strong>.<br><br>¡Muy bien jugado! Sigue practicando para superar tu récord y mejorar tu vocabulario aragonés. 💪`;
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+  // Utiliza la clase .lose con la nueva estética amigable (verde suave) en lugar de rojo
+  resultBanner.innerHTML = `⚡ ¡Tiempo agotado!<br><br>Has conseguido acertar <strong>${timeAttackState.score}</strong> palabra(s).<br>La palabra era: <strong>${textoMostrar}</strong>.<br><br>¡Muy bien jugado! 💪`;
   resultBanner.className = 'feedback-banner lose';
 
   btnRetryWord.textContent = "🔄 Jugar otra vez";
-  resultModal.classList.remove('hidden'); // Fuerza que se muestre por encima de la interfaz
+  resultModal.classList.remove('hidden');
+}
+
+function openDefinitionsResultModal() {
+  resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
+  btnShare.classList.remove('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.remove('hidden');
+
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+  // Utiliza la clase .lose con la estética amigable
+  resultBanner.innerHTML = `📜 ¡Tiempo agotado (90s)!<br><br>Has acertado <strong>${definitionsState.score}</strong> palabra(s) por definición.<br>La última palabra era: <strong>${textoMostrar}</strong>.<br><br>¡Excelente entrenamiento mental! 💪`;
+  resultBanner.className = 'feedback-banner lose';
+
+  btnRetryWord.textContent = "🔄 Jugar otra vez";
+  resultModal.classList.remove('hidden');
 }
 
 function openDailyAlreadyPlayedModal() {
@@ -1541,33 +1294,22 @@ function openDailyAlreadyPlayedModal() {
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.add('hidden');
 
-  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) 
-    ? currentGame.wordObj.palabraMostrar 
-    : currentGame.targetWord;
-
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
   resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
   resultBanner.className = 'feedback-banner win';
-
   resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
   resultWordDefinition.classList.remove('hidden');
-
   btnShare.classList.remove('hidden');
-
   startCountdownTimer();
   resultCountdownBox.classList.remove('hidden');
-
   resultModal.classList.remove('hidden');
 }
 
 function updateMainActionButtons() {
   hideMainActionButtons();
-
   if (currentGame.mode === 'free') {
-    if (currentGame.status === 'WON') {
-      btnMainNext.classList.remove('hidden');
-    } else if (currentGame.status === 'LOST') {
-      btnMainRetry.classList.remove('hidden');
-    }
+    if (currentGame.status === 'WON') btnMainNext.classList.remove('hidden');
+    else if (currentGame.status === 'LOST') btnMainRetry.classList.remove('hidden');
   }
 }
 
@@ -1589,16 +1331,31 @@ function renderStatsData() {
   const taRecordContainer = document.getElementById('stat-timeattack-record-container');
   const taBestEl = document.getElementById('stat-timeattack-best');
 
+  const defRecordContainer = document.getElementById('stat-definitions-record-container');
+  const defBestEl = document.getElementById('stat-definitions-best');
+
   if (activeStatsTab === 'timeattack') {
     if (summaryBox) summaryBox.style.display = 'none';
     if (distributionTitle) distributionTitle.style.display = 'none';
     if (distributionContainer) distributionContainer.style.display = 'none';
+    if (defRecordContainer) defRecordContainer.classList.add('hidden');
 
     if (taRecordContainer) {
       taRecordContainer.classList.remove('hidden');
-      if (taBestEl) {
-        taBestEl.textContent = stats.timeattack?.bestScore || 0;
-      }
+      if (taBestEl) taBestEl.textContent = stats.timeattack?.bestScore || 0;
+    }
+    return;
+  }
+
+  if (activeStatsTab === 'definitions') {
+    if (summaryBox) summaryBox.style.display = 'none';
+    if (distributionTitle) distributionTitle.style.display = 'none';
+    if (distributionContainer) distributionContainer.style.display = 'none';
+    if (taRecordContainer) taRecordContainer.classList.add('hidden');
+
+    if (defRecordContainer) {
+      defRecordContainer.classList.remove('hidden');
+      if (defBestEl) defBestEl.textContent = stats.definitions?.bestScore || 0;
     }
     return;
   }
@@ -1607,27 +1364,18 @@ function renderStatsData() {
   if (distributionTitle) distributionTitle.style.display = 'block';
   if (distributionContainer) distributionContainer.style.display = 'block';
   if (taRecordContainer) taRecordContainer.classList.add('hidden');
+  if (defRecordContainer) defRecordContainer.classList.add('hidden');
 
-  let combinedStats = {
-    played: 0,
-    wins: 0,
-    streak: 0,
-    maxStreak: 0,
-    distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 }
-  };
+  let combinedStats = { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } };
 
-  if (activeStatsTab === 'daily') {
-    combinedStats = stats.daily;
-  } else if (activeStatsTab === 'free') {
-    combinedStats = stats.free;
-  } else {
+  if (activeStatsTab === 'daily') combinedStats = stats.daily;
+  else if (activeStatsTab === 'free') combinedStats = stats.free;
+  else {
     combinedStats.played = (stats.daily?.played || 0) + (stats.free?.played || 0);
     combinedStats.wins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
     combinedStats.streak = stats.daily?.streak || 0;
     combinedStats.maxStreak = Math.max(stats.daily?.maxStreak || 0, stats.free?.maxStreak || 0);
-
-    const keys = ['1', '2', '3', '4', '5', '6', 'X'];
-    keys.forEach(k => {
+    ['1', '2', '3', '4', '5', '6', 'X'].forEach(k => {
       combinedStats.distribution[k] = (stats.daily?.distribution?.[k] || 0) + (stats.free?.distribution?.[k] || 0);
     });
   }
@@ -1660,9 +1408,7 @@ function renderDistribution(statsObj) {
     row.innerHTML = `
       <span class="dist-num">${key}</span>
       <div class="dist-bar-bg">
-        <div class="dist-bar-fill" style="width: ${pctBar}%">
-          ${val} (${pctTotal}%)
-        </div>
+        <div class="dist-bar-fill" style="width: ${pctBar}%">${val} (${pctTotal}%)</div>
       </div>
     `;
     container.appendChild(row);
@@ -1671,19 +1417,15 @@ function renderDistribution(statsObj) {
 
 function startCountdownTimer() {
   if (countdownInterval) clearInterval(countdownInterval);
-
   function updateTimer() {
     const now = new Date();
     const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
     const diff = tomorrow - now;
-
     const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
     const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
     const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
-
     dailyTimer.textContent = `${hours}:${mins}:${secs}`;
   }
-
   updateTimer();
   countdownInterval = setInterval(updateTimer, 1000);
 }
@@ -1692,10 +1434,12 @@ function shareResults() {
   checkAndUnlockBadge('b81');
   if (currentGame.attempts.length === 1) checkAndUnlockBadge('b90');
 
-  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : 'Modo Contrarreloj ⚡'}\n`;
+  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? 'Palabra del Día' : currentGame.mode === 'free' ? 'Modo Libre' : currentGame.mode === 'timeattack' ? 'Modo Contrarreloj ⚡' : 'Modo Definiciones 📜'}\n`;
   
   if (currentGame.mode === 'timeattack') {
     shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos en el Modo Contrarreloj! ⚡\n`;
+  } else if (currentGame.mode === 'definitions') {
+    shareText += `¡He acertado ${definitionsState.score} palabra(s) por definición en 90 segundos! 📜\n`;
   } else {
     shareText += `${currentGame.attempts.length}/6\n\n`;
     currentGame.attempts.forEach(att => {
@@ -1709,9 +1453,7 @@ function shareResults() {
   }
 
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(shareText).then(() => {
-      showAlert('¡Resultado copiado al portapapeles!');
-    });
+    navigator.clipboard.writeText(shareText).then(() => showAlert('¡Resultado copiado al portapapeles!'));
   } else {
     showAlert(shareText);
   }
