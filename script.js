@@ -250,8 +250,7 @@ const BADGES_LIST = [
   { id: 'b197', name: 'Colección Legendaria', icon: '👑', desc: 'Desbloquea 190 emblemas' },
   { id: 'b198', name: 'Perfeccionista Supremo', icon: '🏆', desc: 'Desbloquea 195 emblemas' },
   { id: 'b199', name: 'Titán Insuperable', icon: '⚡', desc: 'Desbloquea 199 emblemas' },
-  { id: 'b200', name: 'Panteón Aragonés', icon: '🌌', desc: 'Desbloquea los 200 emblemas base' },
-  // NUEVOS 50 EMBLEMAS: Modo Contrarreloj (201-225) y Modo Definiciones (226-250)
+  { id: 'b200', name: 'Panteón Aragonés', icon: '🌌', desc: 'Desbloquea los 200 emblemas del juego' },
   { id: 'b201', name: 'Primer Reloj', icon: '⚡', desc: 'Juega tu primera partida en Modo Contrarreloj' },
   { id: 'b202', name: 'Sprint Inicial', icon: '⏱️', desc: 'Consigue al menos 1 acierto en Contrarreloj' },
   { id: 'b203', name: 'Velocidad de Crucero', icon: '🏃', desc: 'Consigue 3 aciertos en una Contrarreloj' },
@@ -947,7 +946,7 @@ function initGame(mode) {
           currentGame.attempts = freeData.attempts || [];
           currentGame.status = freeData.status || 'IN_PROGRESS';
           currentGame.hintLevel = freeData.hintLevel || 0;
-          currentGame.animatedRows = freeData.attempts.map((_, idx) => idx);
+          currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
           if (currentGame.status === 'WON') { unlockCurrentWord(); updateMainActionButtons(); }
           else if (currentGame.status === 'LOST') updateMainActionButtons();
         }
@@ -1413,7 +1412,7 @@ function openResultModal(isWin) {
     btnShare.classList.remove('hidden');
     startCountdownTimer();
     resultCountdownBox.classList.remove('hidden');
-  } else {
+  } else if (currentGame.mode === 'free') {
     if (isWin) {
       resultBanner.textContent = winMessages[currentGame.attempts.length] || "¡Felicidades!";
       resultBanner.className = 'feedback-banner win';
@@ -1422,8 +1421,10 @@ function openResultModal(isWin) {
       btnShare.classList.remove('hidden');
       btnNextWord.classList.remove('hidden');
     } else {
-      resultBanner.textContent = "¡Ánimo! Si la reintentas seguro que la adivinas.";
-      resultBanner.className = 'feedback-banner win';
+      resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}. Si la reintentas seguro que la adivinas.`;
+      resultBanner.className = 'feedback-banner lose';
+      resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
+      resultWordDefinition.classList.remove('hidden');
       btnRetryWord.classList.remove('hidden');
     }
   }
@@ -1434,7 +1435,7 @@ function openResultModal(isWin) {
 function openTimeAttackResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
-  btnShare.classList.remove('hidden');
+  btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
@@ -1465,7 +1466,7 @@ function openTimeAttackResultModal() {
 function openDefinitionsResultModal() {
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
-  btnShare.classList.remove('hidden');
+  btnShare.classList.add('hidden');
   btnNextWord.classList.add('hidden');
   btnRetryWord.classList.remove('hidden');
 
@@ -1478,11 +1479,11 @@ function openDefinitionsResultModal() {
   if (score === 0) {
     dynamicMsg = "¡Las definiciones rápidas son difíciles! No te desanimes, lee con atención las pistas de significado y lánzate a por tu primera palabra. ¡Tú puedes con la siguiente! 📖💪";
   } else if (score >= 1 && score <= 2) {
-    dynamicMsg = `¡Bien hecho! Has acertado <strong>${score}</strong> palabra(s) por definición. ¡Sigue entrenando para duplicar tu marca en el siguiente intento! 💡📈`;
+    dynamicMsg = `¡Bien hecho! Has acertado <strong>${score}</strong> palabra(s) por definición. Conoces el significado cultural, ¡sigue entrenando para duplicar tu marca en el siguiente intento! 💡📈`;
   } else if (score >= 3 && score <= 5) {
-    dynamicMsg = `¡Muy bien! Has conseguido <strong>${score}</strong> aciertos interpretando definiciones. ¡Demuestras un dominio envidiable del tesoro léxico aragonés! Sigue superándote. 🌟👏`;
+    dynamicMsg = `¡Gran nivel cultural! Has conseguido <strong>${score}</strong> aciertos interpretando definiciones. ¡Demuestras un dominio envidiable del tesoro léxico aragonés! Sigue superándote. 🌟👏`;
   } else {
-    dynamicMsg = `¡Genial! ¡<strong>${score}</strong> palabras acertadas por definición en 90 segundos! Es un resultado extraordinario. ¡Sigue rompiendo récords! 🏛️💎👑`;
+    dynamicMsg = `¡Erudito absoluto! ¡<strong>${score}</strong> palabras acertadas por definición en 90 segundos! Es un resultado extraordinario. ¡Tu vocabulario es impecable, sigue rompiendo récords! 🏛️💎👑`;
   }
 
   resultBanner.innerHTML = `📜 ¡Tiempo agotado (Definiciones)!<br><br>${dynamicMsg}<br><br>La última palabra era: <strong>${textoMostrar}</strong>.`;
