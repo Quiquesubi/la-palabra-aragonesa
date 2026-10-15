@@ -80,11 +80,12 @@
         </div>
       </div>
 
-      <!-- Selector de Modos ampliado con Contrarreloj -->
+      <!-- Selector de Modos ampliado con Contrarreloj y Definiciones -->
       <div class="mode-selector">
-        <button id="btn-mode-daily" class="mode-btn active">Palabra aragonesa del día</button>
+        <button id="btn-mode-daily" class="mode-btn active">Palabra del Día</button>
         <button id="btn-mode-free" class="mode-btn">Modo Libre</button>
         <button id="btn-mode-timeattack" class="mode-btn">⚡ Contrarreloj</button>
+        <button id="btn-mode-definitions" class="mode-btn">📜 Definiciones</button>
       </div>
     </header>
 
@@ -96,13 +97,24 @@
 
       <!-- Controles / Indicadores del Modo Contrarreloj -->
       <div id="timeattack-controls" class="free-controls hidden">
-        <span id="timeattack-timer-badge" class="word-badge">⏱️ 01:30</span>
+        <span id="timeattack-timer-badge" class="word-badge">⏱️ 02:00</span>
         <span id="timeattack-score-badge" class="word-badge">🔥 Palabras: 0</span>
+      </div>
+
+      <!-- Controles / Indicadores del Modo Definiciones -->
+      <div id="definitions-controls" class="free-controls hidden">
+        <span id="definitions-timer-badge" class="word-badge">⏱️ 01:30</span>
+        <span id="definitions-score-badge" class="word-badge">🔥 Palabras: 0</span>
       </div>
 
       <!-- Aviso diario completado -->
       <div id="daily-completed-banner" class="completed-banner hidden">
         ¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.
+      </div>
+
+      <!-- Definición destacada para el Modo Definiciones -->
+      <div id="definitions-box-panel" class="definition-box hidden" style="margin-top: 0; margin-bottom: 12px; width: 100%;">
+        <strong>Definición:</strong> <span id="definitions-text-span">Cargando definición...</span>
       </div>
 
       <!-- Botón de Pistas (Anuncios Recompensados) -->
@@ -166,9 +178,7 @@
       <button id="close-badges" class="close-btn">&times;</button>
       <h2>🏅 Emblemas y Logros</h2>
       <div id="badges-counter" class="dict-counter">Desbloqueados: 0 / 100</div>
-      <div id="badges-grid" class="badges-grid">
-        <!-- Generado dinámicamente -->
-      </div>
+      <div id="badges-grid" class="badges-grid"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-badges" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -182,9 +192,7 @@
       <h2>📖 Diccionario de Palabras</h2>
       <input type="text" id="dict-search-input" placeholder="Buscar palabra descubierta..." />
       <div id="dict-counter" class="dict-counter">Descubiertas: 0</div>
-      <div id="dictionary-list" class="dictionary-list">
-        <!-- Las tarjetas se cargarán dinámicamente -->
-      </div>
+      <div id="dictionary-list" class="dictionary-list"></div>
       <div class="modal-actions">
         <button id="btn-modal-close-dict" class="action-btn-secondary">Cerrar</button>
       </div>
@@ -281,6 +289,7 @@
         <button class="stats-tab-btn active" data-tab="daily">Palabra del Día</button>
         <button class="stats-tab-btn" data-tab="free">Modo Libre</button>
         <button class="stats-tab-btn" data-tab="timeattack">Contrarreloj</button>
+        <button class="stats-tab-btn" data-tab="definitions">Definiciones</button>
         <button class="stats-tab-btn" data-tab="total">Total</button>
       </div>
       
@@ -307,6 +316,12 @@
       <div id="stat-timeattack-record-container" class="stat-time-record-box hidden">
         <span class="stat-time-title">⚡ Récord Contrarreloj (Palabras):</span>
         <span id="stat-timeattack-best" class="stat-time-value">0</span>
+      </div>
+
+      <!-- Apartado para mostrar el récord de palabras en Definiciones -->
+      <div id="stat-definitions-record-container" class="stat-time-record-box hidden">
+        <span class="stat-time-title">📜 Récord Definiciones (Palabras):</span>
+        <span id="stat-definitions-best" class="stat-time-value">0</span>
       </div>
 
       <h3>Distribución de intentos</h3>
