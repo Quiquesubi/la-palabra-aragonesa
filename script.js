@@ -216,7 +216,7 @@ const BADGES_LIST = [
   { id: 'b168', name: 'Embajador de la Lengua', icon: '📣', desc: 'Comparte tu resultado 50 veces' },
   { id: 'b169', name: 'Revisor de Récords', icon: '📊', desc: 'Revisa las estadísticas 25 veces' },
   { id: 'b170', name: 'Fiel a las Reglas', icon: '📖', desc: 'Abre el tutorial o instrucciones' },
-  { id: 'b171', name: 'Doble Pareja', icon: '♊', desc: 'Resuelve una palabra con dos pares de letras iguales' },
+  { id: 'b171', name: 'Doble Pareja', icon: '♊', desc: 'Resuelve una palabra con deux pares de letras iguales' },
   { id: 'b172', name: 'Trío Consonántico', icon: '🧱', desc: 'Resuelve una palabra que tenga 3 consonantes seguidas' },
   { id: 'b173', name: 'Simetría Casi Perfecta', icon: '🪞', desc: 'Adivina una palabra cuyo inicio y fin sean la misma letra' },
   { id: 'b174', name: 'Inicio Vocal', icon: '🅰️', desc: 'Adivina 10 palabras que empiecen por vocal' },
@@ -649,7 +649,15 @@ function renderDictionaryList(filterText = '') {
 function loadSavedStats() {
   const saved = localStorage.getItem('palabra_aragonesa_stats_v2');
   if (saved) {
-    try { stats = JSON.parse(saved); } catch (e) {}
+    try { 
+      const parsed = JSON.parse(saved);
+      if (parsed) {
+        stats = { ...stats, ...parsed };
+        if (parsed.timeattack) {
+          stats.timeattack = { ...stats.timeattack, ...parsed.timeattack };
+        }
+      }
+    } catch (e) {}
   }
 
   const savedFreeIndex = localStorage.getItem('palabra_aragonesa_free_index');
@@ -876,7 +884,7 @@ function startTimeAttackTimer() {
       timeAttackState.isActive = false;
       currentGame.status = 'LOST';
       recordTimeAttackEnd();
-      openTimeAttackResultModal();
+      openTimeAttackResultModal(); // Se abre correctamente la ventana emergente al acabar el tiempo
     }
   }, 1000);
 }
@@ -1446,14 +1454,18 @@ function recordStats(isWin, attemptKey) {
 }
 
 function recordTimeAttackEnd() {
-  const taStats = stats.timeattack;
-  if (timeAttackState.score > taStats.bestScore) {
-    taStats.bestScore = timeAttackState.score;
+  if (!stats.timeattack) {
+    stats.timeattack = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
+  }
+  if (timeAttackState.score > (stats.timeattack.bestScore || 0)) {
+    stats.timeattack.bestScore = timeAttackState.score;
   }
   saveStats();
 }
 
 function openResultModal(isWin) {
+  if (currentGame.mode === 'timeattack') return; // Evita interferir con el modal específico de contrarreloj
+
   resultWordDefinition.classList.add('hidden');
   resultCountdownBox.classList.add('hidden');
   btnShare.classList.add('hidden');
@@ -1501,7 +1513,7 @@ function openResultModal(isWin) {
     }
   }
 
-  resultModal.classList.add('hidden');
+  resultModal.classList.remove('hidden');
 }
 
 function openTimeAttackResultModal() {
@@ -1515,12 +1527,12 @@ function openTimeAttackResultModal() {
     ? currentGame.wordObj.palabraMostrar 
     : currentGame.targetWord;
 
-  // Mensaje que muestra aciertos, ánimo y la palabra que no pudo adivinar
+  // Muestra el número de aciertos, mensaje de ánimo y la palabra pendiente de adivinar
   resultBanner.innerHTML = `⚡ ¡Tiempo agotado!<br><br>Has conseguido acertar <strong>${timeAttackState.score}</strong> palabra(s).<br>La palabra que estabas intentando adivinar era: <strong>${textoMostrar}</strong>.<br><br>¡Muy bien jugado! Sigue practicando para superar tu récord y mejorar tu vocabulario aragonés. 💪`;
   resultBanner.className = 'feedback-banner lose';
 
   btnRetryWord.textContent = "🔄 Jugar otra vez";
-  resultModal.classList.remove('hidden');
+  resultModal.classList.remove('hidden'); // Fuerza que se muestre por encima de la interfaz
 }
 
 function openDailyAlreadyPlayedModal() {
@@ -1544,7 +1556,7 @@ function openDailyAlreadyPlayedModal() {
   startCountdownTimer();
   resultCountdownBox.classList.remove('hidden');
 
-  resultModal.classList.add('hidden');
+  resultModal.classList.remove('hidden');
 }
 
 function updateMainActionButtons() {
@@ -1585,7 +1597,7 @@ function renderStatsData() {
     if (taRecordContainer) {
       taRecordContainer.classList.remove('hidden');
       if (taBestEl) {
-        taBestEl.textContent = stats.timeattack.bestScore || 0;
+        taBestEl.textContent = stats.timeattack?.bestScore || 0;
       }
     }
     return;
@@ -1609,14 +1621,14 @@ function renderStatsData() {
   } else if (activeStatsTab === 'free') {
     combinedStats = stats.free;
   } else {
-    combinedStats.played = stats.daily.played + stats.free.played;
-    combinedStats.wins = stats.daily.wins + stats.free.wins;
-    combinedStats.streak = stats.daily.streak;
-    combinedStats.maxStreak = Math.max(stats.daily.maxStreak, stats.free.maxStreak);
+    combinedStats.played = (stats.daily?.played || 0) + (stats.free?.played || 0);
+    combinedStats.wins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
+    combinedStats.streak = stats.daily?.streak || 0;
+    combinedStats.maxStreak = Math.max(stats.daily?.maxStreak || 0, stats.free?.maxStreak || 0);
 
     const keys = ['1', '2', '3', '4', '5', '6', 'X'];
     keys.forEach(k => {
-      combinedStats.distribution[k] = (stats.daily.distribution[k] || 0) + (stats.free.distribution[k] || 0);
+      combinedStats.distribution[k] = (stats.daily?.distribution?.[k] || 0) + (stats.free?.distribution?.[k] || 0);
     });
   }
 
