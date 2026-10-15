@@ -21,7 +21,7 @@ let timeAttackState = {
   isActive: false
 };
 
-// Variables específicas para el Modo Definiciones (90 segundos iniciales)
+// Variables específicas para el Modo Definiciones (90 segundos fijos)
 let definitionsState = {
   timeLeft: 90, 
   score: 0,     
@@ -404,7 +404,7 @@ function checkModeIntroduction(mode) {
       desc = 'Dispones de 2 minutos iniciales para adivinar tantas palabras de 5 y 6 letras como te sea posible. ¡Cada acierto te premia con 15 segundos extra en el crono!';
     } else if (mode === 'definitions') {
       title = '📜 Modo Definiciones';
-      desc = 'Pon a prueba tu vocabulario cultural: dispones de 90 segundos para adivinar palabras guiándote exclusivamente por su definición. ¡Cada acierto te otorga +10 segundos!';
+      desc = 'Pon a prueba tu vocabulario cultural: dispones de 90 segundos fijos para adivinar palabras guiándote exclusivamente por su definición. ¡Demuestra tu agilidad y vocabulario!';
     }
 
     modeIntroTitle.textContent = title;
@@ -612,7 +612,7 @@ function loadRandomTimeAttackWord() {
   currentGame.targetWord = currentGame.wordObj.palabra.toUpperCase().trim();
 }
 
-// --- TEMPORIZADOR MODO DEFINICIONES (90s) ---
+// --- TEMPORIZADOR MODO DEFINICIONES (90s fijos) ---
 function startDefinitionsTimer() {
   stopDefinitionsTimer();
   definitionsState.isActive = true;
@@ -827,7 +827,7 @@ function submitAttempt() {
       updateTimeAttackUI();
     } else if (currentGame.mode === 'definitions') {
       definitionsState.score++;
-      definitionsState.timeLeft += 10;
+      // Sin bonificación de tiempo: se mantienen los 90s fijos
       updateDefinitionsUI();
       setTimeout(() => {
         loadRandomDefinitionsWord();
