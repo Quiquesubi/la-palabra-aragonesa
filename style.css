@@ -101,7 +101,8 @@ header {
 .mode-selector {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 12px;
 }
 
@@ -109,9 +110,9 @@ header {
   background: #f1f5f9;
   color: #475569;
   border: 1px solid #cbd5e1;
-  padding: 8px 16px;
+  padding: 6px 12px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   border-radius: 6px;
   font-weight: bold;
 }
@@ -226,7 +227,6 @@ main {
   transition: border-color 0.2s ease, transform 0.15s ease, background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* Estilos de Selección Libre */
 .tile.selectable {
   cursor: pointer;
 }
@@ -239,7 +239,6 @@ main {
   z-index: 2;
 }
 
-/* Animación de volteo */
 @keyframes flipTile {
   0% { transform: rotateX(0deg); }
   50% { transform: rotateX(90deg); }
@@ -261,7 +260,6 @@ main {
   background-color: rgba(46, 125, 50, 0.1);
 }
 
-/* Botones Principales debajo del tablero */
 .main-actions-container {
   display: flex;
   justify-content: center;
@@ -269,7 +267,6 @@ main {
   width: 100%;
 }
 
-/* Teclado Virtual */
 #keyboard {
   width: 100%;
   display: flex;
@@ -310,7 +307,6 @@ main {
 .key.present { background-color: var(--color-present); color: #fff; }
 .key.absent { background-color: var(--color-absent); color: #fff; }
 
-/* Modales */
 .modal {
   position: fixed;
   top: 0;
@@ -413,14 +409,17 @@ main {
   border-radius: 6px;
   font-weight: bold;
   margin-bottom: 14px;
-  color: #fff;
   font-size: 1.05rem;
 }
 
-.feedback-banner.win { background-color: var(--color-correct); }
-.feedback-banner.lose { background-color: #dc2626; }
+.feedback-banner.win { background-color: var(--color-correct); color: #fff; }
+/* Estética unificada y amigable (verde claro/suave) en lugar del rojo agresivo */
+.feedback-banner.lose { 
+  background-color: #e8f5e9; 
+  color: #2e7d32; 
+  border: 2px solid #a5d6a7; 
+}
 
-/* Reloj Cuenta Regresiva */
 .countdown-box {
   margin: 16px 0;
   font-size: 0.9rem;
@@ -434,11 +433,11 @@ main {
   margin-top: 6px;
 }
 
-/* Menú Filtro Estadísticas */
 .stats-tab-menu {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
   margin-bottom: 16px;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 8px;
@@ -447,8 +446,8 @@ main {
 .stats-tab-btn {
   background: none;
   border: none;
-  padding: 6px 12px;
-  font-size: 0.85rem;
+  padding: 6px 10px;
+  font-size: 0.8rem;
   font-weight: bold;
   color: #64748b;
   cursor: pointer;
@@ -482,11 +481,7 @@ main {
   color: #64748b;
 }
 
-/* Soporte Ampliado para Récord de Tiempo (Cualquier variante de nombre) */
-.stat-record,
-.record-time-container,
-.best-time-box,
-.time-record-box {
+.stat-time-record-box {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -499,27 +494,19 @@ main {
   width: 100%;
 }
 
-.record-time,
-.best-time,
-.time-record-value {
+.stat-time-value {
   font-size: 1.4rem;
   font-weight: bold;
   color: #d97706;
   margin-top: 4px;
-  display: inline-block !important;
-  visibility: visible !important;
 }
 
-.record-label,
-.best-time-label,
-.time-record-label {
+.stat-time-title {
   font-size: 0.8rem;
   color: #475569;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  display: inline-block !important;
-  visibility: visible !important;
 }
 
 .distribution-container {
@@ -582,7 +569,6 @@ main {
   margin-top: 16px;
 }
 
-/* Modal de Alerta Personalizado */
 .alert-modal-content {
   max-width: 380px;
   padding: 20px;
@@ -603,7 +589,6 @@ main {
   margin-bottom: 18px;
 }
 
-/* Estilos para el Modal de Diccionario */
 .dict-counter {
   font-weight: bold;
   margin: 10px 0;
@@ -675,7 +660,6 @@ main {
   line-height: 1.4;
 }
 
-/* SISTEMA DE EMBLEMAS / BADGES */
 .badges-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
@@ -746,17 +730,4 @@ main {
 .badge-card.locked .badge-status {
   background-color: #cbd5e1;
   color: #475569;
-}
-
-/* Ajuste responsive para pantallas móviles muy estrechas */
-@media (max-width: 380px) {
-  .hashtag-title {
-    padding: 5px 8px;
-  }
-  .hashtag-title h1 {
-    font-size: 0.82rem;
-  }
-  .hashtag-symbol {
-    font-size: 1rem;
-  }
 }
