@@ -946,9 +946,9 @@ function initGame(mode) {
           currentGame.attempts = freeData.attempts || [];
           currentGame.status = freeData.status || 'IN_PROGRESS';
           currentGame.hintLevel = freeData.hintLevel || 0;
-          currentGame.animatedRows = currentGame.attempts.map((_, idx) => idx);
+          currentGame.animatedRows = freeData.attempts.map((_, idx) => idx);
           if (currentGame.status === 'WON') { unlockCurrentWord(); updateMainActionButtons(); }
-          else if (currentGame.status === 'LOST') updateMainActionButtons();
+          else if (currentGame.status === 'LOST') { updateMainActionButtons(); }
         }
       } catch (e) {}
     }
@@ -1161,6 +1161,7 @@ function submitAttempt() {
 
   if (isWin || isLoss) {
     evaluateBadgesOnGameEnd(isWin, currentGame.attempts.length, wordLength, currentGame.hintLevel);
+    updateMainActionButtons();
     const delay = (wordLength * 150) + 400;
     setTimeout(() => openResultModal(isWin), delay);
   }
@@ -1559,7 +1560,7 @@ function renderStatsData() {
     if (taRecordContainer) taRecordContainer.classList.add('hidden');
 
     if (defRecordContainer) {
-      defRecordContainer.classList.remove('hidden');
+      defRecordContainer.classList.add('hidden');
       if (defBestEl) defBestEl.textContent = stats.definitions?.bestScore || 0;
     }
     return;
