@@ -1213,4 +1213,508 @@ function renderBoard() {
       const tile = document.createElement('div');
       tile.className = 'tile';
 
-      if (attempt)
+      if (attempt) {
+        tile.textContent = attempt[c];
+        const status = evaluateTileStatus(attempt, c);
+        if (isLatestSubmitted && !currentGame.animatedRows.includes(r)) {
+          tile.classList.add('flip');
+          tile.style.animationDelay = `${c * 150}ms`;
+        }
+        tile.classList.add(status);
+      } else if (isCurrentRow) {
+        const char = currentGame.currentInput[c] || '';
+        tile.dataset.col = c;
+        tile.classList.add('selectable');
+        tile.addEventListener('click', () => { currentGame.selectedTileIndex = c; renderBoard(); });
+        if (c === currentGame.selectedTileIndex) tile.classList.add('selected');
+        if (char) {
+          tile.textContent = char;
+          tile.classList.add('filled');
+        } else if (greenMap[c]) {
+          tile.textContent = greenMap[c];
+          tile.classList.add('ghost-green');
+        }
+      }
+      rowEl.appendChild(tile);
+    }
+    boardEl.appendChild(rowEl);
+  }
+}
+
+function evaluateTileStatus(attempt, index) {
+  const target = currentGame.targetWord;
+  const wordLength = target.length;
+  const statuses = new Array(wordLength).fill('absent');
+  const targetChars = target.split('');
+  const attemptChars = attempt.split('');
+
+  for (let i = 0; i < wordLength; i++) {
+    if (attemptChars[i] === targetChars[i]) {
+      statuses[i] = 'correct';
+      targetChars[i] = null;
+    }
+  }
+
+  for (let i = 0; i < wordLength; i++) {
+    if (statuses[i] !== 'correct') {
+      const char = attemptChars[i];
+      const foundIdx = targetChars.indexOf(char);
+      if (foundIdx !== -1) {
+        statuses[i] = 'present';
+        targetChars[foundIdx] = null;
+      }
+    }
+  }
+  return statuses[index];
+}
+
+function updateKeyboardColors(attempt) {
+  attempt.split('').forEach((char, idx) => {
+    const keyEl = keyboardEl.querySelector(`[data-key="${char}"]`);
+    if (!keyEl) return;
+    if (currentGame.targetWord[idx] === char) {
+      keyEl.classList.remove('present', 'absent');
+      keyEl.classList.add('correct');
+    } else if (currentGame.targetWord.includes(char)) {
+      if (!keyEl.classList.contains('correct')) {
+        keyEl.classList.remove('absent');
+        keyEl.classList.add('present');
+      }
+    } else {
+      if (!keyEl.classList.contains('correct') && !keyEl.classList.contains('present')) {
+        keyEl.classList.add('absent');
+      }
+    }
+  });
+}
+
+function resetKeyboardColors() {
+  keyboardEl.querySelectorAll('.key').forEach(k => k.classList.remove('correct', 'present', 'absent'));
+}
+
+function getMaxHints() {
+  if (!currentGame.targetWord) return 3;
+  const len = currentGame.targetWord.length;
+  if (len <= 6) return 3;
+  if (len === 7) return 4;
+  return 5;
+}
+
+function updateHintButtonUI() {
+  if (!btnHint) return;
+  const maxHints = getMaxHints();
+  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) {
+    btnHint.disabled = true;
+    btnHint.textContent = currentGame.hintLevel >= maxHints ? '💡 Pistas agotadas' : '💡 Pista';
+    return;
+  }
+  btnHint.disabled = false;
+  const nextHint = currentGame.hintLevel + 1;
+  if (nextHint === 1) btnHint.textContent = `💡 Pista 1/${maxHints} (Descartar letras)`;
+  else if (nextHint === maxHints) btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Significado)`;
+  else btnHint.textContent = `💡 Pista ${nextHint}/${maxHints} (Revelar letra)`;
+}
+
+async function handleHintClick() {
+  const maxHints = getMaxHints();
+  if (currentGame.status !== 'IN_PROGRESS' || currentGame.hintLevel >= maxHints) return;
+  const adWatched = await simulateRewardedAd();
+  if (adWatched) {
+    currentGame.hintLevel++;
+    saveGameState();
+    applyHint(currentGame.hintLevel);
+    updateHintButtonUI();
+  }
+}
+
+// Configuración de AdMob integrada con IDs oficiales
+const ADMOB_CONFIG = {
+  appID: "ca-app-pub-6893458785090731~4784140502",
+  rewardedAdID: "ca-app-pub-6893458785090731/2736561665"
+};
+
+function initAdMobPlugin() {
+  document.addEventListener('deviceready', () => {
+    try {
+      if (window.admob && typeof window.admob.start === 'function') {
+        window.admob.start();
+        if (window.admob.rewardVideo) {
+          window.admob.rewardVideo.config({
+            id: ADMOB_CONFIG.rewardedAdID,
+            isTesting: false
+          });
+          window.admob.rewardVideo.prepare();
+        }
+      }
+    } catch (e) {
+      console.error('Error inicializando AdMob:', e);
+    }
+  }, false);
+}
+
+function simulateRewardedAd() {
+  return new Promise((resolve) => {
+    try {
+      if (window.admob && window.admob.rewardVideo) {
+        window.admob.rewardVideo.show()
+          .then(() => {
+            resolve(true);
+            window.admob.rewardVideo.prepare();
+          })
+          .catch(async (err) => {
+            console.warn('AdMob no disponible, usando respaldo:', err);
+            const confirmed = await showAlert("🎬 [Anuncio de respaldo]\n\n¿Completar vídeo para obtener la pista?", true);
+            resolve(confirmed);
+          });
+      } else {
+        showAlert("🎬 [Anuncio de prueba simulado]\n\n¡Anuncio completado con éxito! Aquí tienes tu pista.", false).then(() => {
+          resolve(true);
+        });
+      }
+    } catch (e) {
+      showAlert("🎬 [Anuncio de prueba simulado]\n\n¡Anuncio completado con éxito! Aquí tienes tu pista.", false).then(() => {
+        resolve(true);
+      });
+    }
+  });
+}
+
+function applyHint(level) {
+  const maxHints = getMaxHints();
+  if (level === 1) {
+    discardKeyboardLetters(3);
+    showAlert(`💡 Pista 1/${maxHints}:\n\nSe han descartado 3 letras del teclado.`);
+  } else if (level === maxHints) {
+    const significado = currentGame.wordObj ? currentGame.wordObj.significado : 'Sin definición.';
+    showAlert(`💡 Pista ${level}/${maxHints} (Significado):\n\n"${significado}"`);
+  } else {
+    revealGreenLetter(level, maxHints);
+  }
+}
+
+function discardKeyboardLetters(count) {
+  const target = currentGame.targetWord;
+  const eligibleKeys = Array.from(keyboardEl.querySelectorAll('.key')).filter(keyEl => {
+    const key = keyEl.getAttribute('data-key');
+    return key && key !== 'ENTER' && key !== 'BACKSPACE' && !target.includes(key) && !keyEl.classList.contains('absent');
+  });
+  eligibleKeys.sort(() => 0.5 - Math.random()).slice(0, count).forEach(k => k.classList.add('absent'));
+}
+
+function revealGreenLetter(level, maxHints) {
+  const target = currentGame.targetWord;
+  const greenMap = getGreenLettersMap();
+  const unrevealed = [];
+  for (let i = 0; i < target.length; i++) {
+    if (!greenMap[i]) unrevealed.push(i);
+  }
+  if (unrevealed.length === 0) return;
+  const randomIndex = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+  showAlert(`💡 Pista ${level}/${maxHints}:\n\nLa letra en la posición ${randomIndex + 1} es la "${target[randomIndex]}".`);
+  renderBoard();
+}
+
+function recordStats(isWin, attemptKey) {
+  if (currentGame.mode === 'timeattack' || currentGame.mode === 'definitions') return;
+  const currentStats = stats[currentGame.mode];
+  currentStats.played++;
+  if (isWin) {
+    currentStats.wins++;
+    currentStats.streak++;
+    if (currentStats.streak > currentStats.maxStreak) currentStats.maxStreak = currentStats.streak;
+    currentStats.distribution[attemptKey] = (currentStats.distribution[attemptKey] || 0) + 1;
+  } else {
+    currentStats.streak = 0;
+    currentStats.distribution['X'] = (currentStats.distribution['X'] || 0) + 1;
+  }
+  saveStats();
+}
+
+function recordTimeAttackEnd() {
+  if (!stats.timeattack) stats.timeattack = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
+  if (timeAttackState.score > (stats.timeattack.bestScore || 0)) {
+    stats.timeattack.bestScore = timeAttackState.score;
+    checkAndUnlockBadge('b214');
+  }
+  saveStats();
+}
+
+function recordDefinitionsEnd() {
+  if (!stats.definitions) stats.definitions = { played: 0, wins: 0, streak: 0, maxStreak: 0, bestScore: 0, distribution: {} };
+  if (definitionsState.score > (stats.definitions.bestScore || 0)) {
+    stats.definitions.bestScore = definitionsState.score;
+    checkAndUnlockBadge('b239');
+  }
+  saveStats();
+}
+
+function openResultModal(isWin) {
+  if (currentGame.mode === 'timeattack' || currentGame.mode === 'definitions') return;
+
+  resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.add('hidden');
+
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+
+  if (currentGame.mode === 'daily') {
+    if (isWin) {
+      resultBanner.textContent = winMessages[currentGame.attempts.length] || "¡Felicidades!";
+      resultBanner.className = 'feedback-banner win';
+    } else {
+      resultBanner.textContent = `¡Ánimo! La palabra era: ${textoMostrar}`;
+      resultBanner.className = 'feedback-banner lose';
+    }
+    resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
+    resultWordDefinition.classList.remove('hidden');
+    btnShare.classList.remove('hidden');
+    startCountdownTimer();
+    resultCountdownBox.classList.remove('hidden');
+  } else if (currentGame.mode === 'free') {
+    if (isWin) {
+      resultBanner.textContent = winMessages[currentGame.attempts.length] || "¡Felicidades!";
+      resultBanner.className = 'feedback-banner win';
+      resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
+      resultWordDefinition.classList.remove('hidden');
+      btnShare.classList.remove('hidden');
+      btnNextWord.classList.remove('hidden');
+    } else {
+      // Mensaje de ánimo motivacional sin revelar la solución y ocultando la definición
+      resultBanner.textContent = `¡Vaya! Te has quedado sin intentos. ¡No te rindas, vuelve a intentarlo y demuestra lo que sabes! 💪🔄`;
+      resultBanner.className = 'feedback-banner lose';
+      resultWordDefinition.classList.add('hidden');
+      btnRetryWord.classList.remove('hidden');
+    }
+  }
+  resultModal.classList.remove('hidden');
+}
+
+function openTimeAttackResultModal() {
+  resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.remove('hidden');
+
+  const score = timeAttackState.score;
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+
+  if (score > 5) checkAndUnlockBadge('b217');
+
+  let dynamicMsg = "";
+  if (score === 0) {
+    dynamicMsg = "¡Vaya, no te dio tiempo a completar ninguna! No te preocupes, la práctica hace al maestro. ¡Inténtalo de nuevo y seguro que superas el cero! 🎯💪";
+  } else if (score >= 1 && score <= 3) {
+    dynamicMsg = `¡Buen trabajo! Has conseguido <strong>${score}</strong> palabra(s). Tienes buena base, pero con un poquito más de agilidad seguro que bates tu récord la próxima vez. ¡A por todas! 🚀🔥`;
+  } else if (score >= 4 && score <= 7) {
+    dynamicMsg = `¡Excelente ritmo! Has acertado <strong>${score}</strong> palabras. Demuestras una gran agilidad mental con el vocabulario aragonés. ¡Estás muy cerca de la élite, sigue así! ⭐🏅`;
+  } else {
+    dynamicMsg = `¡Impresionante! ¡Una auténtica barbaridad! Has logrado resolver <strong>${score}</strong> palabras en tiempo récord. ¡Eres una leyenda viva de la contrarreloj aragonesa! 👑⚡🔥`;
+  }
+
+  resultBanner.innerHTML = `⚡ ¡Tiempo agotado (Contrarreloj)!<br><br>${dynamicMsg}<br><br>La última palabra era: <strong>${textoMostrar}</strong>.`;
+  resultBanner.className = 'feedback-banner lose';
+
+  btnRetryWord.textContent = "🔄 Jugar otra vez";
+  resultModal.classList.remove('hidden');
+}
+
+function openDefinitionsResultModal() {
+  resultWordDefinition.classList.add('hidden');
+  resultCountdownBox.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.remove('hidden');
+
+  const score = definitionsState.score;
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+
+  if (score > 3) checkAndUnlockBadge('b242');
+
+  let dynamicMsg = "";
+  if (score === 0) {
+    dynamicMsg = "¡Las definiciones rápidas son difíciles! No te desanimes, lee con atención las pistas de significado y lánzate a por tu primera palabra. ¡Tú puedes con la siguiente! 📖💪";
+  } else if (score >= 1 && score <= 2) {
+    dynamicMsg = `¡Bien hecho! Has acertado <strong>${score}</strong> palabra(s) por definición. Conoces el significado cultural, ¡sigue entrenando para duplicar tu marca en el siguiente intento! 💡📈`;
+  } else if (score >= 3 && score <= 5) {
+    dynamicMsg = `¡Gran nivel cultural! Has conseguido <strong>${score}</strong> aciertos interpretando definiciones. ¡Demuestras un dominio envidiable del tesoro léxico aragonés! Sigue superándote. 🌟👏`;
+  } else {
+    dynamicMsg = `¡Erudito absoluto! ¡<strong>${score}</strong> palabras acertadas por definición en 90 segundos! Es un resultado extraordinario. ¡Tu vocabulario es impecable, sigue rompiendo récords! 🏛️💎👑`;
+  }
+
+  resultBanner.innerHTML = `📜 ¡Tiempo agotado (Definiciones)!<br><br>${dynamicMsg}<br><br>La última palabra era: <strong>${textoMostrar}</strong>.`;
+  resultBanner.className = 'feedback-banner lose';
+
+  btnRetryWord.textContent = "🔄 Jugar otra vez";
+  resultModal.classList.remove('hidden');
+}
+
+function openDailyAlreadyPlayedModal() {
+  resultWordDefinition.classList.add('hidden');
+  btnShare.classList.add('hidden');
+  btnNextWord.classList.add('hidden');
+  btnRetryWord.classList.add('hidden');
+
+  const textoMostrar = (currentGame.wordObj && currentGame.wordObj.palabraMostrar) || currentGame.targetWord;
+  resultBanner.textContent = "¡Ya has jugado la palabra de hoy! Vuelve mañana para un nuevo reto.";
+  resultBanner.className = 'feedback-banner win';
+  resultWordDefinition.innerHTML = `<strong>${textoMostrar}</strong>: ${currentGame.wordObj.significado}`;
+  resultWordDefinition.classList.remove('hidden');
+  btnShare.classList.remove('hidden');
+  startCountdownTimer();
+  resultCountdownBox.classList.remove('hidden');
+  resultModal.classList.remove('hidden');
+}
+
+function updateMainActionButtons() {
+  hideMainActionButtons();
+  if (currentGame.mode === 'free') {
+    if (currentGame.status === 'WON') btnMainNext.classList.remove('hidden');
+    else if (currentGame.status === 'LOST') btnMainRetry.classList.remove('hidden');
+  }
+}
+
+function hideMainActionButtons() {
+  btnMainNext.classList.add('hidden');
+  btnMainRetry.classList.add('hidden');
+}
+
+function openStatsModal() {
+  renderStatsData();
+  statsModal.classList.remove('hidden');
+}
+
+function renderStatsData() {
+  const summaryBox = document.querySelector('.stats-summary');
+  const distributionTitle = document.querySelector('#stats-modal h3');
+  const distributionContainer = document.getElementById('guess-distribution');
+  
+  const taRecordContainer = document.getElementById('stat-timeattack-record-container');
+  const taBestEl = document.getElementById('stat-timeattack-best');
+
+  const defRecordContainer = document.getElementById('stat-definitions-record-container');
+  const defBestEl = document.getElementById('stat-definitions-best');
+
+  if (activeStatsTab === 'timeattack') {
+    if (summaryBox) summaryBox.style.display = 'none';
+    if (distributionTitle) distributionTitle.style.display = 'none';
+    if (distributionContainer) distributionContainer.style.display = 'none';
+    if (defRecordContainer) defRecordContainer.classList.add('hidden');
+
+    if (taRecordContainer) {
+      taRecordContainer.classList.remove('hidden');
+      if (taBestEl) taBestEl.textContent = stats.timeattack?.bestScore || 0;
+    }
+    return;
+  }
+
+  if (activeStatsTab === 'definitions') {
+    if (summaryBox) summaryBox.style.display = 'none';
+    if (distributionTitle) distributionTitle.style.display = 'none';
+    if (distributionContainer) distributionContainer.style.display = 'none';
+    if (taRecordContainer) taRecordContainer.classList.add('hidden');
+
+    if (defRecordContainer) {
+      defRecordContainer.classList.add('hidden');
+      if (defBestEl) defBestEl.textContent = stats.definitions?.bestScore || 0;
+    }
+    return;
+  }
+
+  if (summaryBox) summaryBox.style.display = 'flex';
+  if (distributionTitle) distributionTitle.style.display = 'block';
+  if (distributionContainer) distributionContainer.style.display = 'block';
+  if (taRecordContainer) taRecordContainer.classList.add('hidden');
+  if (defRecordContainer) defRecordContainer.classList.add('hidden');
+
+  let combinedStats = { played: 0, wins: 0, streak: 0, maxStreak: 0, distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, X: 0 } };
+
+  if (activeStatsTab === 'daily') combinedStats = stats.daily;
+  else if (activeStatsTab === 'free') combinedStats = stats.free;
+  else {
+    combinedStats.played = (stats.daily?.played || 0) + (stats.free?.played || 0);
+    combinedStats.wins = (stats.daily?.wins || 0) + (stats.free?.wins || 0);
+    combinedStats.streak = stats.daily?.streak || 0;
+    combinedStats.maxStreak = Math.max(stats.daily?.maxStreak || 0, stats.free?.maxStreak || 0);
+    ['1', '2', '3', '4', '5', '6', 'X'].forEach(k => {
+      combinedStats.distribution[k] = (stats.daily?.distribution?.[k] || 0) + (stats.free?.distribution?.[k] || 0);
+    });
+  }
+
+  document.getElementById('stat-played').textContent = combinedStats.played;
+  const winrate = combinedStats.played > 0 ? Math.round((combinedStats.wins / combinedStats.played) * 100) : 0;
+  document.getElementById('stat-winrate').textContent = `${winrate}%`;
+  document.getElementById('stat-streak').textContent = combinedStats.streak;
+  document.getElementById('stat-maxstreak').textContent = combinedStats.maxStreak;
+
+  renderDistribution(combinedStats);
+}
+
+function renderDistribution(statsObj) {
+  const container = document.getElementById('guess-distribution');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const totalPlayed = statsObj.played || 0;
+  const keys = ['1', '2', '3', '4', '5', '6', 'X'];
+  const maxVal = Math.max(...keys.map(k => statsObj.distribution[k] || 0), 1);
+
+  keys.forEach(key => {
+    const val = statsObj.distribution[key] || 0;
+    const pctBar = Math.max((val / maxVal) * 100, 8);
+    const pctTotal = totalPlayed > 0 ? Math.round((val / totalPlayed) * 100) : 0;
+
+    const row = document.createElement('div');
+    row.className = 'dist-row';
+    row.innerHTML = `
+      <span class="dist-num">${key}</span>
+      <div class="dist-bar-bg">
+        <div class="dist-bar-fill" style="width: ${pctBar}%">${val} (${pctTotal}%)</div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function startCountdownTimer() {
+  if (countdownInterval) clearInterval(countdownInterval);
+  function updateTimer() {
+    const now = new Date();
+    const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const diff = tomorrow - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60)).toString().padStart(2, '0');
+    const mins = Math.floor((diff / (1000 * 60)) % 60).toString().padStart(2, '0');
+    const secs = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+    dailyTimer.textContent = `${hours}:${mins}:${secs}`;
+  }
+  updateTimer();
+  countdownInterval = setInterval(updateTimer, 1000);
+}
+
+function shareResults() {
+  let shareText = `Wordle Aragonés - ${currentGame.mode === 'daily' ? '📅 Palabra del Día' : currentGame.mode === 'free' ? '🗺️ Modo Libre' : currentGame.mode === 'timeattack' ? '⚡ Contrarreloj' : '📜 Definiciones'}\n`;
+  
+  if (currentGame.mode === 'timeattack') {
+    shareText += `¡He conseguido resolver ${timeAttackState.score} palabra(s) en 2 minutos en el Modo Contrarreloj! ⚡\n`;
+  } else if (currentGame.mode === 'definitions') {
+    shareText += `¡He acertado ${definitionsState.score} palabra(s) por definición en 90 segundos! 📜\n`;
+  } else {
+    shareText += `${currentGame.attempts.length}/6\n\n`;
+    currentGame.attempts.forEach(att => {
+      att.split('').forEach((char, idx) => {
+        if (currentGame.targetWord[idx] === char) shareText += '🟩';
+        else if (currentGame.targetWord.includes(char)) shareText += '🟨';
+        else shareText += '⬜';
+      });
+      shareText += '\n';
+    });
+  }
+
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(shareText).then(() => showAlert('¡Resultado copiado al portapapeles!'));
+  } else {
+    showAlert(shareText);
+  }
+}
