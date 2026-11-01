@@ -1327,7 +1327,7 @@ async function handleHintClick() {
   }
 }
 
-// Configuración de AdMob integrada con IDs oficiales
+// Configuración de AdMob integrada con IDs oficiales de producción
 const ADMOB_CONFIG = {
   appID: "ca-app-pub-6893458785090731~4784140502",
   rewardedAdID: "ca-app-pub-6893458785090731/2736561665"
@@ -1481,7 +1481,6 @@ function openResultModal(isWin) {
       btnShare.classList.remove('hidden');
       btnNextWord.classList.remove('hidden');
     } else {
-      // Mensaje de ánimo motivacional sin revelar la solución y ocultando la definición
       resultBanner.textContent = `¡Vaya! Te has quedado sin intentos. ¡No te rindas, vuelve a intentarlo y demuestra lo que sabes! 💪🔄`;
       resultBanner.className = 'feedback-banner lose';
       resultWordDefinition.classList.add('hidden');
