@@ -1327,10 +1327,10 @@ async function handleHintClick() {
   }
 }
 
-// Configuración de AdMob integrada con IDs oficiales de producción
+// Configuración de AdMob con tus IDs oficiales definitivos
 const ADMOB_CONFIG = {
-  appID: "ca-app-pub-6893458785090731~4784140502",
-  rewardedAdID: "ca-app-pub-6893458785090731/2736561665"
+  appID: "ca-app-pub-6893458785090731~1167347550",
+  rewardedAdID: "ca-app-pub-6893458785090731/7811104961"
 };
 
 function initAdMobPlugin() {
