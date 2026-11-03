@@ -1,12 +1,16 @@
 [
   {
-    "relation": ["delegate_permission/common.handle_all_urls"],
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
     "target": {
       "namespace": "android_app",
       "package_name": "com.palabraaragonesa.app",
       "sha256_cert_fingerprints": [
         "D5:03:5A:63:64:09:BA:D8:9C:C3:C1:54:B4:89:FD:72:14:C8:88:11:0B:07:3B:11:85:21:57:9B:81:05:8B:58",
-        "B8:A0:35:F0:AA:34:39:1B:68:15:C9:07:D2:F4:D4:F8:C0:47:CF:14:8E:9A:1B:E8:41:2A:2A:FE:18:69:C0:FD"
+        "29:45:D5:71:53:BA:A7:6A:B1:C5:77:68:A9:B7:32:87:2F:57:21:4A:64:F7:A2:71:FD:B6:29:2D:48:98:49:76",
+        "1E:A6:EF:49:C6:C7:CC:22:8B:9D:58:F3:F3:BC:80:D5:97:1A:A6:99:55:2C:18:04:7D:03:1B:5C:E2:F0:9C:BE"
       ]
     }
   }
