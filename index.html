@@ -58,9 +58,6 @@
     });
   </script>
 
-  <!-- SDK de Anuncios Recompensados de Google AdMob (ID de prueba) -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-app-pub-3940256099942544" crossorigin="anonymous"></script>
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -117,7 +114,7 @@
         <strong>Definición:</strong> <span id="definitions-text-span">Cargando definición...</span>
       </div>
 
-      <!-- Botón de Pistas (Anuncios Recompensados) -->
+      <!-- Botón de Pistas (Directo, sin anuncios) -->
       <div class="hint-container">
         <button id="btn-hint" class="hint-btn">💡 Pista 1/3 (Descartar letras)</button>
       </div>
@@ -175,7 +172,7 @@
   <!-- Modal Emblemas / Logros -->
   <div id="badges-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="close-badges" class="close-btn">&times;</button>
+      <button id="close-badges" class="close-btn">×</button>
       <h2>🏅 Emblemas y Logros</h2>
       <div id="badges-counter" class="dict-counter">Desbloqueados: 0 / 100</div>
       <div id="badges-grid" class="badges-grid"></div>
@@ -188,7 +185,7 @@
   <!-- Modal Diccionario -->
   <div id="dictionary-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="close-dictionary" class="close-btn">&times;</button>
+      <button id="close-dictionary" class="close-btn">×</button>
       <h2>📖 Diccionario de Palabras</h2>
       <input type="text" id="dict-search-input" placeholder="Buscar palabra descubierta..." />
       <div id="dict-counter" class="dict-counter">Descubiertas: 0</div>
@@ -199,10 +196,10 @@
     </div>
   </div>
 
-  <!-- Modal Instrucciones Ampliado (Incluye explicación de todos los modos) -->
+  <!-- Modal Instrucciones Ampliado -->
   <div id="help-modal" class="modal hidden">
     <div class="modal-content tutorial-content">
-      <button id="close-help" class="close-btn">&times;</button>
+      <button id="close-help" class="close-btn">×</button>
       <h2>Cómo jugar</h2>
       <p>Adivina la palabra oculta (de 5 a 9 letras) en 6 intentos. Tras cada intento, las casillas cambiarán de color.</p>
 
@@ -306,7 +303,7 @@
   <!-- Modal Estadísticas -->
   <div id="stats-modal" class="modal hidden">
     <div class="modal-content">
-      <button id="close-stats" class="close-btn">&times;</button>
+      <button id="close-stats" class="close-btn">×</button>
 
       <h2>Estadísticas</h2>
 
