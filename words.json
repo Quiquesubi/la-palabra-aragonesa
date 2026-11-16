@@ -7971,5 +7971,17 @@
     "palabra": "TREMOL",
     "longitud": 6,
     "significado": "quiere decir temblor, calofrío o terremoto."
+  },
+   {
+    "id": 1309,
+    "palabra": "ARROCEGAR",
+    "longitud": 9,
+    "significado": "significa arrastrar o acarrear."
+  },
+   {
+    "id": 1310,
+    "palabra": "SAMUCO",
+    "longitud": 6,
+    "significado": "quiere decir sollozo, hipo o resaca."
   }
 ]
