@@ -7921,5 +7921,43 @@
     "palabra": "COBALTO",
     "longitud": 7,
     "significado": "es la parte superior o más alta de un lugar."
+  },
+   {
+    "id": 1301,
+    "palabra": "FORATO",     
+    "longitud": 6,
+    "significado": "se llama a un agujero, hueco, hoyo o espacio desocupado."
+  },
+   {
+    "id": 1302,
+    "palabra": "ESMICAR",     
+    "longitud": 7,
+    "significado": "quiere decir desmigar, trituar, desmenuzar, hacer trizas o añicos."
+  },
+   {
+    "id": 1303,
+    "palabra": "AUSIN",     
+    "palabraMostrar": "AUSÍN",
+    "longitud": 5,
+    "significado": "significa ventisca."
+  },
+   {
+    "id": 1304,
+    "palabra": "SOBATIAR",
+    "longitud": 8,
+    "significado": "quiere apalear, varear o golpear repetidamente."
+  },
+   {
+    "id": 1305,
+    "palabra": "BIBILON",     
+    "palabraMostrar": "BIBILÓN",
+    "longitud": 7,
+    "significado": "se llama a un bebé o cría de muy corta edad."
+  },
+   {
+    "id": 1306,
+    "palabra": "ESCABUCHE",
+    "longitud": 9,
+    "significado": "es un cuchitril, cubículo o cuartucho."
   }
 ]
